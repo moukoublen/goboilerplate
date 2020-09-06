@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+LST_CMD=${1:-"go list -mod=vendor -f '{{.Dir}}' ./..."}
+CMD="gofmt -l \`$LST_CMD\`"
+
+echo ">>> gofmt <<<"
+echo "    ${CMD}"
+FILES=$(eval $CMD)
+if [[ -n "${FILES}" ]]; then
+  echo "Error in files: "
+  echo "${FILES}"
+  echo '>>> Display changes: gofmt -d -e \`${LST_CMD}\`'
+  echo '>>> Fix files      : gofmt -s -w \`${LST_CMD}\`'
+  exit 1
+fi
+
+unset LST_CMD
+unset CMD
+unset FILES
