@@ -83,9 +83,9 @@ down:
 image:
 	$(DOCKER) build . -f $(CURDIR)/build/docker/Dockerfile -t ${IMAGE}:${IMAGE_TAG}
 
-.PHONY: image-tools
-image-tools:
-	$(DOCKER) build . -f $(CURDIR)/build/docker/tools.Dockerfile -t ${NAME}-tools:latest
+.PHONY: image-ci
+image-ci:
+	$(DOCKER) build $(CURDIR)/build/ci/ -t ${NAME}-ci:latest
 
 .PHONY: default
 default: checks build

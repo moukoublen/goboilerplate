@@ -1,49 +1,104 @@
 #!/usr/bin/env bash
-
 set -e
 
-WAIT_VERSION="2.9.0"
-MIGRATE_VERSION="4.14.1"
-STATICCHECK_VERSION="2020.2.4"
-GOLANGCI_LINT_VERSION="1.40.1"
-DOCKER_VERSION="20.10.6"
-DOCKER_COMPOSE_VERSION="1.29.2"
 
-echo "Installing goimports and golint ..."
-go get -u golang.org/x/tools/cmd/goimports
-go get -u golang.org/x/lint/golint
+__log_installing() {
+  echo -e "Installing \e[1;36m${1}\e[0m"
+}
 
-echo "Installing wait ..."
-curl --fail --silent --show-error --location https://github.com/ufoscout/docker-compose-wait/releases/download/${WAIT_VERSION}/wait -o /usr/local/bin/wait
-chmod +x /usr/local/bin/wait
+__install() {
+  install $* -o 0 -g 0 -m 0755 -t /usr/local/bin/
+}
 
-echo "Installing migrate ..."
-curl --fail --silent --show-error --location https://github.com/golang-migrate/migrate/releases/download/v${MIGRATE_VERSION}/migrate.linux-amd64.tar.gz -o /tmp/migrate.tar.gz
-tar --extract --gzip --file=/tmp/migrate.tar.gz -C /usr/local/bin
-mv /usr/local/bin/migrate.linux-amd64 /usr/local/bin/migrate
-chmod +x /usr/local/bin/migrate
+__install_tool() {
+  local NAME=$1
+  local URL=$2
+  local DWN_FILE=$3
+  local TMP_DIRECTORY=$(mktemp -d -t "${NAME}_XXXXXXX")
 
-echo "Installing staticcheck ..."
-curl --fail --silent --show-error --location https://github.com/dominikh/go-tools/releases/download/${STATICCHECK_VERSION}/staticcheck_linux_amd64.tar.gz -o /tmp/staticcheck.tar.gz
-tar --extract --gzip --strip-components=1 --file=/tmp/staticcheck.tar.gz -C /tmp
-mv /tmp/staticcheck /usr/local/bin
-chmod +x /usr/local/bin/staticcheck
+  __log_installing "${NAME}"
 
-echo "Installing golangci-lint ..."
-curl --fail --silent --show-error --location https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz -o /tmp/golangci-lint.tar.gz
-tar --extract --gzip --strip-components=1 --file=/tmp/golangci-lint.tar.gz -C /tmp
-mv /tmp/golangci-lint /usr/local/bin
-chmod +x /usr/local/bin/golangci-lint
+  echo -e "    Downloading    \e[34m${URL}\e[0m into \e[2;34m${TMP_DIRECTORY}/${DWN_FILE}\e[0m"
+  curl --fail --silent --show-error --location "${URL}" --output "${TMP_DIRECTORY}/${DWN_FILE}"
 
-echo "Installing docker cli ..."
-curl --fail --silent --show-error --location https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz -o /tmp/docker.tgz
-mkdir -p /tmp/dockerin
-tar --extract --gzip --file=/tmp/docker.tgz -C /tmp/dockerin
-cp /tmp/dockerin/docker/* /usr/local/bin
+  printf "    Installing...  "
+  "__install_${NAME}" "${TMP_DIRECTORY}"
 
-echo "Installing docker-compose ..."
-curl --fail --silent --show-error --location https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+  rm -rf $TMP_DIRECTORY
+  printf "\e[1;32mDone!\e[0m\n\n"
+}
 
-echo "All tools are installed"
-rm -rf /tmp/*
+
+
+__VERSION_GOIMPORTS="0.1.4"
+__VERSION_GOLINT="0.0.0-20210508222113-6edffad5e616"
+__VERSION_WAIT="2.9.0"
+__VERSION_MIGRATE="4.14.1"
+__VERSION_STATICCHECK="2021.1"
+__VERSION_GOLANGCI_LINT="1.41.1"
+__VERSION_DOCKER="20.10.7"
+__VERSION_DOCKER_COMPOSE="1.29.2"
+
+
+__log_installing "goimports"
+go install "golang.org/x/tools/cmd/goimports@v${__VERSION_GOIMPORTS}"
+
+__log_installing "golint"
+go install "golang.org/x/lint/golint@v${__VERSION_GOLINT}"
+
+
+__install_wait() {
+  __install "${1}/wait"
+}
+__install_tool "wait" \
+  "https://github.com/ufoscout/docker-compose-wait/releases/download/${__VERSION_WAIT}/wait" \
+  "wait"
+
+
+__install_migrate() {
+  tar --extract --gzip --file="${1}/migrate.tar.gz" -C "${1}"
+  mv "${1}/migrate.linux-amd64" "${1}/migrate"
+  __install "${1}/migrate"
+}
+__install_tool "migrate" \
+  "https://github.com/golang-migrate/migrate/releases/download/v${__VERSION_MIGRATE}/migrate.linux-amd64.tar.gz" \
+  "migrate.tar.gz"
+
+
+__install_staticcheck() {
+  tar --extract --gzip --strip-components=1 --file="${1}/staticcheck.tar.gz" -C "${1}"
+  __install "${1}/staticcheck"
+}
+__install_tool "staticcheck" \
+  "https://github.com/dominikh/go-tools/releases/download/${__VERSION_STATICCHECK}/staticcheck_linux_amd64.tar.gz" \
+  "staticcheck.tar.gz"
+
+
+__install_golangci-lint() {
+  tar --extract --gzip --strip-components=1 --file="${1}/golangci-lint.tar.gz" -C "${1}"
+  __install "${1}/golangci-lint"
+}
+__install_tool "golangci-lint" \
+  "https://github.com/golangci/golangci-lint/releases/download/v${__VERSION_GOLANGCI_LINT}/golangci-lint-${__VERSION_GOLANGCI_LINT}-linux-amd64.tar.gz" \
+  "golangci-lint.tar.gz"
+
+
+__install_docker-cli() {
+  mkdir -p "${1}/extr"
+  tar --extract --gzip --file="${1}/docker.tgz" -C "${1}/extr"
+  __install ${1}/extr/docker/*
+}
+__install_tool "docker-cli" \
+  "https://download.docker.com/linux/static/stable/x86_64/docker-${__VERSION_DOCKER}.tgz" \
+  "docker.tgz"
+
+
+__install_docker-compose() {
+  __install "${1}/docker-compose"
+}
+__install_tool "docker-compose" \
+  "https://github.com/docker/compose/releases/download/${__VERSION_DOCKER_COMPOSE}/docker-compose-Linux-x86_64" \
+  "docker-compose"
+
+
+echo "Done"
