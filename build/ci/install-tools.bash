@@ -28,23 +28,32 @@ __install_tool() {
   printf "\e[1;32mDone!\e[0m\n\n"
 }
 
+__go_install() {
+  CGO_ENABLED=0 go install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$@"
+}
 
 
 __VERSION_GOIMPORTS="0.1.4"
 __VERSION_GOLINT="0.0.0-20210508222113-6edffad5e616"
 __VERSION_WAIT="2.9.0"
 __VERSION_MIGRATE="4.14.1"
-__VERSION_STATICCHECK="2021.1"
-__VERSION_GOLANGCI_LINT="1.41.1"
-__VERSION_DOCKER="20.10.7"
+__VERSION_STATICCHECK="2021.1.1"
+__VERSION_GOLANGCI_LINT="1.42.0"
+__VERSION_DOCKER="20.10.8"
 __VERSION_DOCKER_COMPOSE="1.29.2"
 
 
 __log_installing "goimports"
-go install "golang.org/x/tools/cmd/goimports@v${__VERSION_GOIMPORTS}"
+__go_install "golang.org/x/tools/cmd/goimports@v${__VERSION_GOIMPORTS}"
 
 __log_installing "golint"
-go install "golang.org/x/lint/golint@v${__VERSION_GOLINT}"
+__go_install "golang.org/x/lint/golint@v${__VERSION_GOLINT}"
+
+__log_installing "staticcheck"
+__go_install "honnef.co/go/tools/cmd/staticcheck@${__VERSION_STATICCHECK}"
+
+__log_installing "golangci-lint"
+__go_install "github.com/golangci/golangci-lint/cmd/golangci-lint@v${__VERSION_GOLANGCI_LINT}"
 
 
 __install_wait() {
@@ -63,24 +72,6 @@ __install_migrate() {
 __install_tool "migrate" \
   "https://github.com/golang-migrate/migrate/releases/download/v${__VERSION_MIGRATE}/migrate.linux-amd64.tar.gz" \
   "migrate.tar.gz"
-
-
-__install_staticcheck() {
-  tar --extract --gzip --strip-components=1 --file="${1}/staticcheck.tar.gz" -C "${1}"
-  __install "${1}/staticcheck"
-}
-__install_tool "staticcheck" \
-  "https://github.com/dominikh/go-tools/releases/download/${__VERSION_STATICCHECK}/staticcheck_linux_amd64.tar.gz" \
-  "staticcheck.tar.gz"
-
-
-__install_golangci-lint() {
-  tar --extract --gzip --strip-components=1 --file="${1}/golangci-lint.tar.gz" -C "${1}"
-  __install "${1}/golangci-lint"
-}
-__install_tool "golangci-lint" \
-  "https://github.com/golangci/golangci-lint/releases/download/v${__VERSION_GOLANGCI_LINT}/golangci-lint-${__VERSION_GOLANGCI_LINT}-linux-amd64.tar.gz" \
-  "golangci-lint.tar.gz"
 
 
 __install_docker-cli() {
