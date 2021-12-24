@@ -3,41 +3,30 @@
 #
 set -e
 
-###########################################################################
-# Get and go to project root directory
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ] ; do
-  SOURCE="$(readlink --canonicalize-existing --no-newline "$SOURCE")";
-done
-DIR="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )"
-cd "$DIR"
-###########################################################################
+export GO111MODULE=on
+export CGO_ENABLED=0
+export GOFLAGS="-mod=readonly"
 
-# Get module and default name from go.mod
+# Get module and default binary name from go.mod
 GO_MODULE=$(cat go.mod | grep -e "^module" | sed "s/^module //")
-DEF_NAME=${GO_MODULE##*/}
-DEF_MAINCMD=./cmd/${DEF_NAME}
+CMD=./cmd/${GO_MODULE##*/}
 
-export GO111MODULE=${GO111MODULE:-on}
-export CGO_ENABLED=${CGO_ENABLED:-0}
-export GOFLAGS=${GOFLAGS:-"-mod=readonly"}
-NAME=${1:-$DEF_NAME}
-MAINCMD=${2:-$DEF_MAINCMD}
+if [ $# -gt 0 ]; then
+  CMD="$@"
+fi
 
-VERSION=${VERSION:-0.0.1}
-BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-COMMIT_SHORT=$(git rev-parse --short HEAD 2>/dev/null || true)
-COMMIT=$(git rev-parse HEAD 2>/dev/null || true)
-TAG=$(git describe --tags 2>/dev/null || true)
+VERSION=${VERSION:-0.0.0}
 
 VER_FLAGS=""
-VER_FLAGS+=" -X '${GO_MODULE}/internal.Name=${NAME}'"
-VER_FLAGS+=" -X '${GO_MODULE}/internal.Version=${VERSION}'"
-VER_FLAGS+=" -X '${GO_MODULE}/internal.Branch=${BRANCH}'"
-VER_FLAGS+=" -X '${GO_MODULE}/internal.Commit=${COMMIT}'"
-VER_FLAGS+=" -X '${GO_MODULE}/internal.CommitShort=${COMMIT_SHORT}'"
-VER_FLAGS+=" -X '${GO_MODULE}/internal.Tag=${TAG}'"
-GO_LDFLAGS="-extldflags -static ${VER_FLAGS}"
+VER_FLAGS+=" -X '${GO_MODULE}/build.Version=${VERSION}'"
+VER_FLAGS+=" -X '${GO_MODULE}/build.Branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)'"
+VER_FLAGS+=" -X '${GO_MODULE}/build.Commit=$(git rev-parse HEAD 2>/dev/null || true)'"
+VER_FLAGS+=" -X '${GO_MODULE}/build.CommitShort=$(git rev-parse --short HEAD 2>/dev/null || true)'"
+VER_FLAGS+=" -X '${GO_MODULE}/build.Tag=$(git describe --tags 2>/dev/null || true)'"
 
-echo -e "Building \e[34m${NAME}\e[0m from \e[34m${MAINCMD}\e[0m"
-${GO_EXEC:-go} build -ldflags "${GO_LDFLAGS}" -o "${NAME}" "${MAINCMD}"
+echo -e "Building \e[34m${CMD}\e[0m"
+echo ""
+set -x
+${GO_EXEC:-go} build \
+  -ldflags "-extldflags -static ${VER_FLAGS}" \
+  "${CMD}"

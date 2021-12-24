@@ -1,10 +1,10 @@
-FROM golang:1.16.5-alpine3.14
+FROM golang:1.17.5-alpine3.15
 
-COPY ./install-tools.bash /install-tools.bash
+COPY ./scripts/install-tools /install-tools
 
 RUN mkdir /src && \
     apk update && \
     apk add --no-cache make git curl bash ca-certificates && \
-    /install-tools.bash
+    /install-tools
 
 WORKDIR /src

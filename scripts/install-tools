@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -e
+
+
+__log_installing() {
+  echo -e "Installing \e[1;36m${1}\e[0m"
+}
+
+__install_tool() {
+  local NAME=$1
+  local TMP_DIRECTORY
+  TMP_DIRECTORY=$(mktemp -d -t "${NAME}_XXXXXXX")
+
+  __log_installing "${NAME}"
+  (
+  cd "${TMP_DIRECTORY}"
+  "__install_${NAME}"
+  )
+
+  rm -rf "${TMP_DIRECTORY}"
+  printf "\e[1;32mDone!\e[0m\n\n"
+}
+
+__go_install() {
+  CGO_ENABLED=0 go install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$@"
+}
+
+# https://pkg.go.dev/golang.org/x/tools?tab=versions
+__log_installing "goimports"
+__go_install "golang.org/x/tools/cmd/goimports@v0.1.8"
+
+# https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
+__log_installing "staticcheck"
+__go_install "honnef.co/go/tools/cmd/staticcheck@2021.1.2"
+
+# https://github.com/golangci/golangci-lint/releases
+__log_installing "golangci-lint"
+__go_install "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0"
+
+# https://github.com/mvdan/gofumpt/releases
+__log_installing "gofumpt"
+__go_install 'mvdan.cc/gofumpt@v0.2.1'
+
+
+__install_migrate() {
+  curl --fail --silent --show-error --location "https://github.com/golang-migrate/migrate/releases/download/v4.15.1/migrate.linux-amd64.tar.gz" --output "./migrate.tar.gz"
+  tar --extract --gzip --file="./migrate.tar.gz" -C "./"
+  install ./migrate -o 0 -g 0 -m 0755 -t /usr/local/bin/
+}
+__install_tool "migrate"
+
+
+__install_docker-cli() {
+  curl --fail --silent --show-error --location "https://download.docker.com/linux/static/stable/x86_64/docker-20.10.12.tgz" --output "./docker.tgz"
+  mkdir -p extr
+  tar --extract --gzip --file="./docker.tgz" -C "./extr"
+  install ./extr/docker/* -o 0 -g 0 -m 0755 -t /usr/local/bin/
+}
+__install_tool "docker-cli"
+
+
+echo "Done"

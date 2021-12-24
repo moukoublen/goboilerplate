@@ -2,7 +2,6 @@ SHELL := /bin/bash
 
 NAME := goboilerplate
 MAINCMD := ./cmd/${NAME}
-IMAGE := ${NAME}
 IMAGE_TAG := latest
 
 GO111MODULE := on
@@ -12,49 +11,32 @@ export CGO_ENABLED
 
 GO_EXEC := go
 DOCKER := docker
-COMPOSE := docker-compose
 
 PACKAGES = $(GO_EXEC) list -tags=${TAGS} -mod=vendor ./...
 FOLDERS = $(GO_EXEC) list -tags=${TAGS} -mod=vendor -f '{{.Dir}}' ./...
 
 .PHONY: build
 build:
-	@GO_EXEC=$(GO_EXEC) $(CURDIR)/scripts/build ${NAME} ${MAINCMD}
-
-.PHONY: clean
-clean:
-	rm -f ${NAME}
+	@GO_EXEC=$(GO_EXEC) $(CURDIR)/scripts/build ${MAINCMD}
 
 .PHONY: env
 env:
 	$(GO_EXEC) env
+	@echo ""
 	@echo ">>> Packages:"
 	${PACKAGES}
+	@echo ""
 	@echo ">>> Folders:"
 	${FOLDERS}
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy
+	$(GO_EXEC) mod tidy -compat=1.17
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor
 vendor:
 	$(GO_EXEC) mod vendor
-
-#@go get -u golang.org/x/tools/cmd/goimports
-.PHONY: goimports
-goimports:
-	@$(CURDIR)/scripts/goimports "${FOLDERS}"
-
-.PHONY: gofmt
-gofmt:
-	@$(CURDIR)/scripts/gofmt "${FOLDERS}"
-
-#@go get -u golang.org/x/lint/golint
-.PHONY: golint
-golint:
-	@$(CURDIR)/scripts/golint "${PACKAGES}"
 
 .PHONY: vet
 vet:
@@ -62,8 +44,72 @@ vet:
 	$(GO_EXEC) vet `${PACKAGES}`
 	@echo ""
 
+.PHONY: goimports
+goimports:
+	@if [[ -n "$$(goimports -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+		echo 'goimports errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    goimports -d `${FOLDERS}`'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    goimports -w `${FOLDERS}`'; \
+		echo '  or'; \
+		echo '    make goimports-w'; \
+		echo ''; \
+		exit 1; \
+	fi
+
+.PHONY: goimports-w
+goimports-w:
+	goimports -w `${FOLDERS}`
+
+.PHONY: gofmt
+gofmt:
+	@if [[ -n "$$(gofmt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+		echo 'gofmt errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    gofmt -d `${FOLDERS}`'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    gofmt -w `${FOLDERS}`'; \
+		echo '  or'; \
+		echo '    make gofmt-w'; \
+		echo ''; \
+		exit 1; \
+	fi
+
+.PHONY: gofmt-w
+gofmt-w:
+	gofmt -w `${FOLDERS}`
+
+.PHONY: gofumpt
+gofumpt:
+	@if [[ -n "$$(gofumpt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+		echo 'gofumpt errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    gofumpt -d `${FOLDERS}`'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    gofumpt -w `${FOLDERS}`'; \
+		echo '  or'; \
+		echo '    make gofumpt-w'; \
+		echo ''; \
+		exit 1; \
+	fi
+
+.PHONY: gofumpt-w
+gofumpt-w:
+	gofumpt -w `${FOLDERS}`
+
+.PHONY: golangci-lint
+golangci-lint:
+	golangci-lint run
+
 .PHONY: checks
-checks: goimports gofmt golint vet
+checks: vet gofumpt goimports
 
 .PHONY: test
 test:
@@ -73,19 +119,19 @@ test:
 
 .PHONY: up
 up:
-	$(COMPOSE) -f $(CURDIR)/deployments/compose/docker-compose.yml up --force-recreate --build
+	$(DOCKER) compose -f $(CURDIR)/deployments/compose/docker-compose.yml up --force-recreate --build
 
 .PHONY: down
 down:
-	$(COMPOSE) -f $(CURDIR)/deployments/compose/docker-compose.yml down --volumes
+	$(DOCKER) compose -f $(CURDIR)/deployments/compose/docker-compose.yml down --volumes --rmi local --remove-orphans
 
 .PHONY: image
 image:
-	$(DOCKER) build . -f $(CURDIR)/build/docker/Dockerfile -t ${IMAGE}:${IMAGE_TAG}
+	$(DOCKER) build . -f $(CURDIR)/build/docker/Dockerfile -t ${NAME}:${IMAGE_TAG}
 
 .PHONY: image-ci
 image-ci:
-	$(DOCKER) build $(CURDIR)/build/ci/ -t ${NAME}-ci:latest
+	$(DOCKER) build . -f $(CURDIR)/build/ci/Dockerfile -t ${NAME}-ci:latest
 
 .PHONY: default
 default: checks build

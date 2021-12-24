@@ -1,8 +1,7 @@
-package internal
+package build
 
 // Build time variables
 var (
-	Name        = ""
 	Version     = ""
 	Branch      = ""
 	Commit      = ""
