@@ -11,20 +11,27 @@ import (
 	"time"
 
 	"github.com/moukoublen/goboilerplate/internal"
+	"github.com/moukoublen/goboilerplate/internal/config"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	config := config.Configuration()
+	internal.SetupLog(config.Logging)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	_ = ctx
 
 	router := internal.SetupDefaultRouter()
-	server, chErr := internal.StartListenAndServe(":43000", router)
+	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
 	go func() {
 		err := <-chErr
 		if !errors.Is(err, http.ErrServerClosed) {
-			fmt.Printf("http server error: %s\n", err.Error())
+			log.Error().Err(err).Msg("error returned from http server")
 		}
 	}()
+	internal.LogRoutes(router)
+	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
 
 	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
@@ -34,12 +41,13 @@ func main() {
 	dlCancel()
 
 	cancel()
+	log.Info().Msgf("Shutdown completed")
 }
 
 func blockForSignals(s ...os.Signal) {
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, s...)
 	sig := <-signalCh
-	fmt.Printf("Signal received: %d %s\n", sig, sig.String())
+	log.Info().Msgf("Signal received: %d %s\n", sig, sig.String())
 	close(signalCh)
 }
