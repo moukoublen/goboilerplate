@@ -108,8 +108,12 @@ gofumpt-w:
 golangci-lint:
 	golangci-lint run
 
+.PHONY: staticcheck
+staticcheck:
+	staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
+
 .PHONY: checks
-checks: vet gofumpt goimports
+checks: vet staticcheck gofumpt goimports
 
 .PHONY: test
 test:
