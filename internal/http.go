@@ -31,7 +31,8 @@ func SetupDefaultRouter() *chi.Mux {
 	return router
 }
 
-// StartListenAndServe
+// StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
+// It returns the server struct and a channel of errors in which will be forewarded any error returned from server.ListenAndServe.
 func StartListenAndServe(addr string, router *chi.Mux) (*http.Server, <-chan error) {
 	server := &http.Server{Addr: addr, Handler: router}
 	errorChannel := make(chan error, 1)

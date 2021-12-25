@@ -8,6 +8,8 @@ GO111MODULE := on
 export GO111MODULE
 CGO_ENABLED := 0
 export CGO_ENABLED
+GOFLAGS := -mod=vendor
+export GOFLAGS
 
 GO_EXEC := go
 DOCKER := docker
