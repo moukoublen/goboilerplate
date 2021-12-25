@@ -118,7 +118,7 @@ checks: vet staticcheck gofumpt goimports
 
 .PHONY: test
 test:
-	$(GO_EXEC) test -timeout 60s -tags="${TAGS}" -coverprofile cover.out -covermode atomic `${PACKAGES}`
+	$(GO_EXEC) test -timeout 60s -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
 

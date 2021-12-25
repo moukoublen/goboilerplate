@@ -33,11 +33,15 @@ func SetupDefaultRouter() *chi.Mux {
 	})
 
 	// for test purposes
-	router.Get("/panic", func(w http.ResponseWriter, r *http.Request) {
-		panic("named must your fear be before banish it you can")
-	})
+	router.Get("/panic", AboutRouteHandler)
 
 	return router
+}
+
+func AboutRouteHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	e := json.NewEncoder(w)
+	_ = e.Encode(build.BuildInfo())
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
