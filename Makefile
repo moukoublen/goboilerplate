@@ -42,7 +42,6 @@ vendor:
 
 .PHONY: vet
 vet:
-	@echo ">>> go vet <<<"
 	$(GO_EXEC) vet `${PACKAGES}`
 	@echo ""
 
