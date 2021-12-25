@@ -5,7 +5,7 @@ set -e
 
 export GO111MODULE=on
 export CGO_ENABLED=0
-export GOFLAGS="-mod=readonly"
+export GOFLAGS="-mod=vendor"
 
 # Get module and default binary name from go.mod
 GO_MODULE=$(cat go.mod | grep -e "^module" | sed "s/^module //")
