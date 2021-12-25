@@ -22,6 +22,10 @@ jobs:
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.43.0
+        args: --issues-exit-code=1
+
+    - name: vet
+      run: make vet
 
     - name: Build
       run: make build

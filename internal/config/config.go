@@ -13,7 +13,7 @@ type Logging struct {
 	LogLevel   zerolog.Level
 }
 
-func Configuration() Config {
+func New() (Config, error) {
 	return Config{
 		IP:   "0.0.0.0",
 		Port: 43000,
@@ -21,5 +21,5 @@ func Configuration() Config {
 			ConsoleLog: true,
 			LogLevel:   zerolog.DebugLevel,
 		},
-	}
+	}, nil
 }

@@ -16,7 +16,10 @@ import (
 )
 
 func main() {
-	config := config.Configuration()
+	config, err := config.New()
+	if err != nil {
+		log.Fatal().Err(err).Send()
+	}
 	internal.SetupLog(config.Logging)
 
 	ctx, cancel := context.WithCancel(context.Background())
