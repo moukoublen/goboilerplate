@@ -22,16 +22,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	_ = ctx
 
-	router := internal.SetupDefaultRouter()
-	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
-	go func() {
-		err := <-chErr
-		if !errors.Is(err, http.ErrServerClosed) {
-			log.Error().Err(err).Msg("error returned from http server")
-		}
-	}()
-	internal.LogRoutes(router)
-	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
+	server := startHTTPServer(config)
 
 	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
@@ -50,4 +41,19 @@ func blockForSignals(s ...os.Signal) {
 	sig := <-signalCh
 	log.Info().Msgf("Signal received: %d %s\n", sig, sig.String())
 	close(signalCh)
+}
+
+func startHTTPServer(config config.Config) *http.Server {
+	router := internal.SetupDefaultRouter()
+	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
+	go func() {
+		err := <-chErr
+		if !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(err).Msg("error returned from http server")
+		}
+	}()
+	internal.LogRoutes(router)
+	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
+
+	return server
 }
