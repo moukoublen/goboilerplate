@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -e
+
+__help() {
+  echo "This script renames the package and the main executable name"
+  echo "Usage:"
+  echo "        ./scripts/rename <package name> <cmd name>"
+  echo ""
+  echo -e "Allowed characters are: \e[0;32mnumbers\e[0m, \e[0;32mletters\e[0m, \e[0;32mslash (/)\e[0m and \e[0;32mdot (.)\e[0m."
+  echo ""
+  echo -e "    e.g. ./scripts/rename \e[0;96mgithub.com/person/repo\e[0m \e[0;96mcmdname\e[0m"
+  echo ""
+}
+
+OLD_PACKAGE='github.com/moukoublen/goboilerplate'
+OLD_NAME='goboilerplate'
+
+NEW_PACKAGE="${1}"
+NEW_NAME="${2}"
+
+[[ -z ${NEW_PACKAGE} ]] || \
+[[ -z ${NEW_NAME} ]] || \
+[[ ! ${NEW_PACKAGE} =~ ^[0-9a-zA-Z\/\.]+$ ]] || \
+[[ ! ${NEW_NAME} =~ ^[0-9a-zA-Z\/\.]+$ ]] && \
+  echo -e "\e[0;31mWrong input\e[0m" && \
+  __help && \
+  exit 1
+
+SEP=$'\u200'
+
+find ./ \
+  -type f \
+  -not -path "./.git/*" \
+  -not -path "./vendor/*" \
+  -not -path "./scripts/rename" \
+  -exec sed -i "s|${OLD_PACKAGE}|${NEW_PACKAGE}|g" {} \;
+
+find ./ \
+  -type f \
+  -not -path "./.git/*" \
+  -not -path "./vendor/*" \
+  -not -path "./scripts/rename" \
+  -exec sed -i "s|${OLD_NAME}|${NEW_NAME}|g" {} \;
+
+mv ./cmd/${OLD_NAME} ./cmd/${NEW_NAME}

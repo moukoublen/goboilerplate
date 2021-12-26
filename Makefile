@@ -1,5 +1,6 @@
 SHELL := /bin/bash
 
+MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
 NAME := goboilerplate
 MAINCMD := ./cmd/${NAME}
 IMAGE_TAG := latest
@@ -23,6 +24,9 @@ build:
 
 .PHONY: env
 env:
+	@echo "Module: ${MODULE}"
+	@echo "Name  : ${NAME}"
+	@echo "Cmd   : ${MAINCMD}"
 	$(GO_EXEC) env
 	@echo ""
 	@echo ">>> Packages:"
