@@ -12,6 +12,7 @@ import (
 
 	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
+	ilog "github.com/moukoublen/goboilerplate/internal/log"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,7 +21,8 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
-	internal.SetupLog(config.Logging)
+	ilog.SetupLog(config.Logging)
+	log.Info().Msgf("Starting up")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	_ = ctx
@@ -29,8 +31,8 @@ func main() {
 
 	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
-	// shutdown gracefully the http server.
-	dlCtx, dlCancel := context.WithDeadline(ctx, time.Now().Add(3*time.Second))
+	// shutdown the http server gracefully.
+	dlCtx, dlCancel := context.WithDeadline(ctx, time.Now().Add(4*time.Second))
 	_ = server.Shutdown(dlCtx)
 	dlCancel()
 
@@ -47,7 +49,7 @@ func blockForSignals(s ...os.Signal) {
 }
 
 func startHTTPServer(config config.Config) *http.Server {
-	router := internal.SetupDefaultRouter()
+	router := internal.NewDefaultRouter(config.HTTP)
 	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
 	go func() {
 		err := <-chErr
@@ -55,7 +57,7 @@ func startHTTPServer(config config.Config) *http.Server {
 			log.Error().Err(err).Msg("error returned from http server")
 		}
 	}()
-	internal.LogRoutes(router)
+	ilog.LogRoutes(router)
 	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
 
 	return server

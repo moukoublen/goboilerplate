@@ -6,11 +6,17 @@ type Config struct {
 	IP      string
 	Port    int32
 	Logging Logging
+	HTTP    HTTP
 }
 
 type Logging struct {
 	ConsoleLog bool
 	LogLevel   zerolog.Level
+}
+
+type HTTP struct {
+	EnableLogger bool
+	LogInLevel   zerolog.Level
 }
 
 func New() (Config, error) {
@@ -19,7 +25,11 @@ func New() (Config, error) {
 		Port: 43000,
 		Logging: Logging{
 			ConsoleLog: true,
-			LogLevel:   zerolog.DebugLevel,
+			LogLevel:   zerolog.TraceLevel,
+		},
+		HTTP: HTTP{
+			EnableLogger: true,
+			LogInLevel:   zerolog.TraceLevel,
 		},
 	}, nil
 }
