@@ -3,7 +3,7 @@ module github.com/moukoublen/goboilerplate
 go 1.17
 
 require (
-	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.0
 )
