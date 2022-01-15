@@ -21,6 +21,8 @@
 go.work
 
 #### Extra
+/.bin/*
+
 # visual studio code local folder
 /.vscode/*
 !/.vscode/settings.json

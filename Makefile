@@ -1,16 +1,19 @@
 SHELL := /bin/bash
 
+.PHONY: default
+default: checks build
+
+export TOOLSBIN := $(shell pwd)/.bin
+include build/tools.Makefile
+
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
 NAME := goboilerplate
 MAINCMD := ./cmd/${NAME}
 IMAGE_TAG := latest
 
-GO111MODULE := on
-export GO111MODULE
-CGO_ENABLED := 0
-export CGO_ENABLED
-GOFLAGS := -mod=vendor
-export GOFLAGS
+export GO111MODULE := on
+export CGO_ENABLED := 0
+#export GOFLAGS := -mod=vendor
 
 GO_EXEC := go
 DOCKER := docker
@@ -28,7 +31,7 @@ VER_FLAGS = \
 
 .PHONY: build
 build:
-	$(GO_EXEC) build -ldflags "-extldflags -static ${VER_FLAGS}" ${MAINCMD}
+	$(GO_EXEC) build -mod=vendor -ldflags "-extldflags -static ${VER_FLAGS}" ${MAINCMD}
 
 .PHONY: env
 env:
@@ -59,7 +62,8 @@ vet:
 
 .PHONY: goimports
 goimports:
-	@if [[ -n "$$(goimports -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+	@echo '${TOOLSBIN}/goimports -l `${FOLDERS}`'
+	@if [[ -n "$$(${TOOLSBIN}/goimports -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -72,13 +76,15 @@ goimports:
 		echo ''; \
 		exit 1; \
 	fi
+	@echo ''
 
 .PHONY: goimports-w
 goimports-w:
-	goimports -w `${FOLDERS}`
+	${TOOLSBIN}/goimports -w `${FOLDERS}`
 
 .PHONY: gofmt
 gofmt:
+	@echo 'gofmt -l `${FOLDERS}`'
 	@if [[ -n "$$(gofmt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
 		echo 'gofmt errors'; \
 		echo ''; \
@@ -92,6 +98,7 @@ gofmt:
 		echo ''; \
 		exit 1; \
 	fi
+	@echo ''
 
 .PHONY: gofmt-w
 gofmt-w:
@@ -99,7 +106,8 @@ gofmt-w:
 
 .PHONY: gofumpt
 gofumpt:
-	@if [[ -n "$$(gofumpt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+	@echo '${TOOLSBIN}/gofumpt -l `${FOLDERS}`'
+	@if [[ -n "$$(${TOOLSBIN}/gofumpt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
 		echo 'gofumpt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -112,25 +120,28 @@ gofumpt:
 		echo ''; \
 		exit 1; \
 	fi
+	@echo ''
 
 .PHONY: gofumpt-w
 gofumpt-w:
-	gofumpt -w `${FOLDERS}`
+	${TOOLSBIN}/gofumpt -w `${FOLDERS}`
 
 .PHONY: golangci-lint
 golangci-lint:
-	golangci-lint run
+	${TOOLSBIN}/golangci-lint run
+	@echo ''
 
 .PHONY: staticcheck
 staticcheck:
-	staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
+	${TOOLSBIN}/staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
+	@echo ''
 
 .PHONY: checks
 checks: vet staticcheck gofumpt goimports
 
 .PHONY: test
 test:
-	$(GO_EXEC) test -timeout 60s -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
+	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
 
