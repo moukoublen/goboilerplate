@@ -18,9 +18,17 @@ DOCKER := docker
 PACKAGES = $(GO_EXEC) list -tags=${TAGS} -mod=vendor ./...
 FOLDERS = $(GO_EXEC) list -tags=${TAGS} -mod=vendor -f '{{.Dir}}' ./...
 
+VERSION = 0.0.0
+VER_FLAGS = \
+		-X '${MODULE}/build.Version=${VERSION}' \
+		-X '${MODULE}/build.Branch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || true)' \
+		-X '${MODULE}/build.Commit=$(shell git rev-parse HEAD 2>/dev/null || true)' \
+		-X '${MODULE}/build.CommitShort=$(shell git rev-parse --short HEAD 2>/dev/null || true)' \
+		-X '${MODULE}/build.Tag=$(shell git describe --tags 2>/dev/null || true)'
+
 .PHONY: build
 build:
-	@GO_EXEC=$(GO_EXEC) $(CURDIR)/scripts/build ${MAINCMD}
+	$(GO_EXEC) build -ldflags "-extldflags -static ${VER_FLAGS}" ${MAINCMD}
 
 .PHONY: env
 env:
