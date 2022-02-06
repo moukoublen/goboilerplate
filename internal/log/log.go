@@ -52,18 +52,15 @@ func LogRoutes(r *chi.Mux) {
 		return
 	}
 
-	var traverse func(routes []chi.Route)
-	traverse = func(routes []chi.Route) {
-		for _, c := range routes {
-			for k := range c.Handlers {
-				log.Debug().Msgf("Route: %s %s", k, c.Pattern)
-			}
-			if c.SubRoutes != nil {
-				traverse(c.SubRoutes.Routes())
-			}
-		}
+	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		route = strings.Replace(route, "/*/", "/", -1)
+		log.Debug().Str("method", method).Str("route", route).Msg("log route")
+		return nil
 	}
-	traverse(r.Routes())
+
+	if err := chi.Walk(r, walkFunc); err != nil {
+		log.Error().Err(err).Msg("error during chi walk")
+	}
 }
 
 type ChiZerolog struct {
@@ -71,11 +68,11 @@ type ChiZerolog struct {
 }
 
 func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
-	if log.Logger.GetLevel() > c.LogInLevel {
+	logger := zerolog.Ctx(r.Context())
+
+	if logger.GetLevel() > c.LogInLevel {
 		return chiNopLogEntry{}
 	}
-
-	logger := zerolog.Ctx(r.Context())
 
 	entry := &chiZerologEntry{
 		request:  r,

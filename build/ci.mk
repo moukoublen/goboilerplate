@@ -88,6 +88,6 @@ staticcheck:
 
 .PHONY: test
 test:
-	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
+	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -race -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
