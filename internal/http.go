@@ -35,7 +35,7 @@ func NewDefaultRouter(c config.HTTP) *chi.Mux {
 
 func Panic(w http.ResponseWriter, r *http.Request) { panic("test panic") }
 
-func AboutHandler(w http.ResponseWriter, r *http.Request) {
+func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
 	e := json.NewEncoder(w)
@@ -43,7 +43,7 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
-// It returns the server struct and a channel of errors in which will be forewarded any error returned from server.ListenAndServe.
+// It returns the server struct and a channel of errors in which will be forwarded any error returned from server.ListenAndServe.
 func StartListenAndServe(addr string, router *chi.Mux) (*http.Server, <-chan error) {
 	server := &http.Server{Addr: addr, Handler: router}
 	errorChannel := make(chan error, 1)

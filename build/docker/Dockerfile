@@ -1,4 +1,4 @@
-FROM golang:1.17.5-alpine3.15 as builder
+FROM golang:1.18.3-alpine3.16 as builder
 RUN apk update && apk add --no-cache make git bash ca-certificates
 WORKDIR /app
 COPY . .

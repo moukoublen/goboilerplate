@@ -29,7 +29,7 @@ env:
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy -compat=1.17
+	$(GO_EXEC) mod tidy -compat=1.18
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor
