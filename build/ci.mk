@@ -13,14 +13,6 @@ test:
 image-ci:
 	$(DOCKER) build . -f $(CURDIR)/build/ci/Dockerfile -t ${NAME}-ci:latest
 
-.PHONY: checks
-checks: vet staticcheck gofumpt goimports
-
-.PHONY: vet
-vet:
-	$(GO_EXEC) vet `${PACKAGES}`
-	@echo ""
-
 define install-log
 	@echo -e "Installing \e[1;36m${1}\e[0m..."
 endef
@@ -41,9 +33,18 @@ $(TOOLSBIN):
 	@mkdir -p $(TOOLSBIN)
 
 
+.PHONY: checks
+checks: vet staticcheck gofumpt goimports
+
+.PHONY: vet
+vet:
+	$(GO_EXEC) vet `${PACKAGES}`
+	@echo ""
+
+
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := 0.1.9
+VERSION_GOIMPORTS := 0.1.11
 
 $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._goimports_*
@@ -55,7 +56,7 @@ $(TOOLSBIN)/goimports: $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)
 	@cp ${GOPATH}/bin/goimports $(TOOLSBIN)/goimports
 
 .PHONY: goimports
-goimports:
+goimports: $(TOOLSBIN)/goimports
 	@echo '${TOOLSBIN}/goimports -l `${FOLDERS}`'
 	@if [[ -n "$$(${TOOLSBIN}/goimports -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
@@ -80,7 +81,7 @@ goimports-w:
 
 ########## staticcheck ########################################################
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
-VERSION_STATICCHECK := 2021.1.2
+VERSION_STATICCHECK := 2022.1.2
 
 $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._staticcheck_*
@@ -92,7 +93,7 @@ $(TOOLSBIN)/staticcheck: $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)
 	@cp ${GOPATH}/bin/staticcheck $(TOOLSBIN)/staticcheck
 
 .PHONY: staticcheck
-staticcheck:
+staticcheck: $(TOOLSBIN)/staticcheck
 	${TOOLSBIN}/staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
 	@echo ''
 ###############################################################################
@@ -100,7 +101,7 @@ staticcheck:
 
 ########## golangci-lint ######################################################
 # https://github.com/golangci/golangci-lint/releases
-VERSION_GOLANGCILINT := 1.44.0
+VERSION_GOLANGCILINT := 1.46.2
 
 $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._golangci-lint_*
@@ -112,7 +113,7 @@ $(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)
 	@cp ${GOPATH}/bin/golangci-lint $(TOOLSBIN)/golangci-lint
 
 .PHONY: golangci-lint
-golangci-lint:
+golangci-lint: $(TOOLSBIN)/golangci-lint
 	${TOOLSBIN}/golangci-lint run
 	@echo ''
 ###############################################################################
@@ -120,7 +121,7 @@ golangci-lint:
 
 ########## gofumpt ############################################################
 # https://github.com/mvdan/gofumpt/releases
-VERSION_GOFUMPT := 0.2.1
+VERSION_GOFUMPT := 0.3.1
 
 $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._gofumpt_*
@@ -132,7 +133,7 @@ $(TOOLSBIN)/gofumpt: $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)
 	@cp ${GOPATH}/bin/gofumpt $(TOOLSBIN)/gofumpt
 
 .PHONY: gofumpt
-gofumpt:
+gofumpt: $(TOOLSBIN)/gofumpt
 	@echo '${TOOLSBIN}/gofumpt -l `${FOLDERS}`'
 	@if [[ -n "$$(${TOOLSBIN}/gofumpt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
 		echo 'gofumpt errors'; \
@@ -157,7 +158,7 @@ gofumpt-w:
 
 ########## golang-migrate #####################################################
 # https://github.com/golang-migrate/migrate/releases
-VERSION_MIGRATE := 4.15.1
+VERSION_MIGRATE := 4.15.2
 
 $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._migrate_*
