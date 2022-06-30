@@ -12,23 +12,20 @@
     "editor.insertSpaces": false,
     "editor.formatOnSave": true
   },
+  "go.disableConcurrentTests": true,
   "go.lintTool": "staticcheck",
   "go.lintFlags": [
     "-checks=all,-ST1000"
   ],
-  "go.buildFlags": [
-    "-mod=vendor",
-    "-tags=gotags"
-  ],
-  "go.testTags": "integration",
+  "go.lintOnSave": "package",
+  "go.testTags": "test-e2e",
   "go.testFlags": [
+    "-mod=vendor",
     "-count=1",
     "-v",
     "-race"
   ],
-  "go.formatTool": "default",
-  // ~~Language Server~~
-  //https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+  // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   "go.useLanguageServer": true,
   "gopls": {
     "formatting.gofumpt": true,
@@ -36,7 +33,7 @@
     "build.experimentalWorkspaceModule": false,
     "build.buildFlags": [
       "-mod=vendor",
-      "-tags=gotags"
+      "-tags=test-e2e,other"
     ],
     "build.env": {
       "GO111MODULE": "on"
