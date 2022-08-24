@@ -79,7 +79,7 @@ goimports-w:
 
 ########## staticcheck ########################################################
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
-VERSION_STATICCHECK := 2022.1.3
+VERSION_STATICCHECK := 0.3.3
 
 $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._staticcheck_*
@@ -87,7 +87,7 @@ $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/staticcheck: $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
 	$(call install-log,staticcheck)
-	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
+	$(call go-install,honnef.co/go/tools/cmd/staticcheck@v$(VERSION_STATICCHECK))
 	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
 
 .PHONY: staticcheck
