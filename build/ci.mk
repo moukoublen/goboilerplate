@@ -16,7 +16,8 @@ define install-log
 endef
 
 define go-install
-	@$(GO_EXEC) install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$(1)"
+	$(GO_EXEC) install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$(1)"
+	@echo ""
 endef
 
 tools: \
@@ -42,7 +43,7 @@ vet:
 
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := 0.1.12
+VERSION_GOIMPORTS := v0.1.12
 
 $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._goimports_*
@@ -50,7 +51,7 @@ $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/goimports: $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
 	$(call install-log,goimports)
-	$(call go-install,golang.org/x/tools/cmd/goimports@v$(VERSION_GOIMPORTS))
+	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
 	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
 
 .PHONY: goimports
@@ -79,7 +80,7 @@ goimports-w:
 
 ########## staticcheck ########################################################
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
-VERSION_STATICCHECK := 0.3.3
+VERSION_STATICCHECK := v0.3.3
 
 $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._staticcheck_*
@@ -87,7 +88,7 @@ $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/staticcheck: $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
 	$(call install-log,staticcheck)
-	$(call go-install,honnef.co/go/tools/cmd/staticcheck@v$(VERSION_STATICCHECK))
+	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
 	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
 
 .PHONY: staticcheck
@@ -99,7 +100,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 
 ########## golangci-lint ######################################################
 # https://github.com/golangci/golangci-lint/releases
-VERSION_GOLANGCILINT := 1.49.0
+VERSION_GOLANGCILINT := v1.49.0
 
 $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._golangci-lint_*
@@ -107,7 +108,7 @@ $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
 	$(call install-log,golangci-lint)
-	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@v$(VERSION_GOLANGCILINT))
+	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@$(VERSION_GOLANGCILINT))
 	@cp $(GOPATH)/bin/golangci-lint $(TOOLSBIN)/golangci-lint
 
 .PHONY: golangci-lint
@@ -119,7 +120,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 
 ########## gofumpt ############################################################
 # https://github.com/mvdan/gofumpt/releases
-VERSION_GOFUMPT := 0.3.1
+VERSION_GOFUMPT := v0.3.1
 
 $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._gofumpt_*
@@ -127,7 +128,7 @@ $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/gofumpt: $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER)
 	$(call install-log,gofumpt)
-	$(call go-install,mvdan.cc/gofumpt@v$(VERSION_GOFUMPT))
+	$(call go-install,mvdan.cc/gofumpt@$(VERSION_GOFUMPT))
 	@cp $(GOPATH)/bin/gofumpt $(TOOLSBIN)/gofumpt
 
 .PHONY: gofumpt
@@ -163,7 +164,7 @@ $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER)
 
 $(TOOLSBIN)/migrate: $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER)
-	$(call install-log,golang-migrate)
+	$(call install-log,golang-migrate,$(VERSION_MIGRATE))
 	@./scripts/install-migrate "$(VERSION_MIGRATE)" "$(TOOLSBIN)"
 ###############################################################################
 
