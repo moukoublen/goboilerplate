@@ -7,16 +7,16 @@ GO_VER := $(shell go env GOVERSION)
 
 .PHONY: test
 test:
-	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -race -tags="${TAGS}" -coverprofile cover.out -covermode atomic ./...
+	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -race -tags="$(TAGS)" -coverprofile cover.out -covermode atomic ./...
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
 
 define install-log
-	@echo -e "Installing \e[1;36m${1}\e[0m..."
+	@echo -e "Installing \e[1;36m$(1)\e[0m..."
 endef
 
 define go-install
-	@$(GO_EXEC) install -a -trimpath -ldflags '-s -w -extldflags "-static"' "${1}"
+	@$(GO_EXEC) install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$(1)"
 endef
 
 tools: \
@@ -36,7 +36,7 @@ checks: vet staticcheck gofumpt goimports golangci-lint
 
 .PHONY: vet
 vet:
-	$(GO_EXEC) vet `${PACKAGES}`
+	$(GO_EXEC) vet `$(PACKAGES)`
 	@echo ""
 
 
@@ -50,20 +50,20 @@ $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER): | $(TOOLSBIN)
 
 $(TOOLSBIN)/goimports: $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
 	$(call install-log,goimports)
-	$(call go-install,golang.org/x/tools/cmd/goimports@v${VERSION_GOIMPORTS})
-	@cp ${GOPATH}/bin/goimports $(TOOLSBIN)/goimports
+	$(call go-install,golang.org/x/tools/cmd/goimports@v$(VERSION_GOIMPORTS))
+	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
 
 .PHONY: goimports
 goimports: $(TOOLSBIN)/goimports
-	@echo '${TOOLSBIN}/goimports -l `${FOLDERS}`'
-	@if [[ -n "$$(${TOOLSBIN}/goimports -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+	@echo '$(TOOLSBIN)/goimports -l `$(FOLDERS)`'
+	@if [[ -n "$$($(TOOLSBIN)/goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    goimports -d `${FOLDERS}`'; \
+		echo '    goimports -d `$(FOLDERS)`'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    goimports -w `${FOLDERS}`'; \
+		echo '    goimports -w `$(FOLDERS)`'; \
 		echo '  or'; \
 		echo '    make goimports-w'; \
 		echo ''; \
@@ -73,7 +73,7 @@ goimports: $(TOOLSBIN)/goimports
 
 .PHONY: goimports-w
 goimports-w:
-	${TOOLSBIN}/goimports -w `${FOLDERS}`
+	$(TOOLSBIN)/goimports -w `$(FOLDERS)`
 ###############################################################################
 
 
@@ -88,11 +88,11 @@ $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
 $(TOOLSBIN)/staticcheck: $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
 	$(call install-log,staticcheck)
 	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
-	@cp ${GOPATH}/bin/staticcheck $(TOOLSBIN)/staticcheck
+	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
 
 .PHONY: staticcheck
 staticcheck: $(TOOLSBIN)/staticcheck
-	${TOOLSBIN}/staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
+	$(TOOLSBIN)/staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
 	@echo ''
 ###############################################################################
 
@@ -108,11 +108,11 @@ $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER): | $(TOOLSBIN)
 $(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
 	$(call install-log,golangci-lint)
 	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@v$(VERSION_GOLANGCILINT))
-	@cp ${GOPATH}/bin/golangci-lint $(TOOLSBIN)/golangci-lint
+	@cp $(GOPATH)/bin/golangci-lint $(TOOLSBIN)/golangci-lint
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLSBIN)/golangci-lint
-	${TOOLSBIN}/golangci-lint run
+	$(TOOLSBIN)/golangci-lint run
 	@echo ''
 ###############################################################################
 
@@ -128,19 +128,19 @@ $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER): | $(TOOLSBIN)
 $(TOOLSBIN)/gofumpt: $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER)
 	$(call install-log,gofumpt)
 	$(call go-install,mvdan.cc/gofumpt@v$(VERSION_GOFUMPT))
-	@cp ${GOPATH}/bin/gofumpt $(TOOLSBIN)/gofumpt
+	@cp $(GOPATH)/bin/gofumpt $(TOOLSBIN)/gofumpt
 
 .PHONY: gofumpt
 gofumpt: $(TOOLSBIN)/gofumpt
-	@echo '${TOOLSBIN}/gofumpt -l `${FOLDERS}`'
-	@if [[ -n "$$(${TOOLSBIN}/gofumpt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+	@echo '$(TOOLSBIN)/gofumpt -l `$(FOLDERS)`'
+	@if [[ -n "$$($(TOOLSBIN)/gofumpt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'gofumpt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    gofumpt -d `${FOLDERS}`'; \
+		echo '    gofumpt -d `$(FOLDERS)`'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    gofumpt -w `${FOLDERS}`'; \
+		echo '    gofumpt -w `$(FOLDERS)`'; \
 		echo '  or'; \
 		echo '    make gofumpt-w'; \
 		echo ''; \
@@ -150,7 +150,7 @@ gofumpt: $(TOOLSBIN)/gofumpt
 
 .PHONY: gofumpt-w
 gofumpt-w:
-	${TOOLSBIN}/gofumpt -w `${FOLDERS}`
+	$(TOOLSBIN)/gofumpt -w `$(FOLDERS)`
 ###############################################################################
 
 
@@ -171,15 +171,15 @@ $(TOOLSBIN)/migrate: $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER)
 ########## gofmt ##############################################################
 .PHONY: gofmt
 gofmt:
-	@echo 'gofmt -l `${FOLDERS}`'
-	@if [[ -n "$$(gofmt -l `${FOLDERS}` | tee /dev/stderr)" ]]; then \
+	@echo 'gofmt -l `$(FOLDERS)`'
+	@if [[ -n "$$(gofmt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'gofmt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    gofmt -d `${FOLDERS}`'; \
+		echo '    gofmt -d `$(FOLDERS)`'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    gofmt -w `${FOLDERS}`'; \
+		echo '    gofmt -w `$(FOLDERS)`'; \
 		echo '  or'; \
 		echo '    make gofmt-w'; \
 		echo ''; \
@@ -189,6 +189,6 @@ gofmt:
 
 .PHONY: gofmt-w
 gofmt-w:
-	gofmt -w `${FOLDERS}`
+	gofmt -w `$(FOLDERS)`
 ###############################################################################
 
