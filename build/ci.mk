@@ -11,10 +11,6 @@ test:
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
 
-.PHONY: image-ci
-image-ci:
-	$(DOCKER) build . -f $(CURDIR)/build/ci/Dockerfile -t ${NAME}-ci:latest
-
 define install-log
 	@echo -e "Installing \e[1;36m${1}\e[0m..."
 endef
