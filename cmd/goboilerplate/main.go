@@ -17,17 +17,20 @@ import (
 )
 
 func main() {
-	config, err := config.New()
+	cnf, err := config.New()
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
-	ilog.SetupLog(config.Logging)
+	ilog.SetupLog(cnf.Logging)
 	log.Info().Msgf("Starting up")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	_ = ctx
 
-	server := startHTTPServer(config)
+	router := internal.NewDefaultRouter(cnf.Logging)
+
+	server := startHTTPServer(cnf, router)
+	ilog.LogRoutes(router)
 
 	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
@@ -48,16 +51,15 @@ func blockForSignals(s ...os.Signal) {
 	close(signalCh)
 }
 
-func startHTTPServer(config config.Config) *http.Server {
-	router := internal.NewDefaultRouter(config.Logging)
-	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
+func startHTTPServer(config config.Config, handler http.Handler) *http.Server {
+	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler)
 	go func() {
 		err := <-chErr
 		if !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("error returned from http server")
 		}
 	}()
-	ilog.LogRoutes(router)
+
 	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
 
 	return server

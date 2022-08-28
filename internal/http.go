@@ -44,8 +44,8 @@ func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
 // It returns the server struct and a channel of errors in which will be forwarded any error returned from server.ListenAndServe.
-func StartListenAndServe(addr string, router *chi.Mux) (*http.Server, <-chan error) {
-	server := &http.Server{Addr: addr, Handler: router}
+func StartListenAndServe(addr string, handler http.Handler) (*http.Server, <-chan error) {
+	server := &http.Server{Addr: addr, Handler: handler}
 	errorChannel := make(chan error, 1)
 	go func() {
 		err := server.ListenAndServe()
