@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VER="${1:-4.15.1}"
+VER="${1:-4.15.2}"
 DST="${2:-/usr/local/bin}"
 
 TMP_DIRECTORY=$(mktemp -d -t "migrate_XXXXXXX")

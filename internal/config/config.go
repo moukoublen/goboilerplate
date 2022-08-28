@@ -1,35 +1,45 @@
 package config
 
-import "github.com/rs/zerolog"
+import (
+	"time"
+
+	"github.com/rs/zerolog"
+)
+
+type HTTPLogLevel int16
+
+const (
+	HTTPLogLevelNone            HTTPLogLevel = 0
+	HTTPLogLevelBasic           HTTPLogLevel = 1
+	HTTPLogLevelRequestResponse HTTPLogLevel = 2
+)
 
 type Config struct {
-	IP      string
-	Port    int32
-	Logging Logging
-	HTTP    HTTP
+	IP               string
+	Port             int32
+	ShutdownDeadline time.Duration
+	Logging          Logging
 }
 
 type Logging struct {
-	ConsoleLog bool
-	LogLevel   zerolog.Level
-}
-
-type HTTP struct {
-	EnableLogger bool
-	LogInLevel   zerolog.Level
+	ConsoleWriter        bool
+	LogLevel             zerolog.Level
+	InBoundHTTPLogLevel  HTTPLogLevel
+	OutBoundHTTPLogLevel HTTPLogLevel
+	LogInLevel           zerolog.Level
 }
 
 func New() (Config, error) {
 	return Config{
-		IP:   "0.0.0.0",
-		Port: 43000,
+		IP:               "0.0.0.0",
+		Port:             43000,
+		ShutdownDeadline: 4 * time.Second,
 		Logging: Logging{
-			ConsoleLog: true,
-			LogLevel:   zerolog.TraceLevel,
-		},
-		HTTP: HTTP{
-			EnableLogger: true,
-			LogInLevel:   zerolog.TraceLevel,
+			ConsoleWriter:        false,
+			LogLevel:             zerolog.TraceLevel,
+			InBoundHTTPLogLevel:  HTTPLogLevelRequestResponse,
+			OutBoundHTTPLogLevel: HTTPLogLevelRequestResponse,
+			LogInLevel:           zerolog.TraceLevel,
 		},
 	}, nil
 }

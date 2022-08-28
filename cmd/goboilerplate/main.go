@@ -49,7 +49,7 @@ func blockForSignals(s ...os.Signal) {
 }
 
 func startHTTPServer(config config.Config) *http.Server {
-	router := internal.NewDefaultRouter(config.HTTP)
+	router := internal.NewDefaultRouter(config.Logging)
 	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), router)
 	go func() {
 		err := <-chErr

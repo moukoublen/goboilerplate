@@ -13,14 +13,14 @@ import (
 )
 
 // NewDefaultRouter returns a *chi.Mux with a default set of middlewares and an "/about" route.
-func NewDefaultRouter(c config.HTTP) *chi.Mux {
+func NewDefaultRouter(c config.Logging) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Heartbeat("/ping"))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
-	if c.EnableLogger {
-		router.Use(middleware.RequestLogger(&log.ChiZerolog{LogInLevel: c.LogInLevel}))
+	if c.InBoundHTTPLogLevel > config.HTTPLogLevelNone {
+		router.Use(log.NewHTTPInboundLoggerMiddleware(c))
 	}
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(120 * time.Second))
