@@ -13,9 +13,6 @@ GOPATH := $(shell go env GOPATH)
 GO_EXEC := go
 DOCKER_EXEC := docker
 
-PACKAGES = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor ./...
-FOLDERS = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor -f '{{.Dir}}' ./...
-
 export TOOLSBIN := $(shell pwd)/.bin
 
 include build/*.mk
@@ -30,6 +27,12 @@ up:
 .PHONY: down
 down:
 	$(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml down --volumes --rmi local --remove-orphans
+
+.PHONY: git-reset
+git-reset:
+	git reset --hard
+	git clean -fd
+# man git-clean
 
 
 .PHONY: env

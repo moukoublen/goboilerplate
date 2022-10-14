@@ -3,7 +3,11 @@
 #    TOOLSBIN  must be defined to a directory path
 ###############################################################################
 
+PACKAGES = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor ./...
+FOLDERS = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor -f '{{.Dir}}' ./...
+
 GO_VER := $(shell go env GOVERSION)
+GOPATH := $(shell go env GOPATH)
 
 .PHONY: test
 test:
@@ -100,7 +104,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 
 ########## golangci-lint ######################################################
 # https://github.com/golangci/golangci-lint/releases
-VERSION_GOLANGCILINT := v1.49.0
+VERSION_GOLANGCILINT := v1.50.0
 
 $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._golangci-lint_*
@@ -120,7 +124,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 
 ########## gofumpt ############################################################
 # https://github.com/mvdan/gofumpt/releases
-VERSION_GOFUMPT := v0.3.1
+VERSION_GOFUMPT := v0.4.0
 
 $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._gofumpt_*
