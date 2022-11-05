@@ -9,6 +9,9 @@ FOLDERS = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor -f '{{.Dir}}' ./...
 GO_VER := $(shell go env GOVERSION)
 GOPATH := $(shell go env GOPATH)
 
+# https://pkg.go.dev/cmd/link
+# https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+
 .PHONY: test
 test:
 	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -race -tags="$(TAGS)" -coverprofile cover.out -covermode atomic ./...
