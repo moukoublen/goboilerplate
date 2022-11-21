@@ -13,6 +13,7 @@
     "editor.formatOnSave": true
   },
   "go.disableConcurrentTests": true,
+  "go.formatTool": "default",
   "go.lintTool": "staticcheck",
   "go.lintFlags": [
     "-checks=all,-ST1000"
@@ -25,12 +26,10 @@
     "-v",
     "-race"
   ],
+  "go.vetFlags": ["-all"],
   // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   "go.useLanguageServer": true,
   "gopls": {
-    "formatting.gofumpt": true,
-    "build.allowImplicitNetworkAccess": true,
-    "build.experimentalWorkspaceModule": false,
     "build.buildFlags": [
       "-mod=vendor",
       "-tags=test-e2e,other"
@@ -38,17 +37,24 @@
     "build.env": {
       "GO111MODULE": "on"
     },
-    "codelenses": {
-      "gc_details": true,
-      "generate": false,
+    "formatting.gofumpt": true,
+    "ui.completion.usePlaceholders": true,
+    "ui.completion.experimentalPostfixCompletions": true,
+    "ui.diagnostic.annotations": {
+      "bounds": true,
+      "escape": true,
+      "inline": true,
+      "nil": true
+    },
+    "ui.diagnostic.staticcheck": true,
+    "ui.codelenses": {
+      "gc_details": false,
+      "generate": true,
       "regenerate_cgo": false,
       "tidy": true,
       "upgrade_dependency": true,
       "vendor": true
     },
-    "ui.completion.usePlaceholders": true,
-    "ui.completion.matcher": "Fuzzy",
-    "ui.completion.completionBudget": "100ms",
-    "ui.completion.experimentalPostfixCompletions": true
+    "ui.documentation.hoverKind": "FullDocumentation",
   }
 }
