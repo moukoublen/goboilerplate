@@ -56,7 +56,7 @@ $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._goimports_*
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
 
-$(TOOLSBIN)/goimports: | $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
+$(TOOLSBIN)/goimports: $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
 	$(call install-log,goimports)
 	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
 	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
@@ -94,7 +94,7 @@ $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._staticcheck_*
 	@touch $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
 
-$(TOOLSBIN)/staticcheck: | $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
+$(TOOLSBIN)/staticcheck: $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
 	$(call install-log,staticcheck)
 	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
 	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
@@ -115,7 +115,7 @@ $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._golangci-lint_*
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
 
-$(TOOLSBIN)/golangci-lint: | $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
+$(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
 	$(call install-log,golangci-lint)
 	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@$(VERSION_GOLANGCILINT))
 	@cp $(GOPATH)/bin/golangci-lint $(TOOLSBIN)/golangci-lint
@@ -136,7 +136,7 @@ $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._gofumpt_*
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
 
-$(TOOLSBIN)/gofumpt: | $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
+$(TOOLSBIN)/gofumpt: $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
 	$(call install-log,gofumpt)
 	$(call go-install,mvdan.cc/gofumpt@$(VERSION_GOFUMPT))
 	@cp $(GOPATH)/bin/gofumpt $(TOOLSBIN)/gofumpt
@@ -174,7 +174,7 @@ $(TOOLSBIN)/$(VERSION_FILE_MIGRATE): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._migrate_*
 	@touch $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 
-$(TOOLSBIN)/migrate: | $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
+$(TOOLSBIN)/migrate: $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 	$(call install-log,golang-migrate,$(VERSION_MIGRATE))
 	@./scripts/install-migrate "$(VERSION_MIGRATE)" "$(TOOLSBIN)"
 ###############################################################################
