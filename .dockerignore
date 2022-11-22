@@ -17,11 +17,11 @@
 /vendor/**/appveyor.yml
 /vendor/**/.dockerignore
 
-#### Test .dockerignore
-# docker build --no-cache --progress plain --file - . <<EOF
+#### Test .dockerignore (https://stackoverflow.com/questions/38946683/how-to-test-dockerignore-file)
+# docker build --no-cache --progress plain -t dockerignore-test --file - . <<EOF
 # FROM busybox
-# COPY . /build-context
-# WORKDIR /build-context
+# COPY . /e
+# WORKDIR /e
 # RUN find .
 # RUN du -h -d 1
 # EOF
