@@ -50,7 +50,7 @@ vet:
 
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := v0.1.12
+VERSION_GOIMPORTS := v0.3.0
 
 $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._goimports_*
