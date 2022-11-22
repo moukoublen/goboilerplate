@@ -1,7 +1,8 @@
-###############################################################################
-# Requirements:
-#    TOOLSBIN  must be defined to a directory path
-###############################################################################
+# https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
+# https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
+
+TOOLSBIN ?= $(shell pwd)/.bin
+export TOOLSBIN
 
 PACKAGES = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor ./...
 FOLDERS = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor -f '{{.Dir}}' ./...
@@ -34,10 +35,8 @@ tools: \
 	$(TOOLSBIN)/gofumpt \
 	$(TOOLSBIN)/migrate
 
-
 $(TOOLSBIN):
 	@mkdir -p $(TOOLSBIN)
-
 
 .PHONY: checks
 checks: vet staticcheck gofumpt goimports golangci-lint
@@ -51,12 +50,13 @@ vet:
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 VERSION_GOIMPORTS := v0.3.0
+VERSION_FILE_GOIMPORTS := ._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
 
-$(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER): | $(TOOLSBIN)
+$(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._goimports_*
-	@touch $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
+	@touch $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
 
-$(TOOLSBIN)/goimports: $(TOOLSBIN)/._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
+$(TOOLSBIN)/goimports: | $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
 	$(call install-log,goimports)
 	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
 	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
@@ -88,12 +88,13 @@ goimports-w:
 ########## staticcheck ########################################################
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
 VERSION_STATICCHECK := v0.3.3
+VERSION_FILE_STATICCHECK := ._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
 
-$(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER): | $(TOOLSBIN)
+$(TOOLSBIN)/$(VERSION_FILE_STATICCHECK): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._staticcheck_*
-	@touch $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
+	@touch $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
 
-$(TOOLSBIN)/staticcheck: $(TOOLSBIN)/._staticcheck_$(VERSION_STATICCHECK)_$(GO_VER)
+$(TOOLSBIN)/staticcheck: | $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
 	$(call install-log,staticcheck)
 	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
 	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
@@ -108,12 +109,13 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ########## golangci-lint ######################################################
 # https://github.com/golangci/golangci-lint/releases
 VERSION_GOLANGCILINT := v1.50.0
+VERSION_FILE_GOLANGCILINT := ._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
 
-$(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER): | $(TOOLSBIN)
+$(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._golangci-lint_*
-	@touch $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
+	@touch $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
 
-$(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
+$(TOOLSBIN)/golangci-lint: | $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
 	$(call install-log,golangci-lint)
 	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@$(VERSION_GOLANGCILINT))
 	@cp $(GOPATH)/bin/golangci-lint $(TOOLSBIN)/golangci-lint
@@ -128,12 +130,13 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 ########## gofumpt ############################################################
 # https://github.com/mvdan/gofumpt/releases
 VERSION_GOFUMPT := v0.4.0
+VERSION_FILE_GOFUMPT := ._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER)
 
-$(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER): | $(TOOLSBIN)
+$(TOOLSBIN)/$(VERSION_FILE_GOFUMPT): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._gofumpt_*
-	@touch $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER)
+	@touch $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
 
-$(TOOLSBIN)/gofumpt: $(TOOLSBIN)/._gofumpt_$(VERSION_GOFUMPT)_$(GO_VER)
+$(TOOLSBIN)/gofumpt: | $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
 	$(call install-log,gofumpt)
 	$(call go-install,mvdan.cc/gofumpt@$(VERSION_GOFUMPT))
 	@cp $(GOPATH)/bin/gofumpt $(TOOLSBIN)/gofumpt
@@ -165,12 +168,13 @@ gofumpt-w:
 ########## golang-migrate #####################################################
 # https://github.com/golang-migrate/migrate/releases
 VERSION_MIGRATE := 4.15.2
+VERSION_FILE_MIGRATE := ._migrate_$(VERSION_MIGRATE)_$(GO_VER)
 
-$(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER): | $(TOOLSBIN)
+$(TOOLSBIN)/$(VERSION_FILE_MIGRATE): | $(TOOLSBIN)
 	@rm -f $(TOOLSBIN)/._migrate_*
-	@touch $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER)
+	@touch $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 
-$(TOOLSBIN)/migrate: $(TOOLSBIN)/._migrate_$(VERSION_MIGRATE)_$(GO_VER)
+$(TOOLSBIN)/migrate: | $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 	$(call install-log,golang-migrate,$(VERSION_MIGRATE))
 	@./scripts/install-migrate "$(VERSION_MIGRATE)" "$(TOOLSBIN)"
 ###############################################################################

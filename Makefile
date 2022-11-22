@@ -10,10 +10,8 @@ export CGO_ENABLED := 0
 #export GOFLAGS := -mod=vendor
 GOPATH := $(shell go env GOPATH)
 
-GO_EXEC := go
-DOCKER_EXEC := docker
-
-export TOOLSBIN := $(shell pwd)/.bin
+GO_EXEC ?= go
+DOCKER_EXEC ?= docker
 
 include build/*.mk
 
@@ -47,3 +45,6 @@ env:
 	@echo ""
 	@echo ">>> Folders:"
 	$(FOLDERS)
+	@echo ""
+	@echo ">>> Tools:"
+	@echo '$(TOOLSBIN)'
