@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/moukoublen/goboilerplate/internal/config"
 	ihttp "github.com/moukoublen/goboilerplate/internal/http"
@@ -23,43 +24,43 @@ func main() {
 	ilog.SetupLog(cnf.Logging)
 	log.Info().Msgf("Starting up")
 
+	signalCh := channelForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+
 	ctx, cancel := context.WithCancel(context.Background())
-	_ = ctx
-
 	router := ihttp.NewDefaultRouter(cnf.HTTP)
+	server, serverErrCh := startHTTPServer(cnf.HTTP, router)
 
-	server := startHTTPServer(cnf.HTTP, router)
-	ihttp.LogRoutes(router)
+	select {
+	case sig := <-signalCh:
+		log.Info().Msgf("Signal received: %d %s", sig, sig.String())
+	case servErr := <-serverErrCh:
+		if !errors.Is(servErr, http.ErrServerClosed) {
+			log.Error().Err(servErr).Msg("error returned from http server")
+		}
+	}
 
-	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
-
-	// shutdown the http server gracefully.
-	dlCtx, dlCancel := context.WithTimeout(ctx, cnf.ShutdownTimeout)
-	_ = server.Shutdown(dlCtx)
+	// graceful shut down
+	deadline := time.Now().Add(cnf.ShutdownTimeout)
+	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
+	if err := server.Shutdown(dlCtx); err != nil {
+		log.Warn().Err(err).Msg("error during http server shutdown")
+	}
+	// shutdown other components/services
+	// srv.Shutdown(ctx)
 	dlCancel()
-
 	cancel()
+	time.Sleep(1 * time.Second)
 	log.Info().Msgf("Shutdown completed")
 }
 
-func blockForSignals(s ...os.Signal) {
-	signalCh := make(chan os.Signal, 1)
+func channelForSignals(s ...os.Signal) <-chan os.Signal {
+	signalCh := make(chan os.Signal, 10)
 	signal.Notify(signalCh, s...)
-	sig := <-signalCh
-	log.Info().Msgf("Signal received: %d %s\n", sig, sig.String())
-	close(signalCh)
+	return signalCh
 }
 
-func startHTTPServer(config config.HTTP, handler http.Handler) *http.Server {
+func startHTTPServer(config config.HTTP, handler http.Handler) (*http.Server, <-chan error) {
 	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler)
-	go func() {
-		err := <-chErr
-		if !errors.Is(err, http.ErrServerClosed) {
-			log.Error().Err(err).Msg("error returned from http server")
-		}
-	}()
-
 	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
-
-	return server
+	return server, chErr
 }

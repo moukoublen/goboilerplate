@@ -8,11 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 func NewHTTPInboundLoggerMiddleware(cnf config.HTTP) func(http.Handler) http.Handler {
@@ -147,24 +145,6 @@ func drainBody(b io.ReadCloser) (r1 io.ReadCloser, r2 []byte, err error) {
 
 ///////////////////////////////////
 // Chi Log functionality
-
-func LogRoutes(r *chi.Mux) {
-	if log.Logger.GetLevel() > zerolog.DebugLevel {
-		return
-	}
-
-	var routes []string = make([]string, 0, 10)
-
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		route = strings.ReplaceAll(route, "/*/", "/")
-		routes = append(routes, route)
-		return nil
-	}
-
-	if err := chi.Walk(r, walkFunc); err != nil {
-		log.Error().Err(err).Msg("error during chi walk")
-	}
-}
 
 type ChiZerolog struct {
 	LogInLevel zerolog.Level
