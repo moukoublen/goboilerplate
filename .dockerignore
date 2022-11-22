@@ -1,0 +1,27 @@
+/.gitignore
+/.git/
+/.github/
+/.bin/
+/.vscode/
+/.idea/
+
+/**/*.md
+/vendor/**/.gitignore
+/vendor/**/.golangci.yml
+/vendor/**/.goreleaser.yml
+/vendor/**/LICENSE.md
+/vendor/**/LICENSE
+/vendor/**/PATENTS
+/vendor/**/Makefile
+/vendor/**/.travis.yml
+/vendor/**/appveyor.yml
+/vendor/**/.dockerignore
+
+#### Test .dockerignore
+# docker build --no-cache --progress plain --file - . <<EOF
+# FROM busybox
+# COPY . /build-context
+# WORKDIR /build-context
+# RUN find .
+# RUN du -h -d 1
+# EOF
