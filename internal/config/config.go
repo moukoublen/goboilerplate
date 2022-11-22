@@ -3,43 +3,46 @@ package config
 import (
 	"time"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/rs/zerolog"
 )
 
-type HTTPLogLevel int16
+type HTTPTrafficLogLevel int16
 
 const (
-	HTTPLogLevelNone            HTTPLogLevel = 0
-	HTTPLogLevelBasic           HTTPLogLevel = 1
-	HTTPLogLevelRequestResponse HTTPLogLevel = 2
+	HTTPTrafficLogLevelNone    HTTPTrafficLogLevel = 0
+	HTTPTrafficLogLevelBasic   HTTPTrafficLogLevel = 1
+	HTTPTrafficLogLevelVerbose HTTPTrafficLogLevel = 2
 )
 
 type Config struct {
-	IP               string
-	Port             int32
-	ShutdownDeadline time.Duration
-	Logging          Logging
+	ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"4s"`
+	HTTP            HTTP          `envPrefix:"HTTP_"`
+	Logging         Logging       `envPrefix:"LOG_"`
+}
+
+type HTTP struct {
+	IP                   string              `env:"IP" envDefault:"0.0.0.0"`
+	Port                 int32               `env:"PORT" envDefault:"43000"`
+	InBoundHTTPLogLevel  HTTPTrafficLogLevel `env:"INBOUND_TRAFFIC_LOG_LEVEL" envDefault:"2"`
+	OutBoundHTTPLogLevel HTTPTrafficLogLevel `env:"OUTBOUND_TRAFFIC_LOG_LEVEL" envDefault:"2"`
+	LogInLevel           zerolog.Level       `env:"TRAFFIC_LOG_IN_LEVEL" envDefault:"-1"`
+	GlobalInboundTimeout time.Duration       `env:"GLOBAL_INBOUND_TIMEOUT"`
 }
 
 type Logging struct {
-	ConsoleWriter        bool
-	LogLevel             zerolog.Level
-	InBoundHTTPLogLevel  HTTPLogLevel
-	OutBoundHTTPLogLevel HTTPLogLevel
-	LogInLevel           zerolog.Level
+	ConsoleWriter bool          `env:"CONSOLE_WRITER" envDefault:"false"`
+	LogLevel      zerolog.Level `env:"LEVEL" envDefault:"-1"`
 }
 
 func New() (Config, error) {
-	return Config{
-		IP:               "0.0.0.0",
-		Port:             43000,
-		ShutdownDeadline: 4 * time.Second,
-		Logging: Logging{
-			ConsoleWriter:        false,
-			LogLevel:             zerolog.TraceLevel,
-			InBoundHTTPLogLevel:  HTTPLogLevelRequestResponse,
-			OutBoundHTTPLogLevel: HTTPLogLevelRequestResponse,
-			LogInLevel:           zerolog.TraceLevel,
-		},
-	}, nil
+	cfg := Config{}
+	opts := env.Options{
+		Prefix: "APP_",
+	}
+	if err := env.Parse(&cfg, opts); err != nil {
+		return Config{}, err
+	}
+
+	return cfg, nil
 }

@@ -1,4 +1,4 @@
-package internal
+package http
 
 import (
 	"encoding/json"
@@ -9,18 +9,19 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/moukoublen/goboilerplate/build"
 	"github.com/moukoublen/goboilerplate/internal/config"
-	"github.com/moukoublen/goboilerplate/internal/log"
 )
 
+type Config struct{}
+
 // NewDefaultRouter returns a *chi.Mux with a default set of middlewares and an "/about" route.
-func NewDefaultRouter(c config.Logging) *chi.Mux {
+func NewDefaultRouter(c config.HTTP) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Heartbeat("/ping"))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
-	if c.InBoundHTTPLogLevel > config.HTTPLogLevelNone {
-		router.Use(log.NewHTTPInboundLoggerMiddleware(c))
+	if c.InBoundHTTPLogLevel > config.HTTPTrafficLogLevelNone {
+		router.Use(NewHTTPInboundLoggerMiddleware(c))
 	}
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(120 * time.Second))

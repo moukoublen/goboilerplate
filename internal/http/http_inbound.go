@@ -1,4 +1,4 @@
-package log
+package http
 
 import (
 	"bytes"
@@ -15,20 +15,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewHTTPInboundLoggerMiddleware(cnf config.Logging) func(http.Handler) http.Handler {
+func NewHTTPInboundLoggerMiddleware(cnf config.HTTP) func(http.Handler) http.Handler {
 	switch cnf.InBoundHTTPLogLevel {
-	case config.HTTPLogLevelNone:
+	case config.HTTPTrafficLogLevelNone:
 		return func(h http.Handler) http.Handler { return h }
-	case config.HTTPLogLevelBasic:
+	case config.HTTPTrafficLogLevelBasic:
 		return middleware.RequestLogger(&ChiZerolog{LogInLevel: cnf.LogInLevel})
-	case config.HTTPLogLevelRequestResponse:
+	case config.HTTPTrafficLogLevelVerbose:
 		return RequestResponseLogger(cnf)
 	}
 
 	return func(h http.Handler) http.Handler { return h }
 }
 
-func RequestResponseLogger(cnf config.Logging) func(next http.Handler) http.Handler {
+func RequestResponseLogger(cnf config.HTTP) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger := zerolog.Ctx(r.Context()).With().Logger()
@@ -153,9 +153,11 @@ func LogRoutes(r *chi.Mux) {
 		return
 	}
 
+	var routes []string = make([]string, 0, 10)
+
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		route = strings.Replace(route, "/*/", "/", -1)
-		log.Debug().Str("method", method).Str("route", route).Msg("log route")
+		route = strings.ReplaceAll(route, "/*/", "/")
+		routes = append(routes, route)
 		return nil
 	}
 

@@ -8,10 +8,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
+	ihttp "github.com/moukoublen/goboilerplate/internal/http"
 	ilog "github.com/moukoublen/goboilerplate/internal/log"
 	"github.com/rs/zerolog/log"
 )
@@ -27,15 +26,15 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	_ = ctx
 
-	router := internal.NewDefaultRouter(cnf.Logging)
+	router := ihttp.NewDefaultRouter(cnf.HTTP)
 
-	server := startHTTPServer(cnf, router)
-	ilog.LogRoutes(router)
+	server := startHTTPServer(cnf.HTTP, router)
+	ihttp.LogRoutes(router)
 
 	blockForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
 	// shutdown the http server gracefully.
-	dlCtx, dlCancel := context.WithDeadline(ctx, time.Now().Add(4*time.Second))
+	dlCtx, dlCancel := context.WithTimeout(ctx, cnf.ShutdownTimeout)
 	_ = server.Shutdown(dlCtx)
 	dlCancel()
 
@@ -51,8 +50,8 @@ func blockForSignals(s ...os.Signal) {
 	close(signalCh)
 }
 
-func startHTTPServer(config config.Config, handler http.Handler) *http.Server {
-	server, chErr := internal.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler)
+func startHTTPServer(config config.HTTP, handler http.Handler) *http.Server {
+	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler)
 	go func() {
 		err := <-chErr
 		if !errors.Is(err, http.ErrServerClosed) {

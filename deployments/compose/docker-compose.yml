@@ -4,7 +4,9 @@ services:
       context: ../../
       dockerfile: ./build/docker/Dockerfile
     environment:
-      - APP_PORT=43000
+      - APP_HTTP_PORT=8888
+      - APP_SHUTDOWN_TIMEOUT=6s
+      - APP_LOG_LEVEL=0
     ports:
-      - "43000:43000"
+      - "8888:8888"
     restart: on-failure
