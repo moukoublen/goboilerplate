@@ -11,7 +11,9 @@ export CGO_ENABLED := 0
 GOPATH := $(shell go env GOPATH)
 
 GO_EXEC ?= go
+export GO_EXEC
 DOCKER_EXEC ?= docker
+export DOCKER_EXEC
 
 include build/*.mk
 
