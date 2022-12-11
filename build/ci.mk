@@ -49,7 +49,7 @@ vet:
 
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := v0.3.0
+VERSION_GOIMPORTS := v0.4.0
 VERSION_FILE_GOIMPORTS := ._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
 
 $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
@@ -108,7 +108,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 
 ########## golangci-lint ######################################################
 # https://github.com/golangci/golangci-lint/releases
-VERSION_GOLANGCILINT := v1.50.0
+VERSION_GOLANGCILINT := v1.50.1
 VERSION_FILE_GOLANGCILINT := ._golangci-lint_$(VERSION_GOLANGCILINT)_$(GO_VER)
 
 $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT): | $(TOOLSBIN)
