@@ -27,7 +27,7 @@ jobs:
         restore-keys: |
           go-tools-${{ runner.os }}
 
-    - name: install tools
+    - name: Install Tools
       if: steps.cache-tools.outputs.cache-hit != 'true'
       run: make tools
 
