@@ -28,6 +28,7 @@ jobs:
           go-tools-${{ runner.os }}
 
     - name: install tools
+      if: steps.cache-tools.outputs.cache-hit != 'true'
       run: make tools
 
     - name: Checks
