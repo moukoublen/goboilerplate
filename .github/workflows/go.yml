@@ -26,7 +26,7 @@ jobs:
         key: go-tools
 
     - name: install tools
-      run: make tool
+      run: make tools
 
     - name: Checks
       run: make checks
