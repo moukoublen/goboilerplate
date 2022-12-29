@@ -21,7 +21,7 @@ func TestAPI_AboutRouteHandler(t *testing.T) {
 
 	// verify
 	assert.Equal(t, http.StatusOK, resp.Code)
-	responseBody := map[string]interface{}{}
+	responseBody := map[string]any{}
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	assert.NoError(t, err)
 	assert.Contains(t, responseBody, "version")

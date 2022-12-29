@@ -179,7 +179,7 @@ type chiZerologEntry struct {
 	logger   *zerolog.Logger
 }
 
-func (e *chiZerologEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
+func (e *chiZerologEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra any) {
 	e.logEvent.
 		Int("status_code", status).
 		Str("status", http.StatusText(status)).
@@ -190,7 +190,7 @@ func (e *chiZerologEntry) Write(status, bytes int, header http.Header, elapsed t
 		Msg("http call")
 }
 
-func (e *chiZerologEntry) Panic(v interface{}, stack []byte) {
+func (e *chiZerologEntry) Panic(v any, stack []byte) {
 	s := strings.Split(string(stack), "\n")
 	for i := range s {
 		s[i] = strings.ReplaceAll(s[i], "\t", "  ")
@@ -204,8 +204,8 @@ func (e *chiZerologEntry) Panic(v interface{}, stack []byte) {
 
 type chiNopLogEntry struct{}
 
-func (e chiNopLogEntry) Write(_, _ int, _ http.Header, _ time.Duration, _ interface{}) {}
-func (e chiNopLogEntry) Panic(_ interface{}, _ []byte)                                 {}
+func (e chiNopLogEntry) Write(_, _ int, _ http.Header, _ time.Duration, _ any) {}
+func (e chiNopLogEntry) Panic(_ any, _ []byte)                                 {}
 
 func requestURL(r *http.Request) string {
 	scheme := "http"
