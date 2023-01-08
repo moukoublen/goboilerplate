@@ -26,7 +26,6 @@
     "-v",
     "-race"
   ],
-  "go.vetFlags": ["-all"],
   // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   "go.useLanguageServer": true,
   "gopls": {
@@ -37,24 +36,5 @@
     "build.env": {
       "GO111MODULE": "on"
     },
-    "formatting.gofumpt": true,
-    "ui.completion.usePlaceholders": true,
-    "ui.completion.experimentalPostfixCompletions": true,
-    "ui.diagnostic.annotations": {
-      "bounds": true,
-      "escape": true,
-      "inline": true,
-      "nil": true
-    },
-    "ui.diagnostic.staticcheck": true,
-    "ui.codelenses": {
-      "gc_details": false,
-      "generate": true,
-      "regenerate_cgo": false,
-      "tidy": true,
-      "upgrade_dependency": true,
-      "vendor": true
-    },
-    "ui.documentation.hoverKind": "FullDocumentation",
   }
 }
