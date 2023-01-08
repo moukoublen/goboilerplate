@@ -16,8 +16,8 @@ const (
 )
 
 type Config struct {
-	ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"4s"`
 	HTTP            HTTP          `envPrefix:"HTTP_"`
+	ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"4s"`
 	Logging         Logging       `envPrefix:"LOG_"`
 }
 
