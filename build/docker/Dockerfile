@@ -10,6 +10,6 @@ RUN set -xe && \
 FROM alpine:3.17
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
-COPY --from=builder /app/goboilerplate /app/goboilerplate
+COPY --from=builder /app/output/* /app/
 USER nobody
 CMD ["./goboilerplate"]

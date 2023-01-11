@@ -4,6 +4,7 @@
 /.bin/
 /.vscode/
 /.idea/
+/output/
 
 /**/*.md
 /vendor/**/.gitignore

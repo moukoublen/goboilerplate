@@ -26,8 +26,6 @@ NEW_NAME="${2}"
   __help && \
   exit 1
 
-SEP=$'\u200'
-
 find ./ \
   -type f \
   -not -path "./.git/*" \

@@ -23,11 +23,11 @@
 go.work
 
 #### Extra
-/.bin/*
+/.bin/
 
 # visual studio code local folder
 /.vscode/*
 !/.vscode/settings.json
 
-# Executable
-/goboilerplate
+# Executables
+/output/
