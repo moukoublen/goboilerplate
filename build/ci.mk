@@ -49,7 +49,7 @@ vet:
 
 ########## goimports ##########################################################
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := v0.4.0
+VERSION_GOIMPORTS := v0.5.0
 VERSION_FILE_GOIMPORTS := ._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
 
 $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
@@ -68,19 +68,21 @@ goimports: $(TOOLSBIN)/goimports
 		echo 'goimports errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    goimports -d `$(FOLDERS)`'; \
+		echo '    make goimports.display'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    goimports -w `$(FOLDERS)`'; \
-		echo '  or'; \
-		echo '    make goimports-w'; \
+		echo '    make goimports.fix'; \
 		echo ''; \
 		exit 1; \
 	fi
 	@echo ''
 
-.PHONY: goimports-w
-goimports-w:
+.PHONY: goimports.display
+goimports.display: $(TOOLSBIN)/goimports
+	$(TOOLSBIN)/goimports -d `$(FOLDERS)`
+
+.PHONY: goimports.fix
+goimports.fix: $(TOOLSBIN)/goimports
 	$(TOOLSBIN)/goimports -w `$(FOLDERS)`
 ###############################################################################
 
@@ -148,19 +150,21 @@ gofumpt: $(TOOLSBIN)/gofumpt
 		echo 'gofumpt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    gofumpt -d `$(FOLDERS)`'; \
+		echo '    make gofumpt.display'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    gofumpt -w `$(FOLDERS)`'; \
-		echo '  or'; \
-		echo '    make gofumpt-w'; \
+		echo '    make gofumpt.fix'; \
 		echo ''; \
 		exit 1; \
 	fi
 	@echo ''
 
-.PHONY: gofumpt-w
-gofumpt-w:
+.PHONY: gofumpt.display
+gofumpt.display:
+	$(TOOLSBIN)/gofumpt -d `$(FOLDERS)`
+
+.PHONY: gofumpt.fix
+gofumpt.fix:
 	$(TOOLSBIN)/gofumpt -w `$(FOLDERS)`
 ###############################################################################
 
