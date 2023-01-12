@@ -19,11 +19,8 @@ test:
 	@$(GO_EXEC) tool cover -func cover.out
 	@rm cover.out
 
-define install-log
-	@echo -e "Installing \e[1;36m$(1)\e[0m..."
-endef
-
 define go-install
+	@echo -e "Installing \e[1;36m$(1)\e[0m"
 	$(GO_EXEC) install -a -trimpath -ldflags '-s -w -extldflags "-static"' "$(1)"
 	@echo ""
 endef
@@ -57,7 +54,6 @@ $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
 
 $(TOOLSBIN)/goimports: $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
-	$(call install-log,goimports)
 	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
 	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
 
@@ -97,7 +93,6 @@ $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
 
 $(TOOLSBIN)/staticcheck: $(TOOLSBIN)/$(VERSION_FILE_STATICCHECK)
-	$(call install-log,staticcheck)
 	$(call go-install,honnef.co/go/tools/cmd/staticcheck@$(VERSION_STATICCHECK))
 	@cp $(GOPATH)/bin/staticcheck $(TOOLSBIN)/staticcheck
 
@@ -118,7 +113,6 @@ $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
 
 $(TOOLSBIN)/golangci-lint: $(TOOLSBIN)/$(VERSION_FILE_GOLANGCILINT)
-	$(call install-log,golangci-lint)
 	$(call go-install,github.com/golangci/golangci-lint/cmd/golangci-lint@$(VERSION_GOLANGCILINT))
 	@cp $(GOPATH)/bin/golangci-lint $(TOOLSBIN)/golangci-lint
 
@@ -139,7 +133,6 @@ $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
 
 $(TOOLSBIN)/gofumpt: $(TOOLSBIN)/$(VERSION_FILE_GOFUMPT)
-	$(call install-log,gofumpt)
 	$(call go-install,mvdan.cc/gofumpt@$(VERSION_GOFUMPT))
 	@cp $(GOPATH)/bin/gofumpt $(TOOLSBIN)/gofumpt
 
@@ -179,7 +172,7 @@ $(TOOLSBIN)/$(VERSION_FILE_MIGRATE): | $(TOOLSBIN)
 	@touch $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 
 $(TOOLSBIN)/migrate: $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
-	$(call install-log,golang-migrate,$(VERSION_MIGRATE))
+	@echo -e "Installing \e[1;36mgolang-migrate $(VERSION_MIGRATE)\e[0m"
 	@./scripts/install-migrate "$(VERSION_MIGRATE)" "$(TOOLSBIN)"
 ###############################################################################
 

@@ -77,6 +77,7 @@ func dictFromRequest(r *http.Request) (*zerolog.Event, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	r.Body = body
 
 	dict := zerolog.Dict()
@@ -128,18 +129,21 @@ func sanitizeJSONBytesToLog(b []byte) []byte {
 //
 // It returns an error if the initial slurp of all bytes fails. It does not attempt
 // to make the returned ReadClosers have identical error-matching behavior.
-func drainBody(b io.ReadCloser) (r1 io.ReadCloser, r2 []byte, err error) {
+func drainBody(b io.ReadCloser) (io.ReadCloser, []byte, error) {
 	if b == nil || b == http.NoBody {
 		// No copying needed. Preserve the magic sentinel meaning of NoBody.
 		return http.NoBody, nil, nil
 	}
+
 	var buf bytes.Buffer
-	if _, err = buf.ReadFrom(b); err != nil {
+	if _, err := buf.ReadFrom(b); err != nil {
 		return nil, nil, err
 	}
-	if err = b.Close(); err != nil {
+
+	if err := b.Close(); err != nil {
 		return nil, nil, err
 	}
+
 	return io.NopCloser(&buf), buf.Bytes(), nil
 }
 
@@ -150,6 +154,9 @@ type ChiZerolog struct {
 	LogInLevel zerolog.Level
 }
 
+// NewLogEntry implements chi LogFormatter NewLogEntry function.
+//
+//nolint:ireturn
 func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
 	logger := zerolog.Ctx(r.Context())
 
@@ -212,6 +219,7 @@ func requestURL(r *http.Request) string {
 	if r.TLS != nil {
 		scheme = "https"
 	}
+
 	return fmt.Sprintf("%s://%s%s %s", scheme, r.Host, r.RequestURI, r.Proto)
 }
 

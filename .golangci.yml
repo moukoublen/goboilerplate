@@ -1,7 +1,9 @@
 # https://golangci-lint.run/usage/configuration/
 
 run:
-  concurrency: 2
+  go: '1.19'
+  timeout: 10m
+  concurrency: 4
   issues-exit-code: 1
   tests: true
   build-tags:
@@ -14,3 +16,49 @@ output:
   print-issued-lines: true
   print-linter-name: true
   uniq-by-line: true
+
+linters:
+  enable-all: true
+  disable:
+    - deadcode # deprecated
+    - exhaustivestruct # deprecated
+    - golint # deprecated
+    - ifshort # deprecated
+    - interfacer # deprecated
+    - maligned # deprecated
+    - nosnakecase # deprecated
+    - scopelint # deprecated
+    - structcheck # deprecated
+    - varcheck # deprecated
+    - exhaustruct # TODO: reconsider
+    - wsl
+    - lll
+    - wrapcheck
+    - varnamelen
+    - nonamedreturns
+    - testpackage
+
+
+linters-settings:
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
+        json: snake
+        yaml: camel
+        xml: camel
+        bson: camel
+        avro: snake
+        mapstructure: kebab
+
+  paralleltest:
+    # Ignore missing calls to `t.Parallel()` and only report incorrect uses of it.
+    # Default: false
+    ignore-missing: true
+
+  nolintlint:
+    # Disable to ensure that all nolint directives actually have an effect.
+    # Default: false
+    allow-unused: true

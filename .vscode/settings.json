@@ -14,10 +14,14 @@
   },
   "go.disableConcurrentTests": true,
   "go.formatTool": "default",
-  "go.lintTool": "staticcheck",
+  "go.lintTool": "golangci-lint",
   "go.lintFlags": [
-    "-checks=all,-ST1000"
-  ],
+    "--fast"
+  ]
+  // "go.lintTool": "staticcheck",
+  // "go.lintFlags": [
+  //   "-checks=all,-ST1000"
+  // ],
   "go.lintOnSave": "package",
   "go.testTags": "test-e2e",
   "go.testFlags": [

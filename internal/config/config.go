@@ -28,6 +28,7 @@ type HTTP struct {
 	OutBoundHTTPLogLevel HTTPTrafficLogLevel `env:"OUTBOUND_TRAFFIC_LOG_LEVEL" envDefault:"2"`
 	LogInLevel           zerolog.Level       `env:"TRAFFIC_LOG_IN_LEVEL" envDefault:"-1"`
 	GlobalInboundTimeout time.Duration       `env:"GLOBAL_INBOUND_TIMEOUT"`
+	ReadHeaderTimeout    time.Duration       `env:"READ_HEADER_TIMEOUT" envDefault:"5s"`
 }
 
 type Logging struct {
@@ -40,6 +41,7 @@ func New() (Config, error) {
 	opts := env.Options{
 		Prefix: "APP_",
 	}
+
 	if err := env.Parse(&cfg, opts); err != nil {
 		return Config{}, err
 	}

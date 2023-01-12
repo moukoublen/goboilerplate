@@ -82,3 +82,5 @@ Installs (if needed) [golangci-lint](https://golangci-lint.run/) under `TOOLSBIN
 
 If issues are found the target fails (due to `golangci-lint` exit status).
 
+### `tools`
+Installs (if needed) all tools (goimports, staticcheck, gofumpt, etc) under `TOOLSBIN` folder (default is `./.bin`).

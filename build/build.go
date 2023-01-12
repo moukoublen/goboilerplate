@@ -1,6 +1,8 @@
 package build
 
-// Build time variables
+// Build time variables.
+//
+//nolint:gochecknoglobals
 var (
 	Version     = ""
 	Branch      = ""
@@ -9,7 +11,7 @@ var (
 	Tag         = ""
 )
 
-type buildInfo struct {
+type Info struct {
 	Version     string `json:"version"`
 	Branch      string `json:"branch"`
 	Commit      string `json:"commit"`
@@ -17,8 +19,8 @@ type buildInfo struct {
 	Tag         string `json:"tag"`
 }
 
-func BuildInfo() buildInfo {
-	return buildInfo{
+func GetInfo() Info {
+	return Info{
 		Version:     Version,
 		Branch:      Branch,
 		Commit:      Commit,

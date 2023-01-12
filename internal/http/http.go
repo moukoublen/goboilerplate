@@ -23,11 +23,16 @@ func NewDefaultRouter(c config.HTTP) *chi.Mux {
 	router.Use(middleware.Heartbeat("/ping"))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
+
 	if c.InBoundHTTPLogLevel > config.HTTPTrafficLogLevelNone {
 		router.Use(NewHTTPInboundLoggerMiddleware(c))
 	}
+
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(120 * time.Second))
+
+	if c.GlobalInboundTimeout > 0 {
+		router.Use(middleware.Timeout(c.GlobalInboundTimeout))
+	}
 
 	router.Get("/about", AboutHandler)
 
@@ -35,6 +40,7 @@ func NewDefaultRouter(c config.HTTP) *chi.Mux {
 	router.Get("/panic", Panic)
 
 	LogRoutes(router)
+
 	return router
 }
 
@@ -43,11 +49,12 @@ func LogRoutes(r *chi.Mux) {
 		return
 	}
 
-	routes := make([]string, 0, 10)
+	routes := []string{}
 
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+	walkFunc := func(_ string, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
 		route = strings.ReplaceAll(route, "/*/", "/")
 		routes = append(routes, route)
+
 		return nil
 	}
 
@@ -64,19 +71,29 @@ func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
 	e := json.NewEncoder(w)
-	_ = e.Encode(build.BuildInfo())
+
+	if err := e.Encode(build.GetInfo()); err != nil {
+		log.Error().Err(err).Msg("error during json encoding in about handler")
+	}
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
 // It returns the server struct and a channel of errors in which will be forwarded any error returned from server.ListenAndServe.
-func StartListenAndServe(addr string, handler http.Handler) (*http.Server, <-chan error) {
-	server := &http.Server{Addr: addr, Handler: handler}
+func StartListenAndServe(addr string, handler http.Handler, readHeaderTimeout time.Duration) (*http.Server, <-chan error) {
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: readHeaderTimeout,
+	}
 	errorChannel := make(chan error, 1)
+
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			errorChannel <- err
 		}
+
 		close(errorChannel)
 	}()
+
 	return server, errorChannel
 }

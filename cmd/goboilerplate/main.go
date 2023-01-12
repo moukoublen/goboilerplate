@@ -53,14 +53,18 @@ func main() {
 	log.Info().Msgf("Shutdown completed")
 }
 
+const signalChannelBufferSize = 10
+
 func channelForSignals(s ...os.Signal) <-chan os.Signal {
-	signalCh := make(chan os.Signal, 10)
+	signalCh := make(chan os.Signal, signalChannelBufferSize)
 	signal.Notify(signalCh, s...)
+
 	return signalCh
 }
 
 func startHTTPServer(config config.HTTP, handler http.Handler) (*http.Server, <-chan error) {
-	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler)
+	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler, config.ReadHeaderTimeout)
 	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
+
 	return server, chErr
 }

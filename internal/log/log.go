@@ -14,6 +14,8 @@ import (
 func newDefaultLogger(l zerolog.Level, w io.Writer) zerolog.Logger {
 	zerolog.SetGlobalLevel(l)
 	zerolog.TimeFieldFormat = time.RFC3339
+
+	//nolint: reassign
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	// zerolog.ErrorMarshalFunc
 
