@@ -44,45 +44,6 @@ vet:
 	@echo ""
 
 
-########## goimports ##########################################################
-# https://pkg.go.dev/golang.org/x/tools?tab=versions
-VERSION_GOIMPORTS := v0.5.0
-VERSION_FILE_GOIMPORTS := ._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
-
-$(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
-	@rm -f $(TOOLSBIN)/._goimports_*
-	@touch $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
-
-$(TOOLSBIN)/goimports: $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
-	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
-	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
-
-.PHONY: goimports
-goimports: $(TOOLSBIN)/goimports
-	@echo '$(TOOLSBIN)/goimports -l `$(FOLDERS)`'
-	@if [[ -n "$$($(TOOLSBIN)/goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
-		echo 'goimports errors'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    make goimports.display'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    make goimports.fix'; \
-		echo ''; \
-		exit 1; \
-	fi
-	@echo ''
-
-.PHONY: goimports.display
-goimports.display: $(TOOLSBIN)/goimports
-	$(TOOLSBIN)/goimports -d `$(FOLDERS)`
-
-.PHONY: goimports.fix
-goimports.fix: $(TOOLSBIN)/goimports
-	$(TOOLSBIN)/goimports -w `$(FOLDERS)`
-###############################################################################
-
-
 ########## staticcheck ########################################################
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/
 VERSION_STATICCHECK := v0.3.3
@@ -162,6 +123,72 @@ gofumpt.fix:
 ###############################################################################
 
 
+########## goimports ##########################################################
+# https://pkg.go.dev/golang.org/x/tools?tab=versions
+VERSION_GOIMPORTS := v0.5.0
+VERSION_FILE_GOIMPORTS := ._goimports_$(VERSION_GOIMPORTS)_$(GO_VER)
+
+$(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS): | $(TOOLSBIN)
+	@rm -f $(TOOLSBIN)/._goimports_*
+	@touch $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
+
+$(TOOLSBIN)/goimports: $(TOOLSBIN)/$(VERSION_FILE_GOIMPORTS)
+	$(call go-install,golang.org/x/tools/cmd/goimports@$(VERSION_GOIMPORTS))
+	@cp $(GOPATH)/bin/goimports $(TOOLSBIN)/goimports
+
+.PHONY: goimports
+goimports: $(TOOLSBIN)/goimports
+	@echo '$(TOOLSBIN)/goimports -l `$(FOLDERS)`'
+	@if [[ -n "$$($(TOOLSBIN)/goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+		echo 'goimports errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    make goimports.display'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    make goimports.fix'; \
+		echo ''; \
+		exit 1; \
+	fi
+	@echo ''
+
+.PHONY: goimports.display
+goimports.display: $(TOOLSBIN)/goimports
+	$(TOOLSBIN)/goimports -d `$(FOLDERS)`
+
+.PHONY: goimports.fix
+goimports.fix: $(TOOLSBIN)/goimports
+	$(TOOLSBIN)/goimports -w `$(FOLDERS)`
+###############################################################################
+
+
+########## gofmt ##############################################################
+.PHONY: gofmt
+gofmt:
+	@echo 'gofmt -l `$(FOLDERS)`'
+	@if [[ -n "$$(gofmt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+		echo 'gofmt errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    make gofmt.display'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    make gofmt.fix'; \
+		echo ''; \
+		exit 1; \
+	fi
+	@echo ''
+
+.PHONY: gofmt.display
+gofmt.display:
+	gofmt -d `$(FOLDERS)`
+
+.PHONY: gofmt.fix
+gofmt.fix:
+	gofmt -w `$(FOLDERS)`
+###############################################################################
+
+
 ########## golang-migrate #####################################################
 # https://github.com/golang-migrate/migrate/releases
 VERSION_MIGRATE := 4.15.2
@@ -175,29 +202,3 @@ $(TOOLSBIN)/migrate: $(TOOLSBIN)/$(VERSION_FILE_MIGRATE)
 	@echo -e "Installing \e[1;36mgolang-migrate $(VERSION_MIGRATE)\e[0m"
 	@./scripts/install-migrate "$(VERSION_MIGRATE)" "$(TOOLSBIN)"
 ###############################################################################
-
-
-########## gofmt ##############################################################
-.PHONY: gofmt
-gofmt:
-	@echo 'gofmt -l `$(FOLDERS)`'
-	@if [[ -n "$$(gofmt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
-		echo 'gofmt errors'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    gofmt -d `$(FOLDERS)`'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    gofmt -w `$(FOLDERS)`'; \
-		echo '  or'; \
-		echo '    make gofmt-w'; \
-		echo ''; \
-		exit 1; \
-	fi
-	@echo ''
-
-.PHONY: gofmt-w
-gofmt-w:
-	gofmt -w `$(FOLDERS)`
-###############################################################################
-
