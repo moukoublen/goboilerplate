@@ -1,14 +1,14 @@
 # Go service boilerplate
 
-### How to use
+## How to use
 1. Click `Use this template` from this repo github page, and choose your destination repo/name (e.g. `github.com/glendale/service`)
 2. Clone **your** repo locally and run `./scripts/rename` giving your new package name and main cmd name. E.g. `./scripts/rename github.com/glendale/service service`.
 3. Commit the renaming and you are ready to start.
 
 ## Make file targets
 
-| **target** | **description** |
-| ---------- | --------------- |
+| **target**             | **description** |
+| ---------------------- | --------------- |
 | `mod`                  | Runs go mod [tidy](https://go.dev/ref/mod#go-mod-tidy) and [verify](https://go.dev/ref/mod#go-mod-verify). |
 | `vendor`               | Runs [go mod vendor](https://go.dev/ref/mod#go-mod-vendor) that downloads all dependencies into `./vendor` folder. |
 | `build`                | Builds all binaries under `./cmd` (one for each directory) and outputs the binaries into `./output` folder using this patter `./cmd/<directory name> -> ./output/<directory name>`. |
