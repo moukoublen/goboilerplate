@@ -127,8 +127,8 @@ $(TOOLSBIN):
 
 .PRECIOUS: $(TOOLSBIN)/.%.ver
 $(TOOLSBIN)/.%.ver: | $(TOOLSBIN)
-	rm -f $(TOOLSBIN)/.$(word 1,$(subst ., ,$*)).*
-	touch $(TOOLSBIN)/.$*.ver
+	@rm -f $(TOOLSBIN)/.$(word 1,$(subst ., ,$*)).*
+	@touch $(TOOLSBIN)/.$*.ver
 
 $(TOOLSBIN)/%: DSC=$*
 $(TOOLSBIN)/%: VER=$($(call uppercase,$*)_VER)
