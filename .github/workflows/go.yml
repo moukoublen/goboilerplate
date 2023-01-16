@@ -22,10 +22,13 @@ jobs:
       id: cache-tools
       uses: actions/cache@v3
       with:
-        path: .bin/
-        key: go-tools-${{ runner.os }}-${{ hashFiles('build/ci.mk') }}
+        path: |
+          .bin/
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: go-and-tools-${{ runner.os }}-${{ hashFiles('**/go.sum', '**/Makefile') }}
         restore-keys: |
-          go-tools-${{ runner.os }}
+          go-and-tools-${{ runner.os }}
 
     - name: Install Tools
       if: steps.cache-tools.outputs.cache-hit != 'true'
