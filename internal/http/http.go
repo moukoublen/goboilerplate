@@ -78,20 +78,22 @@ func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
-// Any possible error that server.ListenAndServe will be sent to `fatalErrorsCh`.
-// It returns the server struct.
-func StartListenAndServe(addr string, handler http.Handler, readHeaderTimeout time.Duration, fatalErrorsCh chan<- error) *http.Server {
+// It returns the server struct and a channel of errors in which will be forwarded any error returned from server.ListenAndServe.
+func StartListenAndServe(addr string, handler http.Handler, readHeaderTimeout time.Duration) (*http.Server, <-chan error) {
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           handler,
 		ReadHeaderTimeout: readHeaderTimeout,
 	}
+	errorChannel := make(chan error, 1)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			fatalErrorsCh <- err
+			errorChannel <- err
 		}
+
+		close(errorChannel)
 	}()
 
-	return server
+	return server, errorChannel
 }
