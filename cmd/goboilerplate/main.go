@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net/http"
 	"os"
-	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
 	ihttp "github.com/moukoublen/goboilerplate/internal/http"
 	ilog "github.com/moukoublen/goboilerplate/internal/log"
@@ -24,20 +22,19 @@ func main() {
 	ilog.SetupLog(cnf.Logging)
 	log.Info().Msgf("Starting up")
 
-	signalCh := channelForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	fatalBufferSize := 4
+	signalsCh := internal.ChannelForSignals(fatalBufferSize, []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT})
+	fatalErrorsCh := make(chan error, fatalBufferSize)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	router := ihttp.NewDefaultRouter(cnf.HTTP)
-	server, serverErrCh := startHTTPServer(cnf.HTTP, router)
 
-	select {
-	case sig := <-signalCh:
-		log.Info().Msgf("Signal received: %d %s", sig, sig.String())
-	case servErr := <-serverErrCh:
-		if !errors.Is(servErr, http.ErrServerClosed) {
-			log.Error().Err(servErr).Msg("error returned from http server")
-		}
-	}
+	// components/services initialization
+
+	server := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", cnf.HTTP.IP, cnf.HTTP.Port), router, cnf.HTTP.ReadHeaderTimeout, fatalErrorsCh)
+	log.Info().Msgf("service started at %s:%d", cnf.HTTP.IP, cnf.HTTP.Port)
+
+	internal.WaitForFatal(signalsCh, fatalErrorsCh)
 
 	// graceful shut down
 	deadline := time.Now().Add(cnf.ShutdownTimeout)
@@ -45,26 +42,12 @@ func main() {
 	if err := server.Shutdown(dlCtx); err != nil {
 		log.Warn().Err(err).Msg("error during http server shutdown")
 	}
-	// shutdown other components/services
-	// srv.Shutdown(ctx)
+
+	// shutdown components/services
+	// e.g. srv.Shutdown(dlCtx)
+
 	dlCancel()
 	cancel()
 	time.Sleep(1 * time.Second)
 	log.Info().Msgf("Shutdown completed")
-}
-
-const signalChannelBufferSize = 10
-
-func channelForSignals(s ...os.Signal) <-chan os.Signal {
-	signalCh := make(chan os.Signal, signalChannelBufferSize)
-	signal.Notify(signalCh, s...)
-
-	return signalCh
-}
-
-func startHTTPServer(config config.HTTP, handler http.Handler) (*http.Server, <-chan error) {
-	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler, config.ReadHeaderTimeout)
-	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
-
-	return server, chErr
 }
