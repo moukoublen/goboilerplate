@@ -52,9 +52,8 @@ BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS)" -tags "$(TAGS)"
 .PHONY: build
 build: $(shell ls -d cmd/* | sed -e 's/\//./')
 cmd.%: CMDNAME=$*
-cmd.%: CGO_ENABLED=0
 cmd.%:
-	$(GO_EXEC) build $(BUILD_FLAGS) -o ./output/$(CMDNAME) ./cmd/$(CMDNAME)
+	CGO_ENABLED=0 $(GO_EXEC) build $(BUILD_FLAGS) -o ./output/$(CMDNAME) ./cmd/$(CMDNAME)
 
 .PHONY: clean
 clean:
