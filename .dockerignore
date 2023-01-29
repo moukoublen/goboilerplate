@@ -4,6 +4,7 @@
 /.bin/
 /.vscode/
 /.idea/
+/cover.out
 /output/
 
 /**/*.md
@@ -17,6 +18,8 @@
 /vendor/**/.travis.yml
 /vendor/**/appveyor.yml
 /vendor/**/.dockerignore
+/vendor/**/.codecov.yml
+/vendor/**/.gitattributes
 
 #### Test .dockerignore (https://stackoverflow.com/questions/38946683/how-to-test-dockerignore-file)
 # docker build --no-cache --progress plain -t dockerignore-test --file - . <<EOF
