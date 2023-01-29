@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,40 +15,58 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const fatalErrorsChBufferSize = 10
+
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	cnf, err := config.New()
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
+
 	ilog.SetupLog(cnf.Logging)
 	log.Info().Msgf("Starting up")
 
-	signalCh := channelForSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	fatalErrorsCh := make(chan error, fatalErrorsChBufferSize)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	signalCh := channelForSignals(os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM)
+
 	router := ihttp.NewDefaultRouter(cnf.HTTP)
-	server, serverErrCh := startHTTPServer(cnf.HTTP, router)
+	server := startHTTPServer(cnf.HTTP, router, fatalErrorsCh)
 
 	select {
 	case sig := <-signalCh:
-		log.Info().Msgf("Signal received: %d %s", sig, sig.String())
-	case servErr := <-serverErrCh:
-		if !errors.Is(servErr, http.ErrServerClosed) {
-			log.Error().Err(servErr).Msg("error returned from http server")
+		event := log.Warn().Str("signal", sig.String())
+		if sigInt, ok := sig.(syscall.Signal); ok {
+			event.Int("signalNumber", int(sigInt))
 		}
+		event.Msg("signal received")
+	case fatalErr := <-fatalErrorsCh:
+		log.Error().Err(fatalErr).Msg("fatal error received")
+		go func() {
+			for err := range fatalErrorsCh {
+				log.Error().Err(err).Msg("fatal error received")
+			}
+		}()
 	}
 
-	// graceful shut down
+	// graceful shut down.
 	deadline := time.Now().Add(cnf.ShutdownTimeout)
 	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
+
+	// shutdown other components/services.
+	// srv.Shutdown(ctx)
+	// shutdown http server.
 	if err := server.Shutdown(dlCtx); err != nil {
 		log.Warn().Err(err).Msg("error during http server shutdown")
 	}
-	// shutdown other components/services
-	// srv.Shutdown(ctx)
+
 	dlCancel()
 	cancel()
 	time.Sleep(1 * time.Second)
+	close(fatalErrorsCh)
+
 	log.Info().Msgf("Shutdown completed")
 }
 
@@ -62,9 +79,14 @@ func channelForSignals(s ...os.Signal) <-chan os.Signal {
 	return signalCh
 }
 
-func startHTTPServer(config config.HTTP, handler http.Handler) (*http.Server, <-chan error) {
-	server, chErr := ihttp.StartListenAndServe(fmt.Sprintf("%s:%d", config.IP, config.Port), handler, config.ReadHeaderTimeout)
+func startHTTPServer(config config.HTTP, handler http.Handler, fatalErrCh chan<- error) *http.Server {
+	server := ihttp.StartListenAndServe(
+		fmt.Sprintf("%s:%d", config.IP, config.Port),
+		handler,
+		config.ReadHeaderTimeout,
+		fatalErrCh,
+	)
 	log.Info().Msgf("service started at %s:%d", config.IP, config.Port)
 
-	return server, chErr
+	return server
 }
