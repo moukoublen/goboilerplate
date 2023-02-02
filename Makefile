@@ -35,7 +35,7 @@ default: checks build
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy -go=1.19
+	$(GO_EXEC) mod tidy -go=1.20
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor
@@ -140,7 +140,7 @@ $(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).$(GO_VER).ver
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
-STATICCHECK_VER:=v0.3.3
+STATICCHECK_VER:=master
 $(TOOLSBIN)/staticcheck:
 $(TOOLSBIN)/.staticcheck.$(STATICCHECK_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
