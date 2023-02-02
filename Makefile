@@ -132,7 +132,7 @@ $(TOOLSBIN)/.%.ver: | $(TOOLSBIN)
 $(TOOLSBIN)/%: DSC=$*
 $(TOOLSBIN)/%: VER=$($(call uppercase,$*)_VER)
 $(TOOLSBIN)/%: CMD=$($(call uppercase,$*)_CMD)
-$(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).ver
+$(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).$(GO_VER).ver
 	@echo -e "Installing \e[1;36m$(DSC) $(VER)\e[0m"
 	CGO_ENABLED=0 GOBIN="$(TOOLSBIN)" $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
 	@echo ""
@@ -142,7 +142,7 @@ $(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).ver
 STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
 STATICCHECK_VER:=v0.3.3
 $(TOOLSBIN)/staticcheck:
-$(TOOLSBIN)/.staticcheck.$(STATICCHECK_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
+$(TOOLSBIN)/.staticcheck.$(STATICCHECK_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: staticcheck
 staticcheck: $(TOOLSBIN)/staticcheck
@@ -153,9 +153,9 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.50.1
+GOLANGCI-LINT_VER:=v1.51.0
 $(TOOLSBIN)/golangci-lint:
-$(TOOLSBIN)/.golangci-lint.$(GOLANGCI-LINT_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
+$(TOOLSBIN)/.golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLSBIN)/golangci-lint
@@ -168,7 +168,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 GOFUMPT_CMD:=mvdan.cc/gofumpt
 GOFUMPT_VER:=v0.4.0
 $(TOOLSBIN)/gofumpt:
-$(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
+$(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: gofumpt
 gofumpt: $(TOOLSBIN)/gofumpt
@@ -200,7 +200,7 @@ gofumpt.fix:
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
 GOIMPORTS_VER := v0.5.0
 $(TOOLSBIN)/goimports:
-$(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
+$(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: goimports
 goimports: $(TOOLSBIN)/goimports
