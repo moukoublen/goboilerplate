@@ -1,6 +1,6 @@
 module github.com/moukoublen/goboilerplate
 
-go 1.19
+go 1.20
 
 require (
 	github.com/caarlos0/env/v6 v6.10.1
