@@ -34,7 +34,7 @@
   "go.useLanguageServer": true,
   "gopls": {
     "build.buildFlags": [
-      "-mod=vendor",
+      //"-mod=vendor",
       "-tags=test-e2e,other"
     ],
     "build.env": {
