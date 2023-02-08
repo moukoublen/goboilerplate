@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 .NOTPARALLEL:
 .SECONDEXPANSION:
-## this requires make >=4.4
+## NOTINTERMEDIATE requires make >=4.4
 .NOTINTERMEDIATE:
 
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
@@ -59,11 +59,11 @@ cmd.%:
 clean:
 	rm -rf ./output
 
+# man git-clean
 .PHONY: git-reset
 git-reset:
 	git reset --hard
 	git clean -fd
-# man git-clean
 
 .PHONY: image
 image:
@@ -92,8 +92,9 @@ env:
 	@echo '$(TOOLSBIN)'
 
 
-###############################################################################
-## ci & external tools #############################################################
+####################################################################################
+## <ci & external tools> ###########################################################
+####################################################################################
 .PHONY: test
 test:
 	CGO_ENABLED=1 $(GO_EXEC) test -timeout 60s -race -tags="$(TAGS)" -coverprofile cover.out -covermode atomic ./...
@@ -252,8 +253,9 @@ gofmt.display:
 gofmt.fix:
 	gofmt -w `$(FOLDERS)`
 ## </gofmt>
-###############################################################################
-###############################################################################
+####################################################################################
+## </ci & external tools> ##########################################################
+####################################################################################
 
 
 # https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
