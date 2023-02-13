@@ -199,7 +199,7 @@ gofumpt.fix:
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.5.0
+GOIMPORTS_VER := v0.6.0
 $(TOOLSBIN)/goimports:
 $(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
