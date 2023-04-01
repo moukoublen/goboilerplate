@@ -65,7 +65,7 @@ func LogRoutes(r *chi.Mux) {
 	}
 }
 
-func Panic(w http.ResponseWriter, r *http.Request) { panic("test panic") }
+func Panic(_ http.ResponseWriter, _ *http.Request) { panic("test panic") }
 
 func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)

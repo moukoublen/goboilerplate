@@ -135,7 +135,7 @@ $(TOOLSBIN)/%: VER=$($(call uppercase,$*)_VER)
 $(TOOLSBIN)/%: CMD=$($(call uppercase,$*)_CMD)
 $(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).$(GO_VER).ver
 	@echo -e "Installing \e[1;36m$(DSC)\e[0m@\e[1;36m$(VER)\e[0m using \e[1;36m$(GO_VER)\e[0m"
-	CGO_ENABLED=0 GOBIN="$(TOOLSBIN)" $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
+	GOBIN="$(TOOLSBIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
 	@echo ""
 
 ## <staticcheck>
@@ -154,7 +154,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.51.2
+GOLANGCI-LINT_VER:=v1.52.2
 $(TOOLSBIN)/golangci-lint:
 $(TOOLSBIN)/.golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
