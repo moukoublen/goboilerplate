@@ -167,7 +167,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 ## <gofumpt>
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
-GOFUMPT_VER:=v0.4.0
+GOFUMPT_VER:=v0.5.0
 $(TOOLSBIN)/gofumpt:
 $(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
@@ -199,7 +199,7 @@ gofumpt.fix:
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.7.0
+GOIMPORTS_VER := v0.8.0
 $(TOOLSBIN)/goimports:
 $(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
