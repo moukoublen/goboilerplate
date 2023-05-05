@@ -90,6 +90,9 @@ env:
 	@echo ""
 	@echo ">>> Tools:"
 	@echo '$(TOOLSBIN)'
+	@echo ""
+	@echo ">>> Path:"
+	@echo $${PATH}
 
 
 ####################################################################################
@@ -116,7 +119,7 @@ export PATH := $(TOOLSBIN):$(PATH)
 
 uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
 
-
+.PHONY: tools
 tools: \
 	$(TOOLSBIN)/goimports \
 	$(TOOLSBIN)/staticcheck \
@@ -148,7 +151,7 @@ $(TOOLSBIN)/.staticcheck.$(STATICCHECK_VER).$(GO_VER).ver: # force not intermedi
 
 .PHONY: staticcheck
 staticcheck: $(TOOLSBIN)/staticcheck
-	$(TOOLSBIN)/staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
+	staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
 	@echo ''
 ## </staticcheck>
 
@@ -161,41 +164,9 @@ $(TOOLSBIN)/.golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver: # force not inter
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLSBIN)/golangci-lint
-	$(TOOLSBIN)/golangci-lint run
+	golangci-lint run
 	@echo ''
 ## </golangci-lint>
-
-## <gofumpt>
-# https://github.com/mvdan/gofumpt/releases
-GOFUMPT_CMD:=mvdan.cc/gofumpt
-GOFUMPT_VER:=v0.5.0
-$(TOOLSBIN)/gofumpt:
-$(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
-
-.PHONY: gofumpt
-gofumpt: $(TOOLSBIN)/gofumpt
-	@echo '$(TOOLSBIN)/gofumpt -l `$(FOLDERS)`'
-	@if [[ -n "$$($(TOOLSBIN)/gofumpt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
-		echo 'gofumpt errors'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
-		echo '    make gofumpt.display'; \
-		echo ''; \
-		echo -e "\e[0;34m→\e[0m To fix them run:"; \
-		echo '    make gofumpt.fix'; \
-		echo ''; \
-		exit 1; \
-	fi
-	@echo ''
-
-.PHONY: gofumpt.display
-gofumpt.display:
-	$(TOOLSBIN)/gofumpt -d `$(FOLDERS)`
-
-.PHONY: gofumpt.fix
-gofumpt.fix:
-	$(TOOLSBIN)/gofumpt -w `$(FOLDERS)`
-## </gofumpt>
 
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
@@ -207,7 +178,7 @@ $(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).$(GO_VER).ver: # force not intermediate.
 .PHONY: goimports
 goimports: $(TOOLSBIN)/goimports
 	@echo '$(TOOLSBIN)/goimports -l `$(FOLDERS)`'
-	@if [[ -n "$$($(TOOLSBIN)/goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+	@if [[ -n "$$(goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -222,12 +193,44 @@ goimports: $(TOOLSBIN)/goimports
 
 .PHONY: goimports.display
 goimports.display: $(TOOLSBIN)/goimports
-	$(TOOLSBIN)/goimports -d `$(FOLDERS)`
+	goimports -d `$(FOLDERS)`
 
 .PHONY: goimports.fix
 goimports.fix: $(TOOLSBIN)/goimports
-	$(TOOLSBIN)/goimports -w `$(FOLDERS)`
+	goimports -w `$(FOLDERS)`
 ## </goimports>
+
+## <gofumpt>
+# https://github.com/mvdan/gofumpt/releases
+GOFUMPT_CMD:=mvdan.cc/gofumpt
+GOFUMPT_VER:=v0.5.0
+$(TOOLSBIN)/gofumpt:
+$(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
+
+.PHONY: gofumpt
+gofumpt: $(TOOLSBIN)/gofumpt
+	@echo '$(TOOLSBIN)/gofumpt -l `$(FOLDERS)`'
+	@if [[ -n "$$(gofumpt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+		echo 'gofumpt errors'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
+		echo '    make gofumpt.display'; \
+		echo ''; \
+		echo -e "\e[0;34m→\e[0m To fix them run:"; \
+		echo '    make gofumpt.fix'; \
+		echo ''; \
+		exit 1; \
+	fi
+	@echo ''
+
+.PHONY: gofumpt.display
+gofumpt.display:
+	gofumpt -d `$(FOLDERS)`
+
+.PHONY: gofumpt.fix
+gofumpt.fix:
+	gofumpt -w `$(FOLDERS)`
+## </gofumpt>
 
 ## <gofmt>
 .PHONY: gofmt
