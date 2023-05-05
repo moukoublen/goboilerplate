@@ -23,7 +23,7 @@
 go.work
 
 #### Extra
-/.bin/
+/.ext/
 
 # visual studio code local folder
 /.vscode/*

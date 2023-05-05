@@ -109,9 +109,10 @@ vet:
 	$(GO_EXEC) vet `$(PACKAGES)`
 	@echo ""
 
-TOOLSBIN ?= $(shell pwd)/.bin
+TOOLSDIR ?= $(shell pwd)/.ext
+TOOLSBIN ?= $(TOOLSDIR)/bin
 export TOOLSBIN
-
+export PATH := $(TOOLSBIN):$(PATH)
 
 uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
 
