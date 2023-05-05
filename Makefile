@@ -116,6 +116,7 @@ TOOLSDIR ?= $(shell pwd)/.ext
 TOOLSBIN ?= $(TOOLSDIR)/bin
 export TOOLSBIN
 export PATH := $(TOOLSBIN):$(PATH)
+TOOLSDB ?= $(TOOLSDIR)/.db
 
 uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
 
@@ -129,15 +130,21 @@ tools: \
 $(TOOLSBIN):
 	@mkdir -p $(TOOLSBIN)
 
-.PRECIOUS: $(TOOLSBIN)/.%.ver
-$(TOOLSBIN)/.%.ver: | $(TOOLSBIN)
-	@rm -f $(TOOLSBIN)/.$(word 1,$(subst ., ,$*)).*
-	@touch $(TOOLSBIN)/.$*.ver
+$(TOOLSDB):
+	@mkdir -p $(TOOLSDB)
 
+# In make >= 4.4. .NOTINTERMEDIATE will do the job.
+.PRECIOUS: $(TOOLSDB)/%.ver
+$(TOOLSDB)/%.ver: | $(TOOLSDB)
+	@rm -f $(TOOLSDB)/$(word 1,$(subst ., ,$*)).*
+	@touch $(TOOLSDB)/$*.ver
+
+# In make >= 4.4 .NOTINTERMEDIATE will do the job.
+.PRECIOUS: $(TOOLSBIN)/%
 $(TOOLSBIN)/%: DSC=$*
 $(TOOLSBIN)/%: VER=$($(call uppercase,$*)_VER)
 $(TOOLSBIN)/%: CMD=$($(call uppercase,$*)_CMD)
-$(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).$(GO_VER).ver
+$(TOOLSBIN)/%: $(TOOLSDB)/$$(DSC).$$(VER).$(GO_VER).ver
 	@echo -e "Installing \e[1;36m$(DSC)\e[0m@\e[1;36m$(VER)\e[0m using \e[1;36m$(GO_VER)\e[0m"
 	GOBIN="$(TOOLSBIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
 	@echo ""
@@ -146,8 +153,8 @@ $(TOOLSBIN)/%: $(TOOLSBIN)/.$$(DSC).$$(VER).$(GO_VER).ver
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
 STATICCHECK_VER:=2023.1.3
+$(TOOLSDB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver:
 $(TOOLSBIN)/staticcheck:
-$(TOOLSBIN)/.staticcheck.$(STATICCHECK_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: staticcheck
 staticcheck: $(TOOLSBIN)/staticcheck
@@ -159,8 +166,8 @@ staticcheck: $(TOOLSBIN)/staticcheck
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
 GOLANGCI-LINT_VER:=v1.52.2
+$(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/golangci-lint:
-$(TOOLSBIN)/.golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLSBIN)/golangci-lint
@@ -172,8 +179,8 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
 GOIMPORTS_VER := v0.8.0
+$(TOOLSDB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
 $(TOOLSBIN)/goimports:
-$(TOOLSBIN)/.goimports.$(GOIMPORTS_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: goimports
 goimports: $(TOOLSBIN)/goimports
@@ -204,8 +211,8 @@ goimports.fix: $(TOOLSBIN)/goimports
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
 GOFUMPT_VER:=v0.5.0
+$(TOOLSDB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/gofumpt:
-$(TOOLSBIN)/.gofumpt.$(GOFUMPT_VER).$(GO_VER).ver: # force not intermediate. In make >= 4.4. .NOTINTERMEDIATE will do the job.
 
 .PHONY: gofumpt
 gofumpt: $(TOOLSBIN)/gofumpt
