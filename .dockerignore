@@ -1,7 +1,7 @@
 /.gitignore
 /.git/
 /.github/
-/.bin/
+/.ext/
 /.vscode/
 /.idea/
 /cover.out
