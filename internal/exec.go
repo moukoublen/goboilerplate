@@ -11,53 +11,58 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type OrchestratorConfigOption func(*orchestratorConfig)
+type MainConfigOption func(*mainConfig)
 
-func SetSignalsNotify(signals ...os.Signal) OrchestratorConfigOption {
-	return func(oc *orchestratorConfig) {
+func SetSignalsNotify(signals ...os.Signal) MainConfigOption {
+	return func(oc *mainConfig) {
 		oc.signalsNotify = signals
 	}
 }
 
-func SetSignalsChannelBufferSize(size int) OrchestratorConfigOption {
-	return func(oc *orchestratorConfig) {
+func SetSignalsChannelBufferSize(size int) MainConfigOption {
+	return func(oc *mainConfig) {
 		oc.signalChannelBufferSize = size
 	}
 }
 
-func SetFatalErrorsChannelBufferSize(size int) OrchestratorConfigOption {
-	return func(oc *orchestratorConfig) {
+func SetFatalErrorsChannelBufferSize(size int) MainConfigOption {
+	return func(oc *mainConfig) {
 		oc.fatalErrorsChannelBufferSize = size
 	}
 }
 
-func SetShutdownTimeout(d time.Duration) OrchestratorConfigOption {
-	return func(oc *orchestratorConfig) {
+func SetShutdownTimeout(d time.Duration) MainConfigOption {
+	return func(oc *mainConfig) {
 		oc.shutdownTimeout = d
 	}
 }
 
-type orchestratorConfig struct {
+const (
+	defaultSignalChannelBufferSize      = 10
+	defaultFatalErrorsChannelBufferSize = 10
+	defaultShutdownTimeout              = 4 * time.Second
+)
+
+type mainConfig struct {
 	signalsNotify                []os.Signal
 	signalChannelBufferSize      int
 	fatalErrorsChannelBufferSize int
 	shutdownTimeout              time.Duration
 }
 
-func NewOrchestrator(opts ...OrchestratorConfigOption) *Orchestrator {
-	//nolint:gomnd
-	cnf := orchestratorConfig{
+func NewMain(opts ...MainConfigOption) *Main {
+	cnf := mainConfig{
 		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
-		signalChannelBufferSize:      10,
-		fatalErrorsChannelBufferSize: 10,
-		shutdownTimeout:              4 * time.Second,
+		signalChannelBufferSize:      defaultSignalChannelBufferSize,
+		fatalErrorsChannelBufferSize: defaultFatalErrorsChannelBufferSize,
+		shutdownTimeout:              defaultShutdownTimeout,
 	}
 
 	for _, o := range opts {
 		o(&cnf)
 	}
 
-	o := &Orchestrator{
+	o := &Main{
 		signalCh:      createSignalsChannel(cnf),
 		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
 		config:        cnf,
@@ -66,23 +71,23 @@ func NewOrchestrator(opts ...OrchestratorConfigOption) *Orchestrator {
 	return o
 }
 
-type Orchestrator struct {
+type Main struct {
 	onShutDownMutex sync.Mutex
 	onShutDown      []func(context.Context)
 
 	signalCh      chan os.Signal
 	fatalErrorsCh chan error
-	config        orchestratorConfig
+	config        mainConfig
 }
 
 // OnShutDown appends a function to be called on shutdown.
-func (o *Orchestrator) OnShutDown(f func(context.Context)) {
+func (o *Main) OnShutDown(f func(context.Context)) {
 	o.onShutDownMutex.Lock()
 	defer o.onShutDownMutex.Unlock()
 	o.onShutDown = append(o.onShutDown, f)
 }
 
-func (o *Orchestrator) callOnShutDown(ctx context.Context) {
+func (o *Main) callOnShutDown(ctx context.Context) {
 	o.onShutDownMutex.Lock()
 	defer o.onShutDownMutex.Unlock()
 	for _, f := range o.onShutDown {
@@ -90,11 +95,11 @@ func (o *Orchestrator) callOnShutDown(ctx context.Context) {
 	}
 }
 
-func (o *Orchestrator) FatalErrorsChannel() chan<- error {
+func (o *Main) FatalErrorsChannel() chan<- error {
 	return o.fatalErrorsCh
 }
 
-func (o *Orchestrator) Run(ctx context.Context, ctxCancel context.CancelFunc) {
+func (o *Main) Run(ctx context.Context, ctxCancel context.CancelFunc) {
 	logSig := func(sig os.Signal) {
 		event := log.Warn().Str("signal", sig.String())
 		if sigInt, ok := sig.(syscall.Signal); ok {
@@ -138,7 +143,7 @@ func (o *Orchestrator) Run(ctx context.Context, ctxCancel context.CancelFunc) {
 	log.Info().Msgf("shutdown completed")
 }
 
-func createSignalsChannel(cnf orchestratorConfig) chan os.Signal {
+func createSignalsChannel(cnf mainConfig) chan os.Signal {
 	signalCh := make(chan os.Signal, cnf.signalChannelBufferSize)
 	signal.Notify(signalCh, cnf.signalsNotify...)
 

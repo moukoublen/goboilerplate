@@ -22,23 +22,26 @@ func main() {
 	ilog.SetupLog(cnf.Logging)
 	log.Info().Msgf("Starting up")
 
-	orchestrator := internal.NewOrchestrator()
+	main := internal.NewMain()
 
 	router := ihttp.NewDefaultRouter(cnf.HTTP)
+
+	// init services / application
+
 	server := ihttp.StartListenAndServe(
 		fmt.Sprintf("%s:%d", cnf.HTTP.IP, cnf.HTTP.Port),
 		router,
 		cnf.HTTP.ReadHeaderTimeout,
-		orchestrator.FatalErrorsChannel(),
+		main.FatalErrorsChannel(),
 	)
 	log.Info().Msgf("service started at %s:%d", cnf.HTTP.IP, cnf.HTTP.Port)
 
 	// set onShutdown for other components/services.
-	orchestrator.OnShutDown(func(ctx context.Context) {
+	main.OnShutDown(func(ctx context.Context) {
 		if err := server.Shutdown(ctx); err != nil {
 			log.Warn().Err(err).Msg("error during http server shutdown")
 		}
 	})
 
-	orchestrator.Run(ctx, cancel)
+	main.Run(ctx, cancel)
 }
