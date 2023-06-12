@@ -9,22 +9,37 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/moukoublen/goboilerplate/build"
-	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-type Config struct{}
+type TrafficLogLevel int16
+
+const (
+	TrafficLogLevelNone    TrafficLogLevel = 0
+	TrafficLogLevelBasic   TrafficLogLevel = 1
+	TrafficLogLevelVerbose TrafficLogLevel = 2
+)
+
+type Config struct {
+	IP                   string
+	Port                 int32
+	InBoundHTTPLogLevel  TrafficLogLevel
+	OutBoundHTTPLogLevel TrafficLogLevel
+	LogInLevel           zerolog.Level
+	GlobalInboundTimeout time.Duration
+	ReadHeaderTimeout    time.Duration
+}
 
 // NewDefaultRouter returns a *chi.Mux with a default set of middlewares and an "/about" route.
-func NewDefaultRouter(c config.HTTP) *chi.Mux {
+func NewDefaultRouter(c Config) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Heartbeat("/ping"))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 
-	if c.InBoundHTTPLogLevel > config.HTTPTrafficLogLevelNone {
+	if c.InBoundHTTPLogLevel > TrafficLogLevelNone {
 		router.Use(NewHTTPInboundLoggerMiddleware(c))
 	}
 
@@ -37,7 +52,7 @@ func NewDefaultRouter(c config.HTTP) *chi.Mux {
 	router.Get("/about", AboutHandler)
 
 	// for test purposes
-	router.Get("/panic", Panic)
+	// router.Get("/panic", func(_ http.ResponseWriter, _ *http.Request) { panic("test panic") })
 
 	LogRoutes(router)
 
@@ -64,8 +79,6 @@ func LogRoutes(r *chi.Mux) {
 		log.Debug().Strs("routes", routes).Msg("error during chi walk")
 	}
 }
-
-func Panic(_ http.ResponseWriter, _ *http.Request) { panic("test panic") }
 
 func AboutHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)

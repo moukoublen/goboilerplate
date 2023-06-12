@@ -11,6 +11,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func parseHTTPConfig(c config.HTTP) ihttp.Config {
+	return ihttp.Config{
+		IP:                   c.IP,
+		Port:                 c.Port,
+		InBoundHTTPLogLevel:  ihttp.TrafficLogLevel(c.InBoundHTTPLogLevel),
+		OutBoundHTTPLogLevel: ihttp.TrafficLogLevel(c.OutBoundHTTPLogLevel),
+		LogInLevel:           c.LogInLevel,
+		GlobalInboundTimeout: c.GlobalInboundTimeout,
+		ReadHeaderTimeout:    c.ReadHeaderTimeout,
+	}
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -24,7 +36,7 @@ func main() {
 
 	main := internal.NewMain()
 
-	router := ihttp.NewDefaultRouter(cnf.HTTP)
+	router := ihttp.NewDefaultRouter(parseHTTPConfig(cnf.HTTP))
 
 	// init services / application
 

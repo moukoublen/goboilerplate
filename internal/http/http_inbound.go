@@ -9,24 +9,23 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/rs/zerolog"
 )
 
-func NewHTTPInboundLoggerMiddleware(cnf config.HTTP) func(http.Handler) http.Handler {
+func NewHTTPInboundLoggerMiddleware(cnf Config) func(http.Handler) http.Handler {
 	switch cnf.InBoundHTTPLogLevel {
-	case config.HTTPTrafficLogLevelNone:
+	case TrafficLogLevelNone:
 		return func(h http.Handler) http.Handler { return h }
-	case config.HTTPTrafficLogLevelBasic:
+	case TrafficLogLevelBasic:
 		return middleware.RequestLogger(&ChiZerolog{LogInLevel: cnf.LogInLevel})
-	case config.HTTPTrafficLogLevelVerbose:
+	case TrafficLogLevelVerbose:
 		return RequestResponseLogger(cnf)
 	}
 
 	return func(h http.Handler) http.Handler { return h }
 }
 
-func RequestResponseLogger(cnf config.HTTP) func(next http.Handler) http.Handler {
+func RequestResponseLogger(cnf Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger := zerolog.Ctx(r.Context()).With().Logger()
