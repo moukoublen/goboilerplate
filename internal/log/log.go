@@ -5,11 +5,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 )
+
+type Config struct {
+	ConsoleWriter bool
+	LogLevel      zerolog.Level
+}
 
 func newDefaultLogger(l zerolog.Level, w io.Writer) zerolog.Logger {
 	zerolog.SetGlobalLevel(l)
@@ -28,7 +32,7 @@ func newDefaultLogger(l zerolog.Level, w io.Writer) zerolog.Logger {
 	return logger
 }
 
-func SetupLog(c config.Logging) {
+func SetupLog(c Config) {
 	var w io.Writer
 	if c.ConsoleWriter {
 		w = zerolog.ConsoleWriter{Out: os.Stdout}

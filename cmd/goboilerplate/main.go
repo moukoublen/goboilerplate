@@ -23,6 +23,10 @@ func parseHTTPConfig(c config.HTTP) ihttp.Config {
 	}
 }
 
+func parseLogConfig(c config.Logging) ilog.Config {
+	return ilog.Config(c)
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -31,10 +35,12 @@ func main() {
 		log.Fatal().Err(err).Send()
 	}
 
-	ilog.SetupLog(cnf.Logging)
+	ilog.SetupLog(parseLogConfig(cnf.Logging))
 	log.Info().Msgf("Starting up")
 
-	main := internal.NewMain()
+	main := internal.NewMain(
+		internal.SetShutdownTimeout(cnf.ShutdownTimeout),
+	)
 
 	router := ihttp.NewDefaultRouter(parseHTTPConfig(cnf.HTTP))
 
