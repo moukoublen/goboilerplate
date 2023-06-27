@@ -1,42 +1,73 @@
 package config
 
 import (
+	"errors"
+	"io/fs"
 	"time"
 
-	"github.com/caarlos0/env/v6"
+	"github.com/knadh/koanf/parsers/dotenv"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/confmap"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/v2"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	HTTP            HTTP          `envPrefix:"HTTP_"`
-	ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"4s"`
-	Logging         Logging       `envPrefix:"LOG_"`
+	HTTP            HTTP
+	ShutdownTimeout time.Duration
+	Logging         Logging
 }
 
 type HTTP struct {
-	IP                   string        `env:"IP" envDefault:"0.0.0.0"`
-	Port                 int32         `env:"PORT" envDefault:"43000"`
-	InBoundHTTPLogLevel  int16         `env:"INBOUND_TRAFFIC_LOG_LEVEL" envDefault:"2"`
-	OutBoundHTTPLogLevel int16         `env:"OUTBOUND_TRAFFIC_LOG_LEVEL" envDefault:"2"`
-	LogInLevel           zerolog.Level `env:"TRAFFIC_LOG_IN_LEVEL" envDefault:"-1"`
-	GlobalInboundTimeout time.Duration `env:"GLOBAL_INBOUND_TIMEOUT"`
-	ReadHeaderTimeout    time.Duration `env:"READ_HEADER_TIMEOUT" envDefault:"5s"`
+	IP                   string
+	Port                 int32
+	InBoundHTTPLogLevel  int16
+	OutBoundHTTPLogLevel int16
+	LogInLevel           zerolog.Level
+	GlobalInboundTimeout time.Duration
+	ReadHeaderTimeout    time.Duration
 }
 
 type Logging struct {
-	ConsoleWriter bool          `env:"CONSOLE_WRITER" envDefault:"false"`
-	LogLevel      zerolog.Level `env:"LEVEL" envDefault:"-1"`
+	ConsoleWriter bool
+	LogLevel      zerolog.Level
 }
 
-func New() (Config, error) {
-	cfg := Config{}
-	opts := env.Options{
-		Prefix: "APP_",
+func Load(defaultValues map[string]any) (*koanf.Koanf, error) {
+	const delim = "."
+	k := koanf.New(delim)
+
+	if err := k.Load(confmap.Provider(defaultValues, delim), nil); err != nil {
+		log.Warn().Err(err).Msg("error during config loading from defaults")
 	}
 
-	if err := env.Parse(&cfg, opts); err != nil {
-		return Config{}, err
+	// Load JSON config.
+	if err := k.Load(file.Provider("config.yaml"), yaml.Parser()); err != nil {
+		log.Warn().Err(err).Msg("error during config loading from yaml file")
+		if !errors.Is(err, fs.ErrNotExist) {
+			return k, err
+		}
 	}
 
-	return cfg, nil
+	// Environment Variables layers
+	envVarsLevels := map[string]any{
+		"http": map[string]any{},
+		"log":  map[string]any{},
+	}
+	if err := k.Load(env.Provider("APP_", delim, buildEnvVarsNamesMapper(envVarsLevels)), nil); err != nil {
+		log.Warn().Err(err).Msg("error during config loading from env vars")
+	}
+
+	// Dot env file
+	if err := k.Load(file.Provider(".env"), dotenv.ParserEnv("APP_", delim, buildEnvVarsNamesMapper(envVarsLevels))); err != nil {
+		log.Warn().Err(err).Msg("error during config loading from dot env file")
+		if !errors.Is(err, fs.ErrNotExist) {
+			return k, err
+		}
+	}
+
+	return k, nil
 }

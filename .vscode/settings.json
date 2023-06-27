@@ -27,6 +27,7 @@
   "go.testFlags": [
     "-mod=vendor",
     "-count=1",
+    "-p=1",
     "-v",
     "-race"
   ],

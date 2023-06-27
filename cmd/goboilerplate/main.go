@@ -5,54 +5,37 @@ import (
 	"fmt"
 
 	"github.com/moukoublen/goboilerplate/internal"
-	"github.com/moukoublen/goboilerplate/internal/config"
 	ihttp "github.com/moukoublen/goboilerplate/internal/http"
 	ilog "github.com/moukoublen/goboilerplate/internal/log"
 	"github.com/rs/zerolog/log"
 )
 
-func parseHTTPConfig(c config.HTTP) ihttp.Config {
-	return ihttp.Config{
-		IP:                   c.IP,
-		Port:                 c.Port,
-		InBoundHTTPLogLevel:  ihttp.TrafficLogLevel(c.InBoundHTTPLogLevel),
-		OutBoundHTTPLogLevel: ihttp.TrafficLogLevel(c.OutBoundHTTPLogLevel),
-		LogInLevel:           c.LogInLevel,
-		GlobalInboundTimeout: c.GlobalInboundTimeout,
-		ReadHeaderTimeout:    c.ReadHeaderTimeout,
-	}
-}
-
-func parseLogConfig(c config.Logging) ilog.Config {
-	return ilog.Config(c)
-}
-
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cnf, err := config.New()
+	cnf, err := loadConfig()
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
 
-	ilog.SetupLog(parseLogConfig(cnf.Logging))
+	ilog.SetupLog(parseLogConfig(cnf))
 	log.Info().Msgf("Starting up")
 
 	main := internal.NewMain(
-		internal.SetShutdownTimeout(cnf.ShutdownTimeout),
+		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
 	)
 
-	router := ihttp.NewDefaultRouter(parseHTTPConfig(cnf.HTTP))
+	httpConf := parseHTTPConfig(cnf)
+	router := ihttp.NewDefaultRouter(httpConf)
 
 	// init services / application
-
 	server := ihttp.StartListenAndServe(
-		fmt.Sprintf("%s:%d", cnf.HTTP.IP, cnf.HTTP.Port),
+		fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port),
 		router,
-		cnf.HTTP.ReadHeaderTimeout,
+		httpConf.ReadHeaderTimeout,
 		main.FatalErrorsChannel(),
 	)
-	log.Info().Msgf("service started at %s:%d", cnf.HTTP.IP, cnf.HTTP.Port)
+	log.Info().Msgf("service started at %s:%d", httpConf.IP, httpConf.Port)
 
 	// set onShutdown for other components/services.
 	main.OnShutDown(func(ctx context.Context) {

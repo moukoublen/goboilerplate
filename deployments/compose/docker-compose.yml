@@ -5,6 +5,9 @@ services:
       dockerfile: ./build/docker/Dockerfile
     environment:
       - APP_HTTP_PORT=8888
+      - APP_HTTP_INBOUND_TRAFFIC_LOG_LEVEL=2
+      - APP_HTTP_OUTBOUND_TRAFFIC_LOG_LEVEL=2
+      - APP_HTTP_READ_HEADER_TIMEOUT=3s
       - APP_SHUTDOWN_TIMEOUT=6s
       - APP_LOG_LEVEL=0
     ports:

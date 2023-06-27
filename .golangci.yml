@@ -31,6 +31,8 @@ linters:
     - structcheck # deprecated
     - varcheck # deprecated
     - exhaustruct # TODO: reconsider
+    - depguard # TODO: reconsider
+    - funlen # TODO: reconsider
     - wsl
     - lll
     - wrapcheck
@@ -62,3 +64,6 @@ linters-settings:
     # Disable to ensure that all nolint directives actually have an effect.
     # Default: false
     allow-unused: true
+
+  nlreturn:
+    block-size: 3
