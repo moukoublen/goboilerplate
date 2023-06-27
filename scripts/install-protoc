@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+set -e
+
+get_protoc_latest_version() {
+  JS_BODY=$(curl --silent --fail --location "https://api.github.com/repos/protocolbuffers/protobuf/releases/latest")
+  echo "${JS_BODY}" | jq '.tag_name' --raw-output | sed 's/^v//g'
+}
+
+os() {
+  case "$(uname)" in
+    "Darwin")
+      echo "osx"
+      ;;
+    "Linux")
+      echo "linux"
+      ;;
+  esac
+}
+
+arch() {
+  uname -m | tr '[:upper:]' '[:lower:]'
+}
+
+
+VERSION=""
+DESTINATION_DIR=""
+
+UNKNOWN_ARGS=()
+while (($#)); do
+  case "${1}" in
+    -v|--version)
+      VERSION="${2}"
+      shift 2
+      ;;
+    -d|--destination)
+      DESTINATION_DIR="${2}"
+      shift 2
+      ;;
+    *)
+      UNKNOWN_ARGS+=("${1}")
+      shift
+      ;;
+  esac
+done
+
+if [[ "${VERSION}" == "" ]]; then
+  VERSION="$(get_protoc_latest_version)"
+fi
+
+if [[ "${DESTINATION_DIR}" == "" ]]; then
+  echo "missing destination argument"
+  exit 1
+fi
+
+# uninstall previous version
+rm -rf "${DESTINATION_DIR}"/bin/protoc
+rm -rf "${DESTINATION_DIR}"/include/google/protobuf
+
+# https://github.com/protocolbuffers/protobuf/releases/download/v22.3/protoc-22.3-linux-x86_64.zip
+DL_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-$(os)-$(arch).zip"
+
+curl ${CURL_SHOW_ERROR} \
+  --silent \
+  --fail \
+  --location \
+  "${DL_URL}" \
+  -o "${DESTINATION_DIR}/protoc.zip"
+
+unzip -qq -o "${DESTINATION_DIR}/protoc.zip" -d "${DESTINATION_DIR}"
+
+rm -rf "${DESTINATION_DIR}/protoc.zip"
+rm -rf "${DESTINATION_DIR}/readme.txt"
