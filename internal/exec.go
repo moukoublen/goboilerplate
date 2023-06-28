@@ -72,12 +72,11 @@ func NewMain(opts ...MainConfigOption) *Main {
 }
 
 type Main struct {
-	onShutDownMutex sync.Mutex
+	signalCh        chan os.Signal
+	fatalErrorsCh   chan error
 	onShutDown      []func(context.Context)
-
-	signalCh      chan os.Signal
-	fatalErrorsCh chan error
-	config        mainConfig
+	config          mainConfig
+	onShutDownMutex sync.Mutex
 }
 
 // OnShutDown appends a function to be called on shutdown.

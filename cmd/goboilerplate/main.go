@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/moukoublen/goboilerplate/internal"
+	"github.com/moukoublen/goboilerplate/internal/config"
 	ihttp "github.com/moukoublen/goboilerplate/internal/http"
 	ilog "github.com/moukoublen/goboilerplate/internal/log"
 	"github.com/rs/zerolog/log"
@@ -13,7 +14,7 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cnf, err := loadConfig()
+	cnf, err := config.Load()
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
