@@ -80,10 +80,10 @@ type Main struct {
 }
 
 // OnShutDown appends a function to be called on shutdown.
-func (o *Main) OnShutDown(f func(context.Context)) {
+func (o *Main) OnShutDown(f ...func(context.Context)) {
 	o.onShutDownMutex.Lock()
 	defer o.onShutDownMutex.Unlock()
-	o.onShutDown = append(o.onShutDown, f)
+	o.onShutDown = append(o.onShutDown, f...)
 }
 
 func (o *Main) callOnShutDown(ctx context.Context) {

@@ -39,11 +39,13 @@ func main() {
 	log.Info().Msgf("service started at %s:%d", httpConf.IP, httpConf.Port)
 
 	// set onShutdown for other components/services.
-	main.OnShutDown(func(ctx context.Context) {
-		if err := server.Shutdown(ctx); err != nil {
-			log.Warn().Err(err).Msg("error during http server shutdown")
-		}
-	})
+	main.OnShutDown(
+		func(ctx context.Context) {
+			if err := server.Shutdown(ctx); err != nil {
+				log.Warn().Err(err).Msg("error during http server shutdown")
+			}
+		},
+	)
 
 	main.Run(ctx, cancel)
 }
