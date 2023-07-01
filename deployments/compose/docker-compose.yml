@@ -20,7 +20,7 @@ services:
       - "2345:2345"
     restart: on-failure
     # https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_debug.md
-    command: ["air", "-c", ".air.toml"]
+    command: ["make", "air"]
     environment:
       - APP_HTTP_PORT=8888
       - APP_HTTP_INBOUND_TRAFFIC_LOG_LEVEL=2
