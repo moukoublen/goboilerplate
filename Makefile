@@ -44,6 +44,7 @@ vendor:
 
 #BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS) -extldflags='-static'" -tags "$(TAGS)"
 BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS)" -tags "$(TAGS)"
+BUILD_FLAGS_DEBUG := -mod=vendor -ldflags "$(X_FLAGS)" -tags "$(TAGS)"
 
 # https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 # https://pkg.go.dev/cmd/compile
@@ -51,9 +52,14 @@ BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS)" -tags "$(TAGS)"
 
 .PHONY: build
 build: $(shell ls -d cmd/* | sed -e 's/\//./')
+
 cmd.%: CMDNAME=$*
 cmd.%:
 	CGO_ENABLED=0 $(GO_EXEC) build $(BUILD_FLAGS) -o ./output/$(CMDNAME) ./cmd/$(CMDNAME)
+
+dbg.%: BUILD_FLAGS=$(BUILD_FLAGS_DEBUG)
+dbg.%: cmd.%
+	@echo "debug binary done"
 
 .PHONY: clean
 clean:
@@ -264,6 +270,29 @@ gofmt.display:
 gofmt.fix:
 	gofmt -w `$(FOLDERS)`
 ## </gofmt>
+
+## <gojq>
+# https://github.com/itchyny/gojq/releases
+GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
+GOJQ_VER := v0.12.13
+$(TOOLSBIN)/gojq:
+$(TOOLSBIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver:
+
+.PHONY: gojq
+gojq: $(TOOLSBIN)/gojq
+## </gojq>
+
+## <air>
+# https://github.com/cosmtrek/air/releases
+AIR_CMD:=github.com/cosmtrek/air
+AIR_VER:=v1.44.0
+$(TOOLSDB)/air.$(AIR_VER).$(GO_VER).ver:
+$(TOOLSBIN)/air:
+
+.PHONY: air
+air: $(TOOLSBIN)/air
+	$(TOOLSBIN)/air -c .air.toml
+## </air>
 ####################################################################################
 ## </ci & external tools> ##########################################################
 ####################################################################################

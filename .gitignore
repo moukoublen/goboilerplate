@@ -25,9 +25,15 @@ go.work
 #### Extra
 /.ext/
 
+/.env
+
 # visual studio code local folder
 /.vscode/*
 !/.vscode/settings.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
 
 # Executables
 /output/
+
+/.airtmp/
