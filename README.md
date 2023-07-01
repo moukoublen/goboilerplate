@@ -1,5 +1,15 @@
 # Go service boilerplate
 
+The boilerplate consists of:
+* Go code with [chi](https://github.com/go-chi/chi) http router, [zerolog](https://github.com/rs/zerolog) logging, [knadh/koanf](github.com/knadh/koanf) config library and [testify](github.com/stretchr/testify). Basic code infra with http setup and request and response logger (configurable), logging setup, config setup and graceful shutdown.
+* [GitHub Actions](https://github.com/features/actions) for linter checks and tests on each pr.
+* [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates) setup for updating dependencies.
+* [Visual Studio Code](https://code.visualstudio.com/) settings, tasks and launch configuration for building, debugging and testing the code.
+* Docker compose with development Dockerfile with hot-rebuild (with [air](https://github.com/cosmtrek/air)) and dlv debug server.
+* Production Dockerfile
+
+
+
 ## How to use
 1. Click `Use this template` from this repo github page, and choose your destination repo/name (e.g. `github.com/glendale/service`)
 2. Clone **your** repo locally and run `./scripts/rename` giving your new package name and main cmd name. E.g. `./scripts/rename github.com/glendale/service service`.
