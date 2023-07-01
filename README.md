@@ -5,7 +5,7 @@ The boilerplate consists of:
 * [GitHub Actions](https://github.com/features/actions) for linter checks and tests on each pr.
 * [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates) setup for updating dependencies.
 * [Visual Studio Code](https://code.visualstudio.com/) settings, tasks and launch configuration for building, debugging and testing the code.
-* Docker compose with development Dockerfile with hot-rebuild (with [air](https://github.com/cosmtrek/air)) and dlv debug server.
+* Docker compose and development Dockerfile with hot-rebuild (using [air](https://github.com/cosmtrek/air)) and dlv debug server.
 * Production Dockerfile
 
 
