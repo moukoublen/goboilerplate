@@ -25,6 +25,8 @@ go.work
 #### Extra
 /.ext/
 
+/.env
+
 # visual studio code local folder
 /.vscode/*
 !/.vscode/settings.json
