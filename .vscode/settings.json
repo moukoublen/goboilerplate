@@ -31,6 +31,9 @@
     "-v",
     "-race"
   ],
+  "go.delveConfig": {
+    "debugAdapter": "dlv-dap"
+  },
   // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   "go.useLanguageServer": true,
   "gopls": {

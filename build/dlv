@@ -1,0 +1,22 @@
+dlv \
+  --listen='0.0.0.0:2345' \
+  --backend="default" \
+  --api-version=2 \
+  --headless \
+  --accept-multiclient \
+  exec \
+  ./output/goboilerplate \
+  --continue
+
+# dlv \
+#   --build-flags='-mod=vendor' \
+#   --listen='0.0.0.0:2345' \
+#   --backend="default" \
+#   --api-version=2 \
+#   --headless \
+#   --accept-multiclient \
+#   debug \
+#   ./cmd/goboilerplate
+#   #--continue
+#   #--log \
+#   #--log-output='debugger,rpc,fncall'
