@@ -83,8 +83,12 @@ ___
 Runs go [test](https://pkg.go.dev/cmd/go/internal/test) with race conditions and prints cover report.
 ___
 
+#### `tools`
+Installs (if needed) all tools (goimports, staticcheck, gofumpt, etc) under `TOOLSBIN` folder (default is `./.ext/bin`).
+___
+
 #### `checks`
-Runs all default tests (eg vet, lint, etc).
+Runs all default checks (`vet`, `staticcheck`, `gofumpt`, `goimports`, `golangci-lint`).
 ___
 
 #### `vet`
@@ -127,6 +131,3 @@ Installs (if needed) [golangci-lint](https://golangci-lint.run/) under `TOOLSBIN
 If issues are found the target fails (due to `golangci-lint` exit status).
 ___
 
-#### `tools`
-Installs (if needed) all tools (goimports, staticcheck, gofumpt, etc) under `TOOLSBIN` folder (default is `./.ext/bin`).
-___
