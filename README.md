@@ -2,6 +2,8 @@
 
 The boilerplate consists of:
 * Go code with [chi](https://github.com/go-chi/chi) http router, [zerolog](https://github.com/rs/zerolog) logging, [knadh/koanf](github.com/knadh/koanf) config library and [testify](github.com/stretchr/testify). Basic code infra with http setup and request and response logger (configurable), logging setup, config setup and graceful shutdown.
+* Makefile targets for local installation of external tools (`staticcheck`, `golangci-lint`, `goimports`, `gofumpt`, `gojq`, `air`).
+* Makefile targets for linting (installing all necessary tools locally), building, testing, and local run (docker compose or native).
 * [GitHub Actions](https://github.com/features/actions) for linter checks and tests on each pr.
 * [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates) setup for updating dependencies.
 * [Visual Studio Code](https://code.visualstudio.com/) settings, tasks and launch configuration for building, debugging and testing the code.
@@ -36,7 +38,7 @@ ___
 
 #### `up`
 Deploys (rebuilds and recreates) the docker compose file `deployments/compose/docker-compose.yml` in attached mode. This docker compose file is intended for local development.<br>
-It uses the docker file `build/docker/debug.Dockerfile` and runs `air` target (see below) that includes hot-reload (rebuild on changes) and debug server.
+It uses the docker file `build/docker/debug.Dockerfile` and runs `air` target (see below), including hot-reload (rebuild on changes) and debug server.
 ___
 
 #### `down`
