@@ -293,6 +293,25 @@ $(TOOLSBIN)/air:
 air: $(TOOLSBIN)/air
 	$(TOOLSBIN)/air -c .air.toml
 ## </air>
+
+## <protobuf>
+# https://github.com/protocolbuffers/protobuf/releases
+PROTOC_VER:=v23.3
+$(TOOLSDB)/protoc.$(PROTOC_VER).ver:
+$(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
+	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
+
+# https://github.com/protocolbuffers/protobuf-go/releases
+PROTOC-GEN-GO_CMD := google.golang.org/protobuf/cmd/protoc-gen-go
+PROTOC-GEN-GO_VER := v1.31.0
+$(TOOLSBIN)/protoc-gen-go:
+$(TOOLSBIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
+
+.PHONY: proto
+proto: $(TOOLSBIN)/protoc $(TOOLSBIN)/protoc-gen-go
+	$(TOOLSBIN)/protoc --version
+	$(TOOLSBIN)/protoc-gen-go --version
+## </protobuf>
 ####################################################################################
 ## </ci & external tools> ##########################################################
 ####################################################################################

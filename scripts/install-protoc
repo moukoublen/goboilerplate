@@ -4,7 +4,7 @@ set -e
 
 get_protoc_latest_version() {
   JS_BODY=$(curl --silent --fail --location "https://api.github.com/repos/protocolbuffers/protobuf/releases/latest")
-  echo "${JS_BODY}" | jq '.tag_name' --raw-output | sed 's/^v//g'
+  echo "${JS_BODY}" | jq '.tag_name' --raw-output
 }
 
 os() {
@@ -48,6 +48,8 @@ if [[ "${VERSION}" == "" ]]; then
   VERSION="$(get_protoc_latest_version)"
 fi
 
+VERSION="$(echo "${VERSION}" | sed 's/^v//g')"
+
 if [[ "${DESTINATION_DIR}" == "" ]]; then
   echo "missing destination argument"
   exit 1
@@ -71,3 +73,6 @@ unzip -qq -o "${DESTINATION_DIR}/protoc.zip" -d "${DESTINATION_DIR}"
 
 rm -rf "${DESTINATION_DIR}/protoc.zip"
 rm -rf "${DESTINATION_DIR}/readme.txt"
+
+# to update all dates in order for make file to get it as new (check stat "${DESTINATION_DIR}"/bin/protoc) (example of issue: Prerequisite '/.../.ext/.db/protoc.v23.3.ver' is newer than target '/.../.ext/bin/protoc'.)
+touch "${DESTINATION_DIR}"/bin/protoc
