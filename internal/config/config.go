@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"io/fs"
-	"time"
 
 	"github.com/knadh/koanf/parsers/dotenv"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -11,30 +10,8 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
-
-type Config struct {
-	HTTP            HTTP
-	ShutdownTimeout time.Duration
-	Logging         Logging
-}
-
-type HTTP struct {
-	IP                   string
-	Port                 int32
-	InBoundHTTPLogLevel  int16
-	OutBoundHTTPLogLevel int16
-	LogInLevel           zerolog.Level
-	GlobalInboundTimeout time.Duration
-	ReadHeaderTimeout    time.Duration
-}
-
-type Logging struct {
-	ConsoleWriter bool
-	LogLevel      zerolog.Level
-}
 
 func Load() (*koanf.Koanf, error) {
 	const delim = "."
