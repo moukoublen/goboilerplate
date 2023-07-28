@@ -10,12 +10,30 @@ The boilerplate consists of:
 * Docker compose and development Dockerfile with hot-rebuild (using [air](https://github.com/cosmtrek/air)) and dlv debug server.
 * Production Dockerfile
 
-
-
 ## How to use
 1. Click `Use this template` from this repo github page, and choose your destination repo/name (e.g. `github.com/glendale/service`)
 2. Clone **your** repo locally and run `./scripts/rename` giving your new package name and main cmd name. E.g. `./scripts/rename github.com/glendale/service service`.
 3. Commit the renaming and you are ready to start.
+
+
+## Go package and file structure
+
+> Every local package that collides with a golang std package is named with `x` postfix. For example `.../internal/httpx` or `.../internal/logx`. By doing this cheat you can avoid putting aliases when you need both of those and you can take advantage of package autocomplete/autoimport features more easily than having colliding names.
+
+| Package            | Description    |
+|--------------------|-----------------------------------------|
+| `cmd/*/main.go`    | main function that is intended to glue together the most core level components like: configuration, http server and router, logs initialization, db connections (if any), the `App` and finally the `Main` struct (`/internal/exec.go`) that handles the long running / signal handling / graceful shutdown of the service. |
+| `cmd/*/config.go`  | this file is intended to hold the integration / transformation between the generic configuration object (`koanf`) and each package's / service's specific configuration struct. |
+| `internal/exec.go` | the `Main` struct that wraps the long running / signal handling / graceful shutdown of the service |
+| `internal/config`  | this package contain the initialization of `koanf` config. |
+| `internal/httpx`   | this package contains: the setup of the `chi` router, some helpers functions for parsing/writing http request and http response and some middlewares like for logging each request/response. |
+| `internal/logx`   | this package contains the setup/init function for `zerolog` logger. |
+
+| Folder/File        | Description    |
+|--------------------|-----------------------------------------|
+| `deployments`      | this folder is intended to hold everything regarding deployment (e.g. helm/kubernetes etc). Inside `compose` directory a `docker-compose.yml` file is included that is intended for local development. |
+| `build/docker`     | this folder contains production-like docker file as well as a local development one. |
+
 
 
 

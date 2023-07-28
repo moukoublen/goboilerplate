@@ -6,8 +6,8 @@ import (
 
 	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
-	ihttp "github.com/moukoublen/goboilerplate/internal/http"
-	ilog "github.com/moukoublen/goboilerplate/internal/log"
+	"github.com/moukoublen/goboilerplate/internal/httpx"
+	"github.com/moukoublen/goboilerplate/internal/logx"
 	"github.com/rs/zerolog/log"
 )
 
@@ -19,7 +19,7 @@ func main() {
 		log.Fatal().Err(err).Send()
 	}
 
-	ilog.SetupLog(parseLogConfig(cnf))
+	logx.SetupLog(parseLogConfig(cnf))
 	log.Info().Msgf("Starting up")
 
 	main := internal.NewMain(
@@ -27,10 +27,10 @@ func main() {
 	)
 
 	httpConf := parseHTTPConfig(cnf)
-	router := ihttp.NewDefaultRouter(httpConf)
+	router := httpx.NewDefaultRouter(httpConf)
 
 	// init services / application
-	server := ihttp.StartListenAndServe(
+	server := httpx.StartListenAndServe(
 		fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port),
 		router,
 		httpConf.ReadHeaderTimeout,
