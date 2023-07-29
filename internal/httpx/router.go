@@ -1,7 +1,6 @@
 package httpx
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -80,14 +79,8 @@ func LogRoutes(r *chi.Mux) {
 	}
 }
 
-func AboutHandler(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "application/json")
-	e := json.NewEncoder(w)
-
-	if err := e.Encode(build.GetInfo()); err != nil {
-		log.Error().Err(err).Msg("error during json encoding in about handler")
-	}
+func AboutHandler(w http.ResponseWriter, r *http.Request) {
+	RespondJSON(r.Context(), w, http.StatusOK, build.GetInfo())
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
