@@ -116,7 +116,7 @@ func SetFatalErrorsChannelBufferSize(size int) MainConfigOption {
 	}
 }
 
-// SetShutdownTimeout sets the timeout to the graceful shutdown process.
+// SetShutdownTimeout sets a timeout to the graceful shutdown process.
 func SetShutdownTimeout(d time.Duration) MainConfigOption {
 	return func(oc *mainConfig) {
 		oc.shutdownTimeout = d
