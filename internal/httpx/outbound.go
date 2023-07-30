@@ -14,6 +14,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// DrainAndCloseResponse can be used (most probably with defer) from the client side to ensure that the http response body is consumed til the end and closed.
 func DrainAndCloseResponse(res *http.Response) {
 	if res == nil || res.Body == nil {
 		return
@@ -27,11 +28,12 @@ type InnerClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// Client wraps an http.Client and offers `DoAndDecode` as an extra function.
 type Client struct {
 	InnerClient
 }
 
-// DoAndDecode performs the request (req) and tries to json decodes the response to output. It also handles gzip and flate compression.
+// DoAndDecode performs the request (req) and tries to json decodes the response to output, it handles gzip and flate compression and also logs in debug level the http transaction (request/response).
 func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any) error {
 	start := time.Now()
 

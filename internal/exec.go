@@ -11,66 +11,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type MainConfigOption func(*mainConfig)
-
-func SetSignalsNotify(signals ...os.Signal) MainConfigOption {
-	return func(oc *mainConfig) {
-		oc.signalsNotify = signals
-	}
-}
-
-func SetSignalsChannelBufferSize(size int) MainConfigOption {
-	return func(oc *mainConfig) {
-		oc.signalChannelBufferSize = size
-	}
-}
-
-func SetFatalErrorsChannelBufferSize(size int) MainConfigOption {
-	return func(oc *mainConfig) {
-		oc.fatalErrorsChannelBufferSize = size
-	}
-}
-
-func SetShutdownTimeout(d time.Duration) MainConfigOption {
-	return func(oc *mainConfig) {
-		oc.shutdownTimeout = d
-	}
-}
-
-const (
-	defaultSignalChannelBufferSize      = 10
-	defaultFatalErrorsChannelBufferSize = 10
-	defaultShutdownTimeout              = 4 * time.Second
-)
-
-type mainConfig struct {
-	signalsNotify                []os.Signal
-	signalChannelBufferSize      int
-	fatalErrorsChannelBufferSize int
-	shutdownTimeout              time.Duration
-}
-
-func NewMain(opts ...MainConfigOption) *Main {
-	cnf := mainConfig{
-		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
-		signalChannelBufferSize:      defaultSignalChannelBufferSize,
-		fatalErrorsChannelBufferSize: defaultFatalErrorsChannelBufferSize,
-		shutdownTimeout:              defaultShutdownTimeout,
-	}
-
-	for _, o := range opts {
-		o(&cnf)
-	}
-
-	o := &Main{
-		signalCh:      createSignalsChannel(cnf),
-		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
-		config:        cnf,
-	}
-
-	return o
-}
-
+// Main struct wraps tha basic functionality that is needed in order for an application to run daemon/service like and shutdown gracefully when stop conditions are met.
+// Stop conditions:
+//
+//	a. a signal (one of mainConfig.signalsNotify) is received from OS.
+//	b. a error is received in fatal errors channel.
+//	c. the given context (`ctx`) in `.Run` function is done.
+//
+// As described in `b` a fatal error channel is being provided (function `FatalErrorsChannel()`) and can be used by the rest of the code when a catastrophic error occurs that needs to trigger an application shutdown.
 type Main struct {
 	signalCh        chan os.Signal
 	fatalErrorsCh   chan error
@@ -94,10 +42,13 @@ func (o *Main) callOnShutDown(ctx context.Context) {
 	}
 }
 
+// FatalErrorsChannel returns the fatal error channel that can be used by the application in order to trigger a shutdown.
 func (o *Main) FatalErrorsChannel() chan<- error {
 	return o.fatalErrorsCh
 }
 
+// Run will block until one of the stop conditions is met.
+// After a stop conditions is met the `Main` will attempt shutdown "gracefully" by running every function that is registered in `onShutDown` slice.
 func (o *Main) Run(ctx context.Context, ctxCancel context.CancelFunc) {
 	logSig := func(sig os.Signal) {
 		event := log.Warn().Str("signal", sig.String())
@@ -140,6 +91,70 @@ func (o *Main) Run(ctx context.Context, ctxCancel context.CancelFunc) {
 	ctxCancel()
 	close(o.fatalErrorsCh)
 	log.Info().Msgf("shutdown completed")
+}
+
+type MainConfigOption func(*mainConfig)
+
+// SetSignalsNotify sets the OS signals that will be used as stop condition to Main in order to shutdown gracefully.
+func SetSignalsNotify(signals ...os.Signal) MainConfigOption {
+	return func(oc *mainConfig) {
+		oc.signalsNotify = signals
+	}
+}
+
+// SetSignalsChannelBufferSize sets the channel size of the watched received signals in case that is needed to be a buffered one.
+func SetSignalsChannelBufferSize(size int) MainConfigOption {
+	return func(oc *mainConfig) {
+		oc.signalChannelBufferSize = size
+	}
+}
+
+// SetFatalErrorsChannelBufferSize sets the fatal error channel size in case that is needed to be a buffered one.
+func SetFatalErrorsChannelBufferSize(size int) MainConfigOption {
+	return func(oc *mainConfig) {
+		oc.fatalErrorsChannelBufferSize = size
+	}
+}
+
+// SetShutdownTimeout sets the timeout to the graceful shutdown process.
+func SetShutdownTimeout(d time.Duration) MainConfigOption {
+	return func(oc *mainConfig) {
+		oc.shutdownTimeout = d
+	}
+}
+
+const (
+	defaultSignalChannelBufferSize      = 10
+	defaultFatalErrorsChannelBufferSize = 10
+	defaultShutdownTimeout              = 4 * time.Second
+)
+
+type mainConfig struct {
+	signalsNotify                []os.Signal
+	signalChannelBufferSize      int
+	fatalErrorsChannelBufferSize int
+	shutdownTimeout              time.Duration
+}
+
+func NewMain(opts ...MainConfigOption) *Main {
+	cnf := mainConfig{
+		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
+		signalChannelBufferSize:      defaultSignalChannelBufferSize,
+		fatalErrorsChannelBufferSize: defaultFatalErrorsChannelBufferSize,
+		shutdownTimeout:              defaultShutdownTimeout,
+	}
+
+	for _, o := range opts {
+		o(&cnf)
+	}
+
+	o := &Main{
+		signalCh:      createSignalsChannel(cnf),
+		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
+		config:        cnf,
+	}
+
+	return o
 }
 
 func createSignalsChannel(cnf mainConfig) chan os.Signal {
