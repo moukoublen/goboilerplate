@@ -21,6 +21,22 @@ const (
 	TrafficLogLevelVerbose TrafficLogLevel = 2
 )
 
+// Default configuration values.
+const (
+	defaultInboundTrafficLogLevel  = 2
+	defaultOutboundTrafficLogLevel = 2
+)
+
+func DefaultConfigValues() map[string]any {
+	return map[string]any{
+		"http.ip":                         "0.0.0.0",
+		"http.port":                       "43000",
+		"http.inbound_traffic_log_level":  defaultInboundTrafficLogLevel,
+		"http.outbound_traffic_log_level": defaultOutboundTrafficLogLevel,
+		"http.log_in_level":               0,
+	}
+}
+
 type Config struct {
 	IP                   string
 	Port                 int32

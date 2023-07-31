@@ -11,6 +11,13 @@ import (
 	"github.com/rs/zerolog/pkgerrors"
 )
 
+func DefaultConfigValues() map[string]any {
+	return map[string]any{
+		"log.console_writer": false,
+		"log.level":          0,
+	}
+}
+
 type Config struct {
 	ConsoleWriter bool
 	LogLevel      zerolog.Level

@@ -11,10 +11,29 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func defaultConfigs() map[string]any {
+	defaults := map[string]any{
+		"shutdown_timeout": "4s",
+	}
+
+	gather := []map[string]any{
+		httpx.DefaultConfigValues(),
+		logx.DefaultConfigValues(),
+	}
+
+	for _, g := range gather {
+		for k, v := range g {
+			defaults[k] = v
+		}
+	}
+
+	return defaults
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cnf, err := config.Load("APP_")
+	cnf, err := config.Load("APP_", defaultConfigs())
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}

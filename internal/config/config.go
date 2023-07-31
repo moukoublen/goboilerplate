@@ -13,11 +13,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Load(envVarPrefix string) (*koanf.Koanf, error) {
+func Load(envVarPrefix string, defaultConfigs map[string]any) (*koanf.Koanf, error) {
 	const delim = "."
 	k := koanf.New(delim)
 
-	if err := k.Load(confmap.Provider(defaultConfigs(), delim), nil); err != nil {
+	if err := k.Load(confmap.Provider(defaultConfigs, delim), nil); err != nil {
 		log.Warn().Err(err).Msg("error during config loading from defaults")
 	}
 
@@ -47,24 +47,4 @@ func Load(envVarPrefix string) (*koanf.Koanf, error) {
 	}
 
 	return k, nil
-}
-
-// Default configuration values.
-const (
-	defaultInboundTrafficLogLevel  = 2
-	defaultOutboundTrafficLogLevel = 2
-)
-
-func defaultConfigs() map[string]any {
-	return map[string]any{
-		"shutdown_timeout":                "4s",
-		"http.ip":                         "0.0.0.0",
-		"http.port":                       "43000",
-		"http.inbound_traffic_log_level":  defaultInboundTrafficLogLevel,
-		"http.outbound_traffic_log_level": defaultOutboundTrafficLogLevel,
-		"http.log_in_level":               -1,
-		"http.read_header_timeout":        "5s",
-		"log.console_writer":              false,
-		"log.level":                       -1,
-	}
 }
