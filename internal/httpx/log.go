@@ -33,9 +33,10 @@ func (rr *httpRequestMarshalZerologObject) MarshalZerologObject(e *zerolog.Event
 		Strs("transferEncoding", rr.Request.TransferEncoding).
 		Str("host", rr.Request.Host).
 		Str("remoteAddr", rr.Request.RemoteAddr).
-		Str("requestURI", rr.Request.RequestURI).
+		Str("uri", rr.Request.RequestURI).
 		Str("proto", rr.Request.Proto).
-		Str("method", rr.Request.Method)
+		Str("method", rr.Request.Method).
+		Str("url", requestURL(rr.Request))
 }
 
 type httpResponseMarshalZerologObject struct {
@@ -84,11 +85,7 @@ func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
 	}
 
 	entry.logEvent.Str("request_id", middleware.GetReqID(r.Context()))
-	entry.logEvent.Str("method", r.Method)
-	entry.logEvent.Str("url", requestURL(r))
-	entry.logEvent.Str("uri", r.RequestURI)
-	entry.logEvent.Str("from", r.RemoteAddr)
-	entry.logEvent.Object("requestHeaders", &httpHeaderMarshalZerologObject{header: r.Header})
+	entry.logEvent.EmbedObject(&httpRequestMarshalZerologObject{Request: r})
 
 	return entry
 }
@@ -143,8 +140,6 @@ func dictFromWrapResponseWriter(w middleware.WrapResponseWriter, startTime time.
 
 	if logBody(w.Header()) {
 		dict.RawJSON("payload", sanitizeJSONBytesToLog(responseBodyBuffer.Bytes()))
-	} else {
-		dict.Str("payload", responseBodyBuffer.String())
 	}
 
 	return dict
@@ -163,8 +158,6 @@ func dictFromRequest(r *http.Request) (*zerolog.Event, error) {
 
 	if logBody(r.Header) {
 		dict.RawJSON("payload", sanitizeJSONBytesToLog(payloadBytes))
-	} else {
-		dict.Str("payload", string(payloadBytes))
 	}
 
 	return dict, nil
@@ -173,7 +166,7 @@ func dictFromRequest(r *http.Request) (*zerolog.Event, error) {
 func logBody(h http.Header) bool {
 	contentType := h.Get("Content-Type")
 	contentEncoding := h.Get("Content-Encoding")
-	return !strings.Contains(contentType, `application/json`) && len(contentEncoding) == 0
+	return strings.Contains(contentType, `application/json`) && len(contentEncoding) == 0
 }
 
 func sanitizeJSONBytesToLog(b []byte) []byte {
