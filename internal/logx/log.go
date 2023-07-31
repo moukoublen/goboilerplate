@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/knadh/koanf/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
@@ -13,6 +14,13 @@ import (
 type Config struct {
 	ConsoleWriter bool
 	LogLevel      zerolog.Level
+}
+
+func ParseConfig(cnf *koanf.Koanf) Config {
+	return Config{
+		ConsoleWriter: cnf.Bool("log.console_writer"),
+		LogLevel:      zerolog.Level(cnf.Int("log.level")),
+	}
 }
 
 func newDefaultLogger(l zerolog.Level, w io.Writer) zerolog.Logger {

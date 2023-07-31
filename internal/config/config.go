@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Load() (*koanf.Koanf, error) {
+func Load(envVarPrefix string) (*koanf.Koanf, error) {
 	const delim = "."
 	k := koanf.New(delim)
 
@@ -34,12 +34,12 @@ func Load() (*koanf.Koanf, error) {
 		"http": map[string]any{},
 		"log":  map[string]any{},
 	}
-	if err := k.Load(env.Provider("APP_", delim, buildEnvVarsNamesMapper(envVarsLevels)), nil); err != nil {
+	if err := k.Load(env.Provider(envVarPrefix, delim, buildEnvVarsNamesMapper(envVarsLevels, envVarPrefix)), nil); err != nil {
 		log.Warn().Err(err).Msg("error during config loading from env vars")
 	}
 
 	// Dot env file
-	if err := k.Load(file.Provider(".env"), dotenv.ParserEnv("APP_", delim, buildEnvVarsNamesMapper(envVarsLevels))); err != nil {
+	if err := k.Load(file.Provider(".env"), dotenv.ParserEnv(envVarPrefix, delim, buildEnvVarsNamesMapper(envVarsLevels, envVarPrefix))); err != nil {
 		log.Warn().Err(err).Msg("error during config loading from dot env file")
 		if !errors.Is(err, fs.ErrNotExist) {
 			return k, err

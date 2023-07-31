@@ -2,9 +2,9 @@ package config
 
 import "strings"
 
-func buildEnvVarsNamesMapper(levels map[string]any) func(string) string {
+func buildEnvVarsNamesMapper(levels map[string]any, envVarPrefix string) func(string) string {
 	return func(s string) string {
-		s = strings.TrimPrefix(s, "APP_")
+		s = strings.TrimPrefix(s, envVarPrefix)
 		s = strings.ToLower(s)
 		return buildKey(&strings.Builder{}, ".", "_", levels, strings.Split(s, "_"))
 	}

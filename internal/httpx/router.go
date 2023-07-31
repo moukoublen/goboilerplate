@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/knadh/koanf/v2"
 	"github.com/moukoublen/goboilerplate/build"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -28,6 +29,18 @@ type Config struct {
 	LogInLevel           zerolog.Level
 	GlobalInboundTimeout time.Duration
 	ReadHeaderTimeout    time.Duration
+}
+
+func ParseConfig(cnf *koanf.Koanf) Config {
+	return Config{
+		IP:                   cnf.String("http.ip"),
+		Port:                 int32(cnf.Int64("http.port")),
+		InBoundHTTPLogLevel:  TrafficLogLevel(cnf.Int64("http.inbound_traffic_log_level")),
+		OutBoundHTTPLogLevel: TrafficLogLevel(cnf.Int64("http.outbound_traffic_log_level")),
+		LogInLevel:           zerolog.Level(cnf.Int64("http.log_in_level")),
+		GlobalInboundTimeout: cnf.Duration("http.global_inbound_timeout"),
+		ReadHeaderTimeout:    cnf.Duration("http.read_header_timeout"),
+	}
 }
 
 // NewDefaultRouter returns a *chi.Mux with a default set of middlewares and an "/about" route.

@@ -14,19 +14,19 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cnf, err := config.Load()
+	cnf, err := config.Load("APP_")
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
 
-	logx.SetupLog(parseLogConfig(cnf))
+	logx.SetupLog(logx.ParseConfig(cnf))
 	log.Info().Msgf("Starting up")
 
 	main := internal.NewMain(
 		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
 	)
 
-	httpConf := parseHTTPConfig(cnf)
+	httpConf := httpx.ParseConfig(cnf)
 	router := httpx.NewDefaultRouter(httpConf)
 
 	// init services / application
