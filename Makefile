@@ -35,7 +35,7 @@ default: checks build
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy -go=1.20
+	$(GO_EXEC) mod tidy -go=1.21
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor

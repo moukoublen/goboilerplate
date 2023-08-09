@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.5
 ### https://hub.docker.com/r/docker/dockerfile
 
-FROM golang:1.20.6-alpine3.18
+FROM golang:1.21-alpine3.18
 
 WORKDIR /wd
 
