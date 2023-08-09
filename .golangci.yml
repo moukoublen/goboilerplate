@@ -1,4 +1,5 @@
 # https://golangci-lint.run/usage/configuration/
+# https://golangci-lint.run/usage/linters/
 
 run:
   go: '1.21'

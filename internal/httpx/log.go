@@ -80,7 +80,7 @@ func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
 
 	entry := &chiZerologEntry{
 		request:  r,
-		logEvent: logger.WithLevel(c.LogInLevel),
+		logEvent: logger.WithLevel(c.LogInLevel), //nolint:zerologlint // indented behavior.
 		logger:   logger,
 	}
 
