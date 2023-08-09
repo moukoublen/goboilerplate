@@ -18,9 +18,9 @@ func buildKey(b *strings.Builder, levelSep, wordsSep string, levels map[string]a
 	writeWords := func() {
 		last := len(parts) - 1
 		for i, s := range parts {
-			b.WriteString(s)
+			_, _ = b.WriteString(s)
 			if i != last {
-				b.WriteString(wordsSep)
+				_, _ = b.WriteString(wordsSep)
 			}
 		}
 	}
@@ -38,9 +38,9 @@ func buildKey(b *strings.Builder, levelSep, wordsSep string, levels map[string]a
 		return b.String()
 	}
 
-	b.WriteString(s)
+	_, _ = b.WriteString(s)
 	if len(parts) > 1 {
-		b.WriteString(levelSep)
+		_, _ = b.WriteString(levelSep)
 	}
 
 	if innerLevels, is := currentLevel.(map[string]any); is {

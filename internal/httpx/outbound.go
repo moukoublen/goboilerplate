@@ -42,11 +42,13 @@ func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any)
 		return err
 	}
 
-	zerolog.Ctx(ctx).Debug().
-		Dur("duration", time.Since(start)).
-		Object("request", &httpRequestMarshalZerologObject{Request: req}).
-		Object("response", &httpResponseMarshalZerologObject{Response: res}).
-		Msg("outbound traffic")
+	defer func() {
+		zerolog.Ctx(ctx).Debug().
+			Dur("duration", time.Since(start)).
+			Object("request", &httpRequestMarshalZerologObject{Request: req}).
+			Object("response", &httpResponseMarshalZerologObject{Response: res}).
+			Msg("outbound traffic")
+	}()
 
 	if res.StatusCode >= http.StatusBadRequest {
 		defer DrainAndCloseResponse(res)
