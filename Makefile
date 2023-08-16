@@ -171,7 +171,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.54.0
+GOLANGCI-LINT_VER:=v1.54.1
 $(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/golangci-lint:
 
