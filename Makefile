@@ -75,13 +75,15 @@ git-reset:
 image:
 	$(DOCKER_EXEC) build . -f $(CURDIR)/build/docker/Dockerfile -t $(IMAGE_NAME):$(IMAGE_TAG)
 
-.PHONY: up
-up:
-	$(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml up --force-recreate --build
+DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml
 
-.PHONY: down
-down:
-	$(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml down --volumes --rmi local --remove-orphans
+.PHONY: compose-up
+compose-up:
+	$(DOCKER_COMPOSE_EXEC) up --force-recreate --build
+
+.PHONY: compose-down
+compose-down:
+	$(DOCKER_COMPOSE_EXEC) down --volumes --rmi local --remove-orphans
 
 .PHONY: env
 env:

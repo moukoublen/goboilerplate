@@ -53,12 +53,12 @@ ___
 Deletes `./output` folder.
 ___
 
-#### `up`
+#### `compose-up`
 Deploys (rebuilds and recreates) the docker compose file `deployments/compose/docker-compose.yml` in attached mode. This docker compose file is intended for local development.<br>
 It uses the docker file `build/docker/debug.Dockerfile` and runs `air` target (see below), including hot-reload (rebuild on changes) and debug server.
 ___
 
-#### `down`
+#### `compose-down`
 Stops (if started) the containers specified by the docker compose file `deployments/compose/docker-compose.yml` removes containers, cleans up the volumes and delete local docker images.
 ___
 
