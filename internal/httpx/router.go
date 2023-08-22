@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/knadh/koanf/v2"
-	"github.com/moukoublen/goboilerplate/build"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -77,8 +76,6 @@ func NewDefaultRouter(c Config) *chi.Mux {
 		router.Use(middleware.Timeout(c.GlobalInboundTimeout))
 	}
 
-	router.Get("/about", AboutHandler)
-
 	// for test purposes
 	// router.Get("/panic", func(_ http.ResponseWriter, _ *http.Request) { panic("test panic") })
 
@@ -106,10 +103,6 @@ func LogRoutes(r *chi.Mux) {
 	} else {
 		log.Debug().Strs("routes", routes).Msg("http routes")
 	}
-}
-
-func AboutHandler(w http.ResponseWriter, r *http.Request) {
-	RespondJSON(r.Context(), w, http.StatusOK, build.GetInfo())
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.

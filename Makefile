@@ -309,10 +309,12 @@ PROTOC-GEN-GO_VER := v1.31.0
 $(TOOLSBIN)/protoc-gen-go:
 $(TOOLSBIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
 
+# https://protobuf.dev/reference/go/go-generated/
 .PHONY: proto
 proto: $(TOOLSBIN)/protoc $(TOOLSBIN)/protoc-gen-go
-	$(TOOLSBIN)/protoc --version
-	$(TOOLSBIN)/protoc-gen-go --version
+	@$(TOOLSBIN)/protoc --version
+	@$(TOOLSBIN)/protoc-gen-go --version
+	protoc --proto_path=internal/httpx/handlers/ --go_out=internal/httpx/handlers/ --go_opt=paths=source_relative internal/httpx/handlers/about.proto
 ## </protobuf>
 ####################################################################################
 ## </ci & external tools> ##########################################################

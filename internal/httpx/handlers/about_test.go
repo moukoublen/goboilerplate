@@ -1,4 +1,4 @@
-package httpx
+package handlers
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func TestAPI_AboutRouteHandler(t *testing.T) {
 	}
 
 	// http call
-	AboutHandler(resp, req)
+	(AboutHandler{}).About(resp, req)
 
 	// verify
 	assert.Equal(t, http.StatusOK, resp.Code)

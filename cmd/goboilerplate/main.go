@@ -7,6 +7,7 @@ import (
 	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/moukoublen/goboilerplate/internal/httpx"
+	"github.com/moukoublen/goboilerplate/internal/httpx/handlers"
 	"github.com/moukoublen/goboilerplate/internal/logx"
 	"github.com/rs/zerolog/log"
 )
@@ -47,6 +48,9 @@ func main() {
 
 	httpConf := httpx.ParseConfig(cnf)
 	router := httpx.NewDefaultRouter(httpConf)
+
+	aboutHandler := handlers.NewAboutHandler()
+	aboutHandler.Register(router)
 
 	// init services / application
 	server := httpx.StartListenAndServe(

@@ -12,6 +12,7 @@ require (
 	github.com/knadh/koanf/v2 v2.0.1
 	github.com/rs/zerolog v1.30.0
 	github.com/stretchr/testify v1.8.4
+	google.golang.org/protobuf v1.31.0
 )
 
 require (

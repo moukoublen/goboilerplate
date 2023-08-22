@@ -101,6 +101,7 @@ func (s *StatusCodeError) Is(target error) bool {
 
 // NewHTTPClient returns a new default http client.
 func NewHTTPClient(globalTimeout time.Duration) *http.Client {
+	// clean copy from http.DefaultTransport
 	return &http.Client{
 		Timeout: globalTimeout,
 		Transport: &http.Transport{
