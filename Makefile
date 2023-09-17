@@ -160,7 +160,7 @@ $(TOOLSBIN)/%: $(TOOLSDB)/$$(DSC).$$(VER).$(GO_VER).ver
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
-STATICCHECK_VER:=2023.1.3
+STATICCHECK_VER:=2023.1.6
 $(TOOLSDB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver:
 $(TOOLSBIN)/staticcheck:
 
@@ -173,7 +173,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.54.1
+GOLANGCI-LINT_VER:=v1.54.2
 $(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/golangci-lint:
 
@@ -186,7 +186,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.12.0
+GOIMPORTS_VER := v0.13.0
 $(TOOLSDB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
 $(TOOLSBIN)/goimports:
 
@@ -287,7 +287,7 @@ gojq: $(TOOLSBIN)/gojq
 ## <air>
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
-AIR_VER:=v1.44.0
+AIR_VER:=v1.45.0
 $(TOOLSDB)/air.$(AIR_VER).$(GO_VER).ver:
 $(TOOLSBIN)/air:
 
@@ -298,7 +298,7 @@ air: $(TOOLSBIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v24.0
+PROTOC_VER:=v24.3
 $(TOOLSDB)/protoc.$(PROTOC_VER).ver:
 $(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
