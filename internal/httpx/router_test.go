@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAPI_AboutRouteHandler(t *testing.T) {
@@ -24,7 +25,7 @@ func TestAPI_AboutRouteHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 	responseBody := map[string]any{}
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, responseBody, "version")
 	assert.Contains(t, responseBody, "branch")
 	assert.Contains(t, responseBody, "commit")

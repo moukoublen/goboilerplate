@@ -173,7 +173,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.54.2
+GOLANGCI-LINT_VER:=v1.55.2
 $(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/golangci-lint:
 
@@ -287,7 +287,7 @@ gojq: $(TOOLSBIN)/gojq
 ## <air>
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
-AIR_VER:=v1.45.0
+AIR_VER:=v1.49.0
 $(TOOLSDB)/air.$(AIR_VER).$(GO_VER).ver:
 $(TOOLSBIN)/air:
 
@@ -298,7 +298,7 @@ air: $(TOOLSBIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v24.4
+PROTOC_VER:=v25.0
 $(TOOLSDB)/protoc.$(PROTOC_VER).ver:
 $(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
