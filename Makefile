@@ -186,7 +186,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.14.0
+GOIMPORTS_VER := v0.16.0
 $(TOOLSDB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
 $(TOOLSBIN)/goimports:
 
@@ -276,7 +276,7 @@ gofmt.fix:
 ## <gojq>
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
-GOJQ_VER := v0.12.13
+GOJQ_VER := v0.12.14
 $(TOOLSBIN)/gojq:
 $(TOOLSBIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver:
 
@@ -298,7 +298,7 @@ air: $(TOOLSBIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v25.0
+PROTOC_VER:=v25.1
 $(TOOLSDB)/protoc.$(PROTOC_VER).ver:
 $(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
