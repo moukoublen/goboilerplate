@@ -186,7 +186,7 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.16.0
+GOIMPORTS_VER := v0.17.0
 $(TOOLSDB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
 $(TOOLSBIN)/goimports:
 
@@ -298,14 +298,14 @@ air: $(TOOLSBIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v25.1
+PROTOC_VER:=v25.2
 $(TOOLSDB)/protoc.$(PROTOC_VER).ver:
 $(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD := google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER := v1.31.0
+PROTOC-GEN-GO_VER := v1.32.0
 $(TOOLSBIN)/protoc-gen-go:
 $(TOOLSBIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
 
