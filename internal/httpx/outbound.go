@@ -41,6 +41,7 @@ func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any)
 	if err != nil {
 		return err
 	}
+	defer DrainAndCloseResponse(res)
 
 	defer func() {
 		zerolog.Ctx(ctx).Debug().
@@ -51,11 +52,8 @@ func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any)
 	}()
 
 	if res.StatusCode >= http.StatusBadRequest {
-		defer DrainAndCloseResponse(res)
 		return NewStatusCodeError(res.StatusCode)
 	}
-
-	defer DrainAndCloseResponse(res)
 
 	reader := res.Body
 
