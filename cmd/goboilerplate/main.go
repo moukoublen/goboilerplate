@@ -41,7 +41,7 @@ func main() {
 	logx.SetupLog(logx.ParseConfig(cnf))
 	log.Info().Msgf("Starting up")
 
-	main := internal.NewMain(
+	daemon := internal.NewDaemon(
 		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
 	)
 
@@ -53,12 +53,12 @@ func main() {
 		fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port),
 		router,
 		httpConf.ReadHeaderTimeout,
-		main.FatalErrorsChannel(),
+		daemon.FatalErrorsChannel(),
 	)
 	log.Info().Msgf("service started at %s:%d", httpConf.IP, httpConf.Port)
 
 	// set onShutdown for other components/services.
-	main.OnShutDown(
+	daemon.OnShutDown(
 		func(ctx context.Context) {
 			if err := server.Shutdown(ctx); err != nil {
 				log.Warn().Err(err).Msg("error during http server shutdown")
@@ -66,5 +66,5 @@ func main() {
 		},
 	)
 
-	main.Run(ctx, cancel)
+	daemon.Run(ctx, cancel)
 }

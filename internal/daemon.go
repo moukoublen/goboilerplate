@@ -8,33 +8,33 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
-// Main struct wraps tha basic functionality that is needed in order for an application to run daemon/service like and shutdown gracefully when stop conditions are met.
+// Daemon struct wraps tha basic functionality that is needed in order for an application to run daemon/service like and shutdown gracefully when stop conditions are met.
 // Stop conditions:
 //
-//	a. a signal (one of mainConfig.signalsNotify) is received from OS.
+//	a. a signal (one of daemonConfig.signalsNotify) is received from OS.
 //	b. a error is received in fatal errors channel.
-//	c. the given context (`ctx`) in `.Run` function is done.
+//	c. the given context (`ctx`) in `.Daemon` function is done.
 //
 // As described in `b` a fatal error channel is being provided (function `FatalErrorsChannel()`) and can be used by the rest of the code when a catastrophic error occurs that needs to trigger an application shutdown.
-type Main struct {
+type Daemon struct {
 	signalCh        chan os.Signal
 	fatalErrorsCh   chan error
 	onShutDown      []func(context.Context)
-	config          mainConfig
+	config          daemonConfig
 	onShutDownMutex sync.Mutex
 }
 
 // OnShutDown appends a function to be called on shutdown.
-func (o *Main) OnShutDown(f ...func(context.Context)) {
+func (o *Daemon) OnShutDown(f ...func(context.Context)) {
 	o.onShutDownMutex.Lock()
 	defer o.onShutDownMutex.Unlock()
 	o.onShutDown = append(o.onShutDown, f...)
 }
 
-func (o *Main) callOnShutDown(ctx context.Context) {
+func (o *Daemon) callOnShutDown(ctx context.Context) {
 	o.onShutDownMutex.Lock()
 	defer o.onShutDownMutex.Unlock()
 	for _, f := range o.onShutDown {
@@ -43,13 +43,15 @@ func (o *Main) callOnShutDown(ctx context.Context) {
 }
 
 // FatalErrorsChannel returns the fatal error channel that can be used by the application in order to trigger a shutdown.
-func (o *Main) FatalErrorsChannel() chan<- error {
+func (o *Daemon) FatalErrorsChannel() chan<- error {
 	return o.fatalErrorsCh
 }
 
 // Run will block until one of the stop conditions is met.
-// After a stop conditions is met the `Main` will attempt shutdown "gracefully" by running every function that is registered in `onShutDown` slice.
-func (o *Main) Run(ctx context.Context, ctxCancel context.CancelFunc) {
+// After a stop conditions is met the `Daemon` will attempt shutdown "gracefully" by running every function that is registered in `onShutDown` slice, sequentially.
+func (o *Daemon) Run(ctx context.Context, ctxCancel context.CancelFunc) {
+	log := zerolog.Ctx(ctx)
+
 	logSig := func(sig os.Signal) {
 		event := log.Warn().Str("signal", sig.String())
 		if sigInt, ok := sig.(syscall.Signal); ok {
@@ -93,32 +95,32 @@ func (o *Main) Run(ctx context.Context, ctxCancel context.CancelFunc) {
 	log.Info().Msgf("shutdown completed")
 }
 
-type MainConfigOption func(*mainConfig)
+type DaemonConfigOption func(*daemonConfig)
 
-// SetSignalsNotify sets the OS signals that will be used as stop condition to Main in order to shutdown gracefully.
-func SetSignalsNotify(signals ...os.Signal) MainConfigOption {
-	return func(oc *mainConfig) {
+// SetSignalsNotify sets the OS signals that will be used as stop condition to Daemon in order to shutdown gracefully.
+func SetSignalsNotify(signals ...os.Signal) DaemonConfigOption {
+	return func(oc *daemonConfig) {
 		oc.signalsNotify = signals
 	}
 }
 
 // SetSignalsChannelBufferSize sets the channel size of the watched received signals in case that is needed to be a buffered one.
-func SetSignalsChannelBufferSize(size int) MainConfigOption {
-	return func(oc *mainConfig) {
+func SetSignalsChannelBufferSize(size int) DaemonConfigOption {
+	return func(oc *daemonConfig) {
 		oc.signalChannelBufferSize = size
 	}
 }
 
 // SetFatalErrorsChannelBufferSize sets the fatal error channel size in case that is needed to be a buffered one.
-func SetFatalErrorsChannelBufferSize(size int) MainConfigOption {
-	return func(oc *mainConfig) {
+func SetFatalErrorsChannelBufferSize(size int) DaemonConfigOption {
+	return func(oc *daemonConfig) {
 		oc.fatalErrorsChannelBufferSize = size
 	}
 }
 
 // SetShutdownTimeout sets a timeout to the graceful shutdown process.
-func SetShutdownTimeout(d time.Duration) MainConfigOption {
-	return func(oc *mainConfig) {
+func SetShutdownTimeout(d time.Duration) DaemonConfigOption {
+	return func(oc *daemonConfig) {
 		oc.shutdownTimeout = d
 	}
 }
@@ -129,15 +131,15 @@ const (
 	defaultShutdownTimeout              = 4 * time.Second
 )
 
-type mainConfig struct {
+type daemonConfig struct {
 	signalsNotify                []os.Signal
 	signalChannelBufferSize      int
 	fatalErrorsChannelBufferSize int
 	shutdownTimeout              time.Duration
 }
 
-func NewMain(opts ...MainConfigOption) *Main {
-	cnf := mainConfig{
+func NewDaemon(opts ...DaemonConfigOption) *Daemon {
+	cnf := daemonConfig{
 		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
 		signalChannelBufferSize:      defaultSignalChannelBufferSize,
 		fatalErrorsChannelBufferSize: defaultFatalErrorsChannelBufferSize,
@@ -148,18 +150,14 @@ func NewMain(opts ...MainConfigOption) *Main {
 		o(&cnf)
 	}
 
-	o := &Main{
-		signalCh:      createSignalsChannel(cnf),
+	signalCh := make(chan os.Signal, cnf.signalChannelBufferSize)
+	signal.Notify(signalCh, cnf.signalsNotify...)
+
+	o := &Daemon{
+		signalCh:      signalCh,
 		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
 		config:        cnf,
 	}
 
 	return o
-}
-
-func createSignalsChannel(cnf mainConfig) chan os.Signal {
-	signalCh := make(chan os.Signal, cnf.signalChannelBufferSize)
-	signal.Notify(signalCh, cnf.signalsNotify...)
-
-	return signalCh
 }
