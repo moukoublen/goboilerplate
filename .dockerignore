@@ -22,7 +22,7 @@
 /vendor/**/.gitattributes
 
 #### Test .dockerignore (https://stackoverflow.com/questions/38946683/how-to-test-dockerignore-file)
-# docker build --no-cache --progress plain -t dockerignore-test --file - . <<EOF
+# docker build . --no-cache --progress plain -t dockerignore-test --file - <<EOF
 # FROM busybox
 # COPY . /e
 # WORKDIR /e

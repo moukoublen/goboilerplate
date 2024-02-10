@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.6
 ### https://hub.docker.com/r/docker/dockerfile
 
-FROM golang:1.21.3-alpine3.18 as builder
+FROM golang:1.22.0-alpine3.19 as builder
 RUN apk update && apk add --no-cache make git bash ca-certificates
 WORKDIR /app
 COPY . .
@@ -10,7 +10,7 @@ RUN set -xe && \
 
 #FROM scratch
 #COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs
-FROM alpine:3.18
+FROM alpine:3.19
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=builder /app/output/* /app/

@@ -5,6 +5,11 @@ SHELL := /bin/bash
 ## NOTINTERMEDIATE requires make >=4.4
 .NOTINTERMEDIATE:
 
+GO_EXEC ?= go
+export GO_EXEC
+DOCKER_EXEC ?= docker
+export DOCKER_EXEC
+
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
 VERSION ?= 0.0.0
 X_FLAGS := \
@@ -24,18 +29,13 @@ export GO111MODULE := on
 GOPATH := $(shell go env GOPATH)
 GO_VER := $(shell go env GOVERSION)
 
-GO_EXEC ?= go
-export GO_EXEC
-DOCKER_EXEC ?= docker
-export DOCKER_EXEC
-
 .DEFAULT_GOAL=default
 .PHONY: default
 default: checks build
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy -go=1.21
+	$(GO_EXEC) mod tidy -go=1.22
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor
