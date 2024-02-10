@@ -1,0 +1,8 @@
+{
+  // https://go.microsoft.com/fwlink/?LinkId=827846
+  "recommendations": [
+    "golang.go",
+    "ms-azuretools.vscode-docker",
+    "streetsidesoftware.code-spell-checker",
+  ]
+}

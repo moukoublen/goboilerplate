@@ -1,0 +1,43 @@
+{
+  "version": "0.2",
+  "language": "en",
+  // words - list of words to be always considered correct
+  "words": [
+    "CMDNAME",
+    "cosmtrek",
+    "covermode",
+    "coverprofile",
+    "CURDIR",
+    "endef",
+    "extldflags",
+    "GOBIN",
+    "goboilerplate",
+    "GOFLAGS",
+    "gofmt",
+    "gofumpt",
+    "goimports",
+    "gojq",
+    "golangci",
+    "GOPATH",
+    "GOVERSION",
+    "honnef",
+    "httpcompress",
+    "itchyny",
+    "ldflags",
+    "mvdan",
+    "NOTINTERMEDIATE",
+    "NOTPARALLEL",
+    "proto",
+    "protobuf",
+    "PROTOBUFGO",
+    "PROTOC",
+    "SECONDEXPANSION",
+    "staticcheck",
+    "trimpath"
+  ],
+  "ignorePaths": [
+    "vendor",
+    ".git",
+    "/go.mod"
+  ]
+}
