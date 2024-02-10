@@ -121,10 +121,10 @@ vet:
 	@echo ""
 
 TOOLSDIR ?= $(shell pwd)/.ext
+TOOLSDB ?= $(TOOLSDIR)/.db
 TOOLSBIN ?= $(TOOLSDIR)/bin
 export TOOLSBIN
 export PATH := $(TOOLSBIN):$(PATH)
-TOOLSDB ?= $(TOOLSDIR)/.db
 
 uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
 
@@ -173,7 +173,7 @@ staticcheck: $(TOOLSBIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.55.2
+GOLANGCI-LINT_VER:=v1.56.1
 $(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/golangci-lint:
 
@@ -218,7 +218,7 @@ goimports.fix: $(TOOLSBIN)/goimports
 ## <gofumpt>
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
-GOFUMPT_VER:=v0.5.0
+GOFUMPT_VER:=v0.6.0
 $(TOOLSDB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver:
 $(TOOLSBIN)/gofumpt:
 
