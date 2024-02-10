@@ -25,8 +25,8 @@ jobs:
       with:
         path: |
           .tools/
-          ~/.cache/go-build
-          ~/go/pkg/mod
+          ~/.cache/go-build/
+          ~/go/pkg/
         key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum', '**/Makefile', '.github/workflows/go.yml') }}
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}
