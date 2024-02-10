@@ -100,7 +100,7 @@ env:
 	@echo '$(TOOLS_BIN)'
 	@echo ""
 	@echo ">>> Path:"
-	@echo $${PATH}
+	@echo "$${PATH}" | tr ':' '\n'
 
 
 ####################################################################################
@@ -150,22 +150,18 @@ $(TOOLS_DB)/%.ver: | $(TOOLS_DB)
 	@rm -f $(TOOLS_DB)/$(word 1,$(subst ., ,$*)).*
 	@touch $(TOOLS_DB)/$*.ver
 
-# In make >= 4.4 .NOTINTERMEDIATE will do the job.
-.PRECIOUS: $(TOOLS_BIN)/%
-$(TOOLS_BIN)/%: DSC=$*
-$(TOOLS_BIN)/%: VER=$($(call uppercase,$*)_VER)
-$(TOOLS_BIN)/%: CMD=$($(call uppercase,$*)_CMD)
-$(TOOLS_BIN)/%: $(TOOLS_DB)/$$(DSC).$$(VER).$(GO_VER).ver
-	@echo -e "Installing \e[1;36m$(DSC)\e[0m@\e[1;36m$(VER)\e[0m using \e[1;36m$(GO_VER)\e[0m"
-	GOBIN="$(TOOLS_BIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
+define go_install
+	@echo -e "Installing \e[1;36m$(1)\e[0m@\e[1;36m$(3)\e[0m using \e[1;36m$(GO_VER)\e[0m"
+	GOBIN="$(TOOLS_BIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(2)@$(3)"
 	@echo ""
+endef
 
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
-STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
+STATICCHECK_CMD:=honnef.co/go/tools/cmd/staticcheck
 STATICCHECK_VER:=2023.1.6
-$(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver:
-$(TOOLS_BIN)/staticcheck:
+$(TOOLS_BIN)/staticcheck: $(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver
+	$(call go_install,staticcheck,$(STATICCHECK_CMD),$(STATICCHECK_VER))
 
 .PHONY: staticcheck
 staticcheck: $(TOOLS_BIN)/staticcheck
@@ -177,8 +173,8 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
 GOLANGCI-LINT_VER:=v1.56.1
-$(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
-$(TOOLS_BIN)/golangci-lint:
+$(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
+	$(call go_install,golangci-lint,$(GOLANGCI-LINT_CMD),$(GOLANGCI-LINT_VER))
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLS_BIN)/golangci-lint
@@ -190,8 +186,8 @@ golangci-lint: $(TOOLS_BIN)/golangci-lint
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
 GOIMPORTS_VER := v0.17.0
-$(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
-$(TOOLS_BIN)/goimports:
+$(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
+	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
 
 .PHONY: goimports
 goimports: $(TOOLS_BIN)/goimports
@@ -222,8 +218,8 @@ goimports.fix: $(TOOLS_BIN)/goimports
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
 GOFUMPT_VER:=v0.6.0
-$(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver:
-$(TOOLS_BIN)/gofumpt:
+$(TOOLS_BIN)/gofumpt: $(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver
+	$(call go_install,gofumpt,$(GOFUMPT_CMD),$(GOFUMPT_VER))
 
 .PHONY: gofumpt
 gofumpt: $(TOOLS_BIN)/gofumpt
@@ -280,8 +276,8 @@ gofmt.fix:
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
 GOJQ_VER := v0.12.14
-$(TOOLS_BIN)/gojq:
-$(TOOLS_BIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/gojq: $(TOOLS_BIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver
+	$(call go_install,gojq,$(GOJQ_CMD),$(GOJQ_VER))
 
 .PHONY: gojq
 gojq: $(TOOLS_BIN)/gojq
@@ -291,8 +287,8 @@ gojq: $(TOOLS_BIN)/gojq
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
 AIR_VER:=v1.49.0
-$(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver:
-$(TOOLS_BIN)/air:
+$(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
+	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
 .PHONY: air
 air: $(TOOLS_BIN)/air
@@ -302,15 +298,14 @@ air: $(TOOLS_BIN)/air
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
 PROTOC_VER:=v25.2
-$(TOOLS_DB)/protoc.$(PROTOC_VER).ver:
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
-PROTOC-GEN-GO_CMD := google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER := v1.32.0
-$(TOOLS_BIN)/protoc-gen-go:
-$(TOOLS_BIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
+PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
+PROTOC-GEN-GO_VER:=v1.32.0
+$(TOOLS_BIN)/protoc-gen-go: $(TOOLS_BIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver
+	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 
 .PHONY: proto
 proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
