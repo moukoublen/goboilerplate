@@ -113,7 +113,7 @@ test:
 	@rm cover.out
 
 .PHONY: checks
-checks: vet staticcheck gofumpt goimports golangci-lint
+checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
 
 .PHONY: vet
 vet:
@@ -179,6 +179,11 @@ $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_
 .PHONY: golangci-lint
 golangci-lint: $(TOOLS_BIN)/golangci-lint
 	golangci-lint run
+	@echo ''
+
+.PHONY: golangci-lint-github-actions
+golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
+	golangci-lint run --out-format github-actions
 	@echo ''
 ## </golangci-lint>
 
