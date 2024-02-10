@@ -74,5 +74,5 @@ unzip -qq -o "${DESTINATION_DIR}/protoc.zip" -d "${DESTINATION_DIR}"
 rm -rf "${DESTINATION_DIR}/protoc.zip"
 rm -rf "${DESTINATION_DIR}/readme.txt"
 
-# to update all dates in order for make file to get it as new (check stat "${DESTINATION_DIR}"/bin/protoc) (example of issue: Prerequisite '/.../.ext/.db/protoc.v23.3.ver' is newer than target '/.../.ext/bin/protoc'.)
+# to update all dates in order for make file to get it as new (check stat "${DESTINATION_DIR}"/bin/protoc) (example of issue: Prerequisite '/.../.tools/.db/protoc.v23.3.ver' is newer than target '/.../.tools/bin/protoc'.)
 touch "${DESTINATION_DIR}"/bin/protoc

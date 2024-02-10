@@ -97,7 +97,7 @@ env:
 	$(FOLDERS)
 	@echo ""
 	@echo ">>> Tools:"
-	@echo '$(TOOLSBIN)'
+	@echo '$(TOOLS_BIN)'
 	@echo ""
 	@echo ">>> Path:"
 	@echo $${PATH}
@@ -120,52 +120,55 @@ vet:
 	$(GO_EXEC) vet `$(PACKAGES)`
 	@echo ""
 
-TOOLSDIR ?= $(shell pwd)/.ext
-TOOLSDB ?= $(TOOLSDIR)/.db
-TOOLSBIN ?= $(TOOLSDIR)/bin
-export TOOLSBIN
-export PATH := $(TOOLSBIN):$(PATH)
+TOOLS_DIR ?= $(shell pwd)/.tools
+TOOLS_DB ?= $(TOOLS_DIR)/.db
+TOOLS_BIN ?= $(TOOLS_DIR)/bin
+export PATH := $(TOOLS_BIN):$(PATH)
 
 uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
 
 .PHONY: tools
 tools: \
-	$(TOOLSBIN)/goimports \
-	$(TOOLSBIN)/staticcheck \
-	$(TOOLSBIN)/golangci-lint \
-	$(TOOLSBIN)/gofumpt
+	$(TOOLS_BIN)/goimports \
+	$(TOOLS_BIN)/staticcheck \
+	$(TOOLS_BIN)/golangci-lint \
+	$(TOOLS_BIN)/gofumpt
 
-$(TOOLSBIN):
-	@mkdir -p $(TOOLSBIN)
+.PHONY: clean-tools
+clean-tools:
+	rm -rf $(TOOLS_DIR)
 
-$(TOOLSDB):
-	@mkdir -p $(TOOLSDB)
+$(TOOLS_BIN):
+	@mkdir -p $(TOOLS_BIN)
+
+$(TOOLS_DB):
+	@mkdir -p $(TOOLS_DB)
 
 # In make >= 4.4. .NOTINTERMEDIATE will do the job.
-.PRECIOUS: $(TOOLSDB)/%.ver
-$(TOOLSDB)/%.ver: | $(TOOLSDB)
-	@rm -f $(TOOLSDB)/$(word 1,$(subst ., ,$*)).*
-	@touch $(TOOLSDB)/$*.ver
+.PRECIOUS: $(TOOLS_DB)/%.ver
+$(TOOLS_DB)/%.ver: | $(TOOLS_DB)
+	@rm -f $(TOOLS_DB)/$(word 1,$(subst ., ,$*)).*
+	@touch $(TOOLS_DB)/$*.ver
 
 # In make >= 4.4 .NOTINTERMEDIATE will do the job.
-.PRECIOUS: $(TOOLSBIN)/%
-$(TOOLSBIN)/%: DSC=$*
-$(TOOLSBIN)/%: VER=$($(call uppercase,$*)_VER)
-$(TOOLSBIN)/%: CMD=$($(call uppercase,$*)_CMD)
-$(TOOLSBIN)/%: $(TOOLSDB)/$$(DSC).$$(VER).$(GO_VER).ver
+.PRECIOUS: $(TOOLS_BIN)/%
+$(TOOLS_BIN)/%: DSC=$*
+$(TOOLS_BIN)/%: VER=$($(call uppercase,$*)_VER)
+$(TOOLS_BIN)/%: CMD=$($(call uppercase,$*)_CMD)
+$(TOOLS_BIN)/%: $(TOOLS_DB)/$$(DSC).$$(VER).$(GO_VER).ver
 	@echo -e "Installing \e[1;36m$(DSC)\e[0m@\e[1;36m$(VER)\e[0m using \e[1;36m$(GO_VER)\e[0m"
-	GOBIN="$(TOOLSBIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
+	GOBIN="$(TOOLS_BIN)" CGO_ENABLED=0 $(GO_EXEC) install -trimpath -ldflags '-s -w -extldflags "-static"' "$(CMD)@$(VER)"
 	@echo ""
 
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD=honnef.co/go/tools/cmd/staticcheck
 STATICCHECK_VER:=2023.1.6
-$(TOOLSDB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver:
-$(TOOLSBIN)/staticcheck:
+$(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/staticcheck:
 
 .PHONY: staticcheck
-staticcheck: $(TOOLSBIN)/staticcheck
+staticcheck: $(TOOLS_BIN)/staticcheck
 	staticcheck -f=stylish -checks=all,-ST1000 -tests ./...
 	@echo ''
 ## </staticcheck>
@@ -174,11 +177,11 @@ staticcheck: $(TOOLSBIN)/staticcheck
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
 GOLANGCI-LINT_VER:=v1.56.1
-$(TOOLSDB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
-$(TOOLSBIN)/golangci-lint:
+$(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/golangci-lint:
 
 .PHONY: golangci-lint
-golangci-lint: $(TOOLSBIN)/golangci-lint
+golangci-lint: $(TOOLS_BIN)/golangci-lint
 	golangci-lint run
 	@echo ''
 ## </golangci-lint>
@@ -187,12 +190,12 @@ golangci-lint: $(TOOLSBIN)/golangci-lint
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
 GOIMPORTS_VER := v0.17.0
-$(TOOLSDB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
-$(TOOLSBIN)/goimports:
+$(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/goimports:
 
 .PHONY: goimports
-goimports: $(TOOLSBIN)/goimports
-	@echo '$(TOOLSBIN)/goimports -l `$(FOLDERS)`'
+goimports: $(TOOLS_BIN)/goimports
+	@echo '$(TOOLS_BIN)/goimports -l `$(FOLDERS)`'
 	@if [[ -n "$$(goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
 		echo ''; \
@@ -207,11 +210,11 @@ goimports: $(TOOLSBIN)/goimports
 	@echo ''
 
 .PHONY: goimports.display
-goimports.display: $(TOOLSBIN)/goimports
+goimports.display: $(TOOLS_BIN)/goimports
 	goimports -d `$(FOLDERS)`
 
 .PHONY: goimports.fix
-goimports.fix: $(TOOLSBIN)/goimports
+goimports.fix: $(TOOLS_BIN)/goimports
 	goimports -w `$(FOLDERS)`
 ## </goimports>
 
@@ -219,12 +222,12 @@ goimports.fix: $(TOOLSBIN)/goimports
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
 GOFUMPT_VER:=v0.6.0
-$(TOOLSDB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver:
-$(TOOLSBIN)/gofumpt:
+$(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/gofumpt:
 
 .PHONY: gofumpt
-gofumpt: $(TOOLSBIN)/gofumpt
-	@echo '$(TOOLSBIN)/gofumpt -l `$(FOLDERS)`'
+gofumpt: $(TOOLS_BIN)/gofumpt
+	@echo '$(TOOLS_BIN)/gofumpt -l `$(FOLDERS)`'
 	@if [[ -n "$$(gofumpt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'gofumpt errors'; \
 		echo ''; \
@@ -277,42 +280,42 @@ gofmt.fix:
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
 GOJQ_VER := v0.12.14
-$(TOOLSBIN)/gojq:
-$(TOOLSBIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/gojq:
+$(TOOLS_BIN)/.gojq.$(GOJQ_VER).$(GO_VER).ver:
 
 .PHONY: gojq
-gojq: $(TOOLSBIN)/gojq
+gojq: $(TOOLS_BIN)/gojq
 ## </gojq>
 
 ## <air>
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
 AIR_VER:=v1.49.0
-$(TOOLSDB)/air.$(AIR_VER).$(GO_VER).ver:
-$(TOOLSBIN)/air:
+$(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/air:
 
 .PHONY: air
-air: $(TOOLSBIN)/air
-	$(TOOLSBIN)/air -c .air.toml
+air: $(TOOLS_BIN)/air
+	$(TOOLS_BIN)/air -c .air.toml
 ## </air>
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
 PROTOC_VER:=v25.2
-$(TOOLSDB)/protoc.$(PROTOC_VER).ver:
-$(TOOLSBIN)/protoc: $(TOOLSDB)/protoc.$(PROTOC_VER).ver
-	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLSDIR)
+$(TOOLS_DB)/protoc.$(PROTOC_VER).ver:
+$(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
+	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD := google.golang.org/protobuf/cmd/protoc-gen-go
 PROTOC-GEN-GO_VER := v1.32.0
-$(TOOLSBIN)/protoc-gen-go:
-$(TOOLSBIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
+$(TOOLS_BIN)/protoc-gen-go:
+$(TOOLS_BIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver:
 
 .PHONY: proto
-proto: $(TOOLSBIN)/protoc $(TOOLSBIN)/protoc-gen-go
-	$(TOOLSBIN)/protoc --version
-	$(TOOLSBIN)/protoc-gen-go --version
+proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
+	$(TOOLS_BIN)/protoc --version
+	$(TOOLS_BIN)/protoc-gen-go --version
 ## </protobuf>
 ####################################################################################
 ## </ci & external tools> ##########################################################

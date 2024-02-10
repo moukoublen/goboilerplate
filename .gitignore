@@ -23,7 +23,8 @@
 go.work
 
 #### Extra
-/.ext/
+/.tools/
+/.tools/
 
 /.env
 
