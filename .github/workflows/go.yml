@@ -31,6 +31,15 @@ jobs:
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}
 
+    - name: go mod verify
+      run: go mod verify
+
+    - name: version of make
+      run: make --version
+
+    - name: env
+      run: make env
+
     - name: Install Tools
       if: steps.cache-tools.outputs.cache-hit != 'true'
       run: make tools
