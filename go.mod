@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.0
 
 require (
-	github.com/go-chi/chi/v5 v5.0.11
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/knadh/koanf/parsers/dotenv v0.1.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
 	github.com/knadh/koanf/providers/confmap v0.1.0
