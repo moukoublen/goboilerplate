@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.6
 ### https://hub.docker.com/r/docker/dockerfile
 
+# https://hub.docker.com/_/golang
 FROM golang:1.22.0-alpine3.19 as builder
 RUN apk update && apk add --no-cache make git bash ca-certificates
 WORKDIR /app
