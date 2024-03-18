@@ -12,7 +12,7 @@ export DOCKER_EXEC
 
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
 VERSION ?= 0.0.0
-X_FLAGS := \
+X_FLAGS = \
 		-X '$(MODULE)/build.Version=$(VERSION)' \
 		-X '$(MODULE)/build.Branch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || true)' \
 		-X '$(MODULE)/build.Commit=$(shell git rev-parse HEAD 2>/dev/null || true)' \
@@ -50,12 +50,15 @@ BUILD_FLAGS_DEBUG := -mod=vendor -ldflags "$(X_FLAGS)" -tags "$(TAGS)"
 # https://pkg.go.dev/cmd/compile
 # https://pkg.go.dev/cmd/link
 
+BUILD_OUTPUT ?= ./output
+
 .PHONY: build
 build: $(shell ls -d cmd/* | sed -e 's/\//./')
 
 cmd.%: CMDNAME=$*
 cmd.%:
-	CGO_ENABLED=0 $(GO_EXEC) build $(BUILD_FLAGS) -o ./output/$(CMDNAME) ./cmd/$(CMDNAME)
+	$(GO_EXEC) env
+	CGO_ENABLED=0 $(GO_EXEC) build $(BUILD_FLAGS) -o $(BUILD_OUTPUT)/$(CMDNAME) ./cmd/$(CMDNAME)
 
 dbg.%: BUILD_FLAGS=$(BUILD_FLAGS_DEBUG)
 dbg.%: cmd.%
@@ -71,9 +74,17 @@ git-reset:
 	git reset --hard
 	git clean -fd
 
+## https://docs.docker.com/reference/cli/docker/buildx/build/
+DOCKER_BUILD_PLATFORM ?= local
 .PHONY: image
 image:
-	$(DOCKER_EXEC) build . -f $(CURDIR)/build/docker/Dockerfile -t $(IMAGE_NAME):$(IMAGE_TAG)
+	$(DOCKER_EXEC) buildx build \
+		--output='type=docker' \
+		--file='$(CURDIR)/build/docker/Dockerfile' \
+		--tag='$(IMAGE_NAME):$(IMAGE_TAG)' \
+		--platform='$(DOCKER_BUILD_PLATFORM)' \
+		--progress='plain' \
+		.
 
 DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml
 
