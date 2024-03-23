@@ -292,7 +292,7 @@ gofmt.fix:
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
 GOJQ_VER := v0.12.14
-$(TOOLS_BIN)/gojq: $(TOOLS_DB)/.gojq.$(GOJQ_VER).$(GO_VER).ver
+$(TOOLS_BIN)/gojq: $(TOOLS_DB)/gojq.$(GOJQ_VER).$(GO_VER).ver
 	$(call go_install,gojq,$(GOJQ_CMD),$(GOJQ_VER))
 
 .PHONY: gojq
@@ -320,7 +320,7 @@ $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
 PROTOC-GEN-GO_VER:=v1.33.0
-$(TOOLS_BIN)/protoc-gen-go: $(TOOLS_BIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver
+$(TOOLS_BIN)/protoc-gen-go: $(TOOLS_DB)/protoc-gen-go.$(PROTOC-GEN-GO_VER).$(GO_VER).ver
 	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 
 .PHONY: proto
