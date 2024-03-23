@@ -50,7 +50,7 @@ BUILD_FLAGS_DEBUG := -mod=vendor -ldflags "$(X_FLAGS)" -tags "$(TAGS)"
 # https://pkg.go.dev/cmd/compile
 # https://pkg.go.dev/cmd/link
 
-BUILD_OUTPUT ?= ./output
+BUILD_OUTPUT ?= $(CURDIR)/output
 
 .PHONY: build
 build: $(shell ls -d cmd/* | sed -e 's/\//./')
@@ -183,7 +183,7 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.56.2
+GOLANGCI-LINT_VER:=v1.57.1
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	$(call go_install,golangci-lint,$(GOLANGCI-LINT_CMD),$(GOLANGCI-LINT_VER))
 
@@ -302,7 +302,7 @@ gojq: $(TOOLS_BIN)/gojq
 ## <air>
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
-AIR_VER:=v1.49.0
+AIR_VER:=v1.51.0
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
@@ -313,13 +313,13 @@ air: $(TOOLS_BIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v25.2
+PROTOC_VER:=v26.0
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER:=v1.32.0
+PROTOC-GEN-GO_VER:=v1.33.0
 $(TOOLS_BIN)/protoc-gen-go: $(TOOLS_BIN)/.protoc-gen-go.$(PROTOBUFGO_VER).$(GO_VER).ver
 	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 
