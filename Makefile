@@ -308,7 +308,7 @@ $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 
 .PHONY: air
 air: $(TOOLS_BIN)/air
-	$(TOOLS_BIN)/air -c .air.toml
+	@exec $(TOOLS_BIN)/air -c .air.toml
 ## </air>
 
 ## <protobuf>
