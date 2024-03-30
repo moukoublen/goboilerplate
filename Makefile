@@ -43,9 +43,9 @@ mod:
 vendor:
 	$(GO_EXEC) mod vendor
 
-#BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS) -extldflags='-static'" -tags "$(TAGS)"
-BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS)" -tags "$(TAGS)"
-BUILD_FLAGS_DEBUG := -mod=vendor -ldflags "$(X_FLAGS)" -tags "$(TAGS)"
+#BUILD_FLAGS := -mod=vendor -a -ldflags "-s -w $(X_FLAGS) -extldflags='-static'" -tags '$(TAGS)'
+BUILD_FLAGS := -mod=vendor -a -ldflags '-s -w $(X_FLAGS)' -tags '$(TAGS)'
+BUILD_FLAGS_DEBUG := -mod=vendor -ldflags '$(X_FLAGS)' -tags '$(TAGS)'
 
 # https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 # https://pkg.go.dev/cmd/compile
@@ -59,6 +59,7 @@ build: $(shell ls -d cmd/* | sed -e 's/\//./')
 cmd.%: CMDNAME=$*
 cmd.%:
 	$(GO_EXEC) env
+	@echo ''
 	CGO_ENABLED=0 $(GO_EXEC) build $(BUILD_FLAGS) -o $(BUILD_OUTPUT)/$(CMDNAME) ./cmd/$(CMDNAME)
 
 dbg.%: BUILD_FLAGS=$(BUILD_FLAGS_DEBUG)
