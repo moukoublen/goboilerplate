@@ -21,8 +21,9 @@ X_FLAGS = \
 IMAGE_NAME ?= goboilerplate
 IMAGE_TAG ?= latest
 
-PACKAGES = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor ./...
-FOLDERS = $(GO_EXEC) list -tags=$(TAGS) -mod=vendor -f '{{.Dir}}' ./...
+GO_PACKAGES = $(GO_EXEC) list -tags='$(TAGS)' -mod=vendor ./...
+GO_FOLDERS = $(GO_EXEC) list -tags='$(TAGS)' -mod=vendor -f '{{ .Dir }}' ./...
+GO_FILES = find . -type f -name '*.go' -not -path './vendor/*'
 
 export GO111MODULE := on
 #export GOFLAGS := -mod=vendor
@@ -66,7 +67,7 @@ dbg.%: cmd.%
 
 .PHONY: clean
 clean:
-	rm -rf ./output
+	rm -rf $(BUILD_OUTPUT)
 
 # man git-clean
 .PHONY: git-reset
@@ -102,10 +103,13 @@ env:
 	$(GO_EXEC) env
 	@echo ""
 	@echo ">>> Packages:"
-	$(PACKAGES)
+	$(GO_PACKAGES)
 	@echo ""
 	@echo ">>> Folders:"
-	$(FOLDERS)
+	$(GO_FOLDERS)
+	@echo ""
+	@echo ">>> Files:"
+	$(GO_FILES)
 	@echo ""
 	@echo ">>> Tools:"
 	@echo '$(TOOLS_BIN)'
@@ -128,7 +132,7 @@ checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
 
 .PHONY: vet
 vet:
-	$(GO_EXEC) vet `$(PACKAGES)`
+	$(GO_EXEC) vet `$(GO_PACKAGES)`
 	@echo ""
 
 TOOLS_DIR ?= $(shell pwd)/.tools
@@ -136,14 +140,13 @@ TOOLS_DB ?= $(TOOLS_DIR)/.db
 TOOLS_BIN ?= $(TOOLS_DIR)/bin
 export PATH := $(TOOLS_BIN):$(PATH)
 
-uppercase = $(shell echo '$(1)' | tr '[:lower:]' '[:upper:]')
-
 .PHONY: tools
 tools: \
 	$(TOOLS_BIN)/goimports \
 	$(TOOLS_BIN)/staticcheck \
 	$(TOOLS_BIN)/golangci-lint \
-	$(TOOLS_BIN)/gofumpt
+	$(TOOLS_BIN)/gofumpt \
+	$(TOOLS_BIN)/gojq
 
 .PHONY: clean-tools
 clean-tools:
@@ -183,7 +186,7 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.57.1
+GOLANGCI-LINT_VER:=v1.57.2
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	$(call go_install,golangci-lint,$(GOLANGCI-LINT_CMD),$(GOLANGCI-LINT_VER))
 
@@ -207,8 +210,8 @@ $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
 
 .PHONY: goimports
 goimports: $(TOOLS_BIN)/goimports
-	@echo '$(TOOLS_BIN)/goimports -l `$(FOLDERS)`'
-	@if [[ -n "$$(goimports -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+	@echo '$(TOOLS_BIN)/goimports -l `$(GO_FILES)`'
+	@if [[ -n "$$(goimports -l `$(GO_FILES)` | tee /dev/stderr)" ]]; then \
 		echo 'goimports errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -223,11 +226,11 @@ goimports: $(TOOLS_BIN)/goimports
 
 .PHONY: goimports.display
 goimports.display: $(TOOLS_BIN)/goimports
-	goimports -d `$(FOLDERS)`
+	goimports -d `$(GO_FOLDERS)`
 
 .PHONY: goimports.fix
 goimports.fix: $(TOOLS_BIN)/goimports
-	goimports -w `$(FOLDERS)`
+	goimports -w `$(GO_FOLDERS)`
 ## </goimports>
 
 ## <gofumpt>
@@ -239,8 +242,8 @@ $(TOOLS_BIN)/gofumpt: $(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver
 
 .PHONY: gofumpt
 gofumpt: $(TOOLS_BIN)/gofumpt
-	@echo '$(TOOLS_BIN)/gofumpt -l `$(FOLDERS)`'
-	@if [[ -n "$$(gofumpt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+	@echo '$(TOOLS_BIN)/gofumpt -l `$(GO_FOLDERS)`'
+	@if [[ -n "$$(gofumpt -l `$(GO_FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'gofumpt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -255,18 +258,18 @@ gofumpt: $(TOOLS_BIN)/gofumpt
 
 .PHONY: gofumpt.display
 gofumpt.display:
-	gofumpt -d `$(FOLDERS)`
+	gofumpt -d `$(GO_FOLDERS)`
 
 .PHONY: gofumpt.fix
 gofumpt.fix:
-	gofumpt -w `$(FOLDERS)`
+	gofumpt -w `$(GO_FOLDERS)`
 ## </gofumpt>
 
 ## <gofmt>
 .PHONY: gofmt
 gofmt:
-	@echo 'gofmt -l `$(FOLDERS)`'
-	@if [[ -n "$$(gofmt -l `$(FOLDERS)` | tee /dev/stderr)" ]]; then \
+	@echo 'gofmt -l `$(GO_FOLDERS)`'
+	@if [[ -n "$$(gofmt -l `$(GO_FOLDERS)` | tee /dev/stderr)" ]]; then \
 		echo 'gofmt errors'; \
 		echo ''; \
 		echo -e "\e[0;34m→\e[0m To display the needed changes run:"; \
@@ -281,11 +284,11 @@ gofmt:
 
 .PHONY: gofmt.display
 gofmt.display:
-	gofmt -d `$(FOLDERS)`
+	gofmt -d `$(GO_FOLDERS)`
 
 .PHONY: gofmt.fix
 gofmt.fix:
-	gofmt -w `$(FOLDERS)`
+	gofmt -w `$(GO_FOLDERS)`
 ## </gofmt>
 
 ## <gojq>
@@ -335,3 +338,7 @@ proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
 
 # https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 # https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
+
+.PHONY: run
+run: $(TOOLS_BIN)/gojq
+	$(GO_EXEC) run -mod=vendor ./cmd/goboilerplate | $(TOOLS_BIN)/gojq
