@@ -77,7 +77,13 @@ git-reset:
 	git clean -fd
 
 ## https://docs.docker.com/reference/cli/docker/buildx/build/
+## --output='type=docker'
+## --output='type=image,push=true'
+## --platform=linux/arm64
+## --platform=linux/amd64,linux/arm64,linux/arm/v7
+## --platform=local
 DOCKER_BUILD_PLATFORM ?= local
+DOCKER_BUILD_OUTPUT ?= type=docker
 .PHONY: image
 image:
 	$(DOCKER_EXEC) buildx build \
@@ -85,6 +91,7 @@ image:
 		--file='$(CURDIR)/build/docker/Dockerfile' \
 		--tag='$(IMAGE_NAME):$(IMAGE_TAG)' \
 		--platform='$(DOCKER_BUILD_PLATFORM)' \
+		--output='$(DOCKER_BUILD_OUTPUT)' \
 		--progress='plain' \
 		.
 
