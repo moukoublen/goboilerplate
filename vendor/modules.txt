@@ -32,7 +32,7 @@ github.com/knadh/koanf/providers/env
 # github.com/knadh/koanf/providers/file v0.1.0
 ## explicit; go 1.18
 github.com/knadh/koanf/providers/file
-# github.com/knadh/koanf/v2 v2.1.0
+# github.com/knadh/koanf/v2 v2.1.1
 ## explicit; go 1.18
 github.com/knadh/koanf/v2
 # github.com/mattn/go-colorable v0.1.13
