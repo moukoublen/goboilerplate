@@ -104,14 +104,14 @@ func NewHTTPClient(globalTimeout time.Duration) *http.Client {
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second, //nolint:gomnd
-				KeepAlive: 30 * time.Second, //nolint:gomnd
+				Timeout:   30 * time.Second, //nolint:mnd,gomnd
+				KeepAlive: 30 * time.Second, //nolint:mnd,gomnd
 			}).DialContext,
 			ForceAttemptHTTP2:     true,
-			MaxIdleConns:          100,              //nolint:gomnd
-			IdleConnTimeout:       90 * time.Second, //nolint:gomnd
-			TLSHandshakeTimeout:   10 * time.Second, //nolint:gomnd
-			ExpectContinueTimeout: 1 * time.Second,  //nolint:gomnd
+			MaxIdleConns:          100,              //nolint:mnd,gomnd
+			IdleConnTimeout:       90 * time.Second, //nolint:mnd,gomnd
+			TLSHandshakeTimeout:   10 * time.Second, //nolint:mnd,gomnd
+			ExpectContinueTimeout: 1 * time.Second,  //nolint:mnd,gomnd
 		},
 	}
 }
