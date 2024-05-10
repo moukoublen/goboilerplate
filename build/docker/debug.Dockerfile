@@ -2,7 +2,7 @@
 ### https://hub.docker.com/r/docker/dockerfile
 
 # https://hub.docker.com/_/golang
-FROM golang:1.22.1-alpine3.19
+FROM golang:1.22.3-alpine3.19
 
 WORKDIR /wd
 
