@@ -19,7 +19,7 @@ jobs:
         inline: warning
         strict: true
         incremental_files_only: false
-        config: './.vscode'
+        config: '.vscode/cspell.json'
         verbose: false
 
     - name: Set up Go
