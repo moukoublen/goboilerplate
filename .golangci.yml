@@ -4,7 +4,6 @@
 run:
   go: '1.22'
   timeout: 10m
-  concurrency: 4
   issues-exit-code: 1
   tests: true
   build-tags:
@@ -22,16 +21,6 @@ output:
 linters:
   enable-all: true
   disable:
-    - deadcode # deprecated
-    - exhaustivestruct # deprecated
-    - golint # deprecated
-    - ifshort # deprecated
-    - interfacer # deprecated
-    - maligned # deprecated
-    - nosnakecase # deprecated
-    - scopelint # deprecated
-    - structcheck # deprecated
-    - varcheck # deprecated
     - exhaustruct # TODO: reconsider
     - depguard # TODO: reconsider
     - funlen # TODO: reconsider
@@ -42,6 +31,20 @@ linters:
     - nonamedreturns
     - testpackage
 
+issues:
+  # https://golangci-lint.run/usage/false-positives/#default-exclusions
+  exclude-use-default: true
+  include:
+    - EXC0004
+    - EXC0005
+    - EXC0006
+  exclude-rules:
+    - path: '(.+)_test\.go'
+      linters: [gochecknoglobals, goconst, goerr113, dupl, maintidx]
+    # Exclude govet fieldalignment in tests.
+    - path: '(.+)_test\.go'
+      linters: [govet]
+      text: 'fieldalignment:'
 
 linters-settings:
   tagliatelle:
