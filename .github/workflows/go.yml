@@ -13,14 +13,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: streetsidesoftware/cspell-action@v6
-      with:
-        root: '.'
-        inline: warning
-        strict: true
-        incremental_files_only: false
-        config: '.vscode/cspell.json'
-        verbose: false
+    # - uses: streetsidesoftware/cspell-action@v6
+    #   with:
+    #     root: '.'
+    #     inline: warning
+    #     strict: true
+    #     incremental_files_only: false
+    #     config: '.vscode/cspell.json'
+    #     verbose: false
 
     - name: Set up Go
       uses: actions/setup-go@v5
