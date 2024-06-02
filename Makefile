@@ -102,9 +102,26 @@ DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/d
 compose-up:
 	$(DOCKER_COMPOSE_EXEC) up --force-recreate --build
 
+.PHONY: compose-up-detach
+compose-up-detach:
+	$(DOCKER_COMPOSE_EXEC) up --force-recreate --build --detach
+
 .PHONY: compose-down
 compose-down:
 	$(DOCKER_COMPOSE_EXEC) down --volumes --rmi local --remove-orphans
+
+# If the first target is "compose-exec"
+# remove the first argument 'compose-exec' and store the rest in DOCKER_COMPOSE_ARGS
+# and ignore the subsequent arguments as make targets.
+# (using spaces for indentation)
+ifeq (compose-exec,$(firstword $(MAKECMDGOALS)))
+    DOCKER_COMPOSE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+    $(eval $(DOCKER_COMPOSE_ARGS):;@:)
+endif
+
+.PHONY: compose-exec
+compose-exec:
+	$(DOCKER_COMPOSE_EXEC) exec $(DOCKER_COMPOSE_ARGS)
 
 .PHONY: env
 env:
