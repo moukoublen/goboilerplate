@@ -46,6 +46,16 @@ mod:
 vendor:
 	$(GO_EXEC) mod vendor
 
+# https://go.dev/ref/mod#go-get
+# -u flag tells go get to upgrade modules
+# -t flag tells go get to consider modules needed to build tests of packages named on the command line.
+# When -t and -u are used together, go get will update test dependencies as well.
+.PHONY: go-deps-upgrade
+go-deps-upgrade:
+	$(GO_EXEC) get -u -t ./...
+	$(GO_EXEC) mod tidy -go=1.22
+	$(GO_EXEC) mod vendor
+
 # https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 # https://pkg.go.dev/cmd/compile
 # https://pkg.go.dev/cmd/link
