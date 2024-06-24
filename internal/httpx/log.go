@@ -79,7 +79,6 @@ func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
 	}
 
 	entry := &chiZerologEntry{
-		request:  r,
 		logEvent: logger.WithLevel(c.LogInLevel), //nolint:zerologlint // indented behavior.
 		logger:   logger,
 	}
@@ -91,7 +90,6 @@ func (c *ChiZerolog) NewLogEntry(r *http.Request) middleware.LogEntry {
 }
 
 type chiZerologEntry struct {
-	request  *http.Request
 	logEvent *zerolog.Event
 	logger   *zerolog.Logger
 }

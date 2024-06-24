@@ -41,12 +41,22 @@ issues:
   exclude-rules:
     - path: '(.+)_test\.go'
       linters: [gochecknoglobals, goconst, goerr113, dupl, maintidx]
-    # Exclude govet fieldalignment in tests.
     - path: '(.+)_test\.go'
       linters: [govet]
       text: 'fieldalignment:'
 
 linters-settings:
+  # https://golangci-lint.run/usage/linters/#unused
+  unused:
+    field-writes-are-uses: false
+    post-statements-are-reads: false
+    exported-is-used: true
+    exported-fields-are-used: true
+    parameters-are-used: true
+    local-variables-are-used: false
+    generated-is-used: true
+
+  # https://golangci-lint.run/usage/linters/#tagliatelle
   tagliatelle:
     case:
       use-field-name: true
@@ -60,15 +70,46 @@ linters-settings:
         avro: snake
         mapstructure: kebab
 
+  # https://golangci-lint.run/usage/linters/#paralleltest
   paralleltest:
-    # Ignore missing calls to `t.Parallel()` and only report incorrect uses of it.
-    # Default: false
     ignore-missing: true
+    ignore-missing-subtests: true
 
+  # https://golangci-lint.run/usage/linters/#nolintlint
   nolintlint:
     # Disable to ensure that all nolint directives actually have an effect.
     # Default: false
     allow-unused: true
 
+  # https://golangci-lint.run/usage/linters/#nlreturn
   nlreturn:
     block-size: 3
+
+  # https://golangci-lint.run/usage/linters/#cyclop
+  cyclop:
+    max-complexity: 20
+    package-average: 0.0
+    skip-tests: true
+
+  # https://golangci-lint.run/usage/linters/#gocyclo
+  gocyclo:
+    min-complexity: 40
+
+  # https://golangci-lint.run/usage/linters/#maintidx
+  maintidx:
+    under: 10
+
+  # https://golangci-lint.run/usage/linters/#govet
+  govet:
+    enable-all: true
+    settings:
+      shadow:
+          strict: false
+    #disable:
+    #  - fieldalignment
+
+  # https://golangci-lint.run/usage/linters/#prealloc
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
