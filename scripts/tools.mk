@@ -58,9 +58,9 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.59.0
+GOLANGCI-LINT_VER:=v1.59.1
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
-	$(call go_install,golangci-lint,$(GOLANGCI-LINT_CMD),$(GOLANGCI-LINT_VER))
+	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_BIN) $(GOLANGCI-LINT_VER)
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLS_BIN)/golangci-lint
@@ -76,7 +76,7 @@ golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.21.0
+GOIMPORTS_VER := v0.22.0
 $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
 	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
 
@@ -166,7 +166,7 @@ gofmt.fix:
 ## <gojq>
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
-GOJQ_VER := v0.12.15
+GOJQ_VER := v0.12.16
 $(TOOLS_BIN)/gojq: $(TOOLS_DB)/gojq.$(GOJQ_VER).$(GO_VER).ver
 	$(call go_install,gojq,$(GOJQ_CMD),$(GOJQ_VER))
 
@@ -177,7 +177,7 @@ gojq: $(TOOLS_BIN)/gojq
 ## <air>
 # https://github.com/cosmtrek/air/releases
 AIR_CMD:=github.com/cosmtrek/air
-AIR_VER:=v1.52.0
+AIR_VER:=v1.52.3
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
@@ -188,13 +188,13 @@ air: $(TOOLS_BIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v27.0
+PROTOC_VER:=v27.1
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER:=v1.34.1
+PROTOC-GEN-GO_VER:=v1.34.2
 $(TOOLS_BIN)/protoc-gen-go: $(TOOLS_DB)/protoc-gen-go.$(PROTOC-GEN-GO_VER).$(GO_VER).ver
 	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 
