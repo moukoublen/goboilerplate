@@ -3,7 +3,7 @@ module github.com/moukoublen/goboilerplate
 go 1.22
 
 require (
-	github.com/go-chi/chi/v5 v5.0.14
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/knadh/koanf/parsers/dotenv v1.0.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
 	github.com/knadh/koanf/providers/confmap v0.1.0
