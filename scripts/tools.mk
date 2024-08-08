@@ -76,7 +76,7 @@ golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.22.0
+GOIMPORTS_VER := v0.24.0
 $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
 	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
 
@@ -188,7 +188,7 @@ air: $(TOOLS_BIN)/air
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v27.1
+PROTOC_VER:=v27.3
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
