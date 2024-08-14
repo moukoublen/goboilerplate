@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // Daemon struct wraps tha basic functionality that is needed in order for an application to run daemon/service like and shutdown gracefully when stop conditions are met.
@@ -16,12 +17,13 @@ import (
 //
 //	a. a signal (one of daemonConfig.signalsNotify) is received from OS.
 //	b. a error is received in fatal errors channel.
-//	c. the given context (`ctx`) in `.Daemon` function is done.
+//	c. the given root context (`rootCTX`) in `NewDaemon` function is done.
 //
 // As described in `b` a fatal error channel is being provided (function `FatalErrorsChannel()`) and can be used by the rest of the code when a catastrophic error occurs that needs to trigger an application shutdown.
 type Daemon struct {
 	signalCh        chan os.Signal
 	fatalErrorsCh   chan error
+	done            chan struct{}
 	onShutDown      []func(context.Context)
 	config          daemonConfig
 	onShutDownMutex sync.Mutex
@@ -34,12 +36,23 @@ func (o *Daemon) OnShutDown(f ...func(context.Context)) {
 	o.onShutDown = append(o.onShutDown, f...)
 }
 
-func (o *Daemon) callOnShutDown(ctx context.Context) {
+func (o *Daemon) shutDown(ctx context.Context) {
+	logger := zerolog.Ctx(ctx)
+
+	logger.Info().Msg("starting graceful shutdown")
+	deadline := time.Now().Add(o.config.shutdownTimeout)
+	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
 	o.onShutDownMutex.Lock()
-	defer o.onShutDownMutex.Unlock()
 	for _, f := range o.onShutDown {
-		f(ctx)
+		f(dlCtx)
 	}
+	o.onShutDownMutex.Unlock()
+	dlCancel()
+
+	time.Sleep(10 * time.Second)
+	close(o.fatalErrorsCh)
+	signal.Stop(o.signalCh)
+	close(o.done)
 }
 
 // FatalErrorsChannel returns the fatal error channel that can be used by the application in order to trigger a shutdown.
@@ -47,52 +60,57 @@ func (o *Daemon) FatalErrorsChannel() chan<- error {
 	return o.fatalErrorsCh
 }
 
-// Run will block until one of the stop conditions is met.
+// start will spawn a go routine that will run until one of the stop conditions is met.
 // After a stop conditions is met the `Daemon` will attempt shutdown "gracefully" by running every function that is registered in `onShutDown` slice, sequentially.
-func (o *Daemon) Run(ctx context.Context, ctxCancel context.CancelFunc) {
-	log := zerolog.Ctx(ctx)
+func (o *Daemon) start(rootCTX context.Context) context.Context {
+	ctx, cnl := context.WithCancel(rootCTX)
+	logger := zerolog.Ctx(ctx)
 
-	logSig := func(sig os.Signal) {
-		event := log.Warn().Str("signal", sig.String())
-		if sigInt, ok := sig.(syscall.Signal); ok {
-			event.Int("signalNumber", int(sigInt))
+	// consume fatal errors
+	go func() {
+		for err := range o.fatalErrorsCh {
+			// Stop condition (B) fatal error received.
+			logFatalErr(logger, err)
+			cnl()
 		}
-		event.Msg("signal received")
-	}
-	logFatalErr := func(err error) {
-		log.Error().Err(err).Msg("fatal error received")
-	}
+	}()
 
-	select {
-	case sig := <-o.signalCh:
-		logSig(sig)
-		go func() {
-			for sig := range o.signalCh {
-				logSig(sig)
+	// consume signals
+	go func() {
+		sigReceived := 0
+		for sig := range o.signalCh {
+			// Stop condition (A) signal received.
+			sigReceived++
+			logSig(logger, sig)
+			cnl()
+			if sigReceived == o.config.maxSignalCount {
+				logger.Fatal().Msg("max number of signal received. Terminating immediately")
 			}
-		}()
-	case fatalErr := <-o.fatalErrorsCh:
-		logFatalErr(fatalErr)
-		go func() {
-			for err := range o.fatalErrorsCh {
-				logFatalErr(err)
-			}
-		}()
-	case <-ctx.Done():
-		log.Error().Err(ctx.Err()).Msg("root context got canceled")
-	}
+		}
+	}()
 
-	// graceful shut down.
-	log.Info().Msgf("starting graceful shutdown")
-	deadline := time.Now().Add(o.config.shutdownTimeout)
-	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
+	go func() {
+		select {
+		// Stop condition (C) root context is done.
+		case <-rootCTX.Done():
+			logger.Error().Err(rootCTX.Err()).Msg("root context got canceled")
+			cnl()
+			o.shutDown(context.Background()) //nolint:contextcheck
 
-	o.callOnShutDown(dlCtx)
+			return
 
-	dlCancel()
-	ctxCancel()
-	close(o.fatalErrorsCh)
-	log.Info().Msgf("shutdown completed")
+		case <-ctx.Done():
+			logger.Error().Err(rootCTX.Err()).Msg("context got canceled")
+			o.shutDown(rootCTX)
+		}
+	}()
+
+	return ctx
+}
+
+func (o *Daemon) Wait() {
+	<-o.done
+	log.Info().Msg("shutdown completed")
 }
 
 type DaemonConfigOption func(*daemonConfig)
@@ -104,10 +122,11 @@ func SetSignalsNotify(signals ...os.Signal) DaemonConfigOption {
 	}
 }
 
-// SetSignalsChannelBufferSize sets the channel size of the watched received signals in case that is needed to be a buffered one.
-func SetSignalsChannelBufferSize(size int) DaemonConfigOption {
+// SetMaxSignalCount sets the maximum number of signals to receive while waiting for graceful shutdown.
+// If the max number of signals exceeds, immediate termination will follow.
+func SetMaxSignalCount(size int) DaemonConfigOption {
 	return func(oc *daemonConfig) {
-		oc.signalChannelBufferSize = size
+		oc.maxSignalCount = size
 	}
 }
 
@@ -126,22 +145,22 @@ func SetShutdownTimeout(d time.Duration) DaemonConfigOption {
 }
 
 const (
-	defaultSignalChannelBufferSize      = 10
+	defaultMaxSignalCount               = 2
 	defaultFatalErrorsChannelBufferSize = 10
 	defaultShutdownTimeout              = 4 * time.Second
 )
 
 type daemonConfig struct {
 	signalsNotify                []os.Signal
-	signalChannelBufferSize      int
+	maxSignalCount               int
 	fatalErrorsChannelBufferSize int
 	shutdownTimeout              time.Duration
 }
 
-func NewDaemon(opts ...DaemonConfigOption) *Daemon {
+func NewDaemon(ctx context.Context, opts ...DaemonConfigOption) (*Daemon, context.Context) {
 	cnf := daemonConfig{
 		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
-		signalChannelBufferSize:      defaultSignalChannelBufferSize,
+		maxSignalCount:               defaultMaxSignalCount,
 		fatalErrorsChannelBufferSize: defaultFatalErrorsChannelBufferSize,
 		shutdownTimeout:              defaultShutdownTimeout,
 	}
@@ -150,14 +169,27 @@ func NewDaemon(opts ...DaemonConfigOption) *Daemon {
 		o(&cnf)
 	}
 
-	signalCh := make(chan os.Signal, cnf.signalChannelBufferSize)
+	signalCh := make(chan os.Signal, cnf.maxSignalCount)
 	signal.Notify(signalCh, cnf.signalsNotify...)
 
 	o := &Daemon{
 		signalCh:      signalCh,
 		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
+		done:          make(chan struct{}),
 		config:        cnf,
 	}
 
-	return o
+	return o, o.start(ctx)
+}
+
+func logSig(logger *zerolog.Logger, sig os.Signal) {
+	event := logger.Warn().Str("signal", sig.String())
+	if sigInt, ok := sig.(syscall.Signal); ok {
+		event.Int("signalNumber", int(sigInt))
+	}
+	event.Msg("signal received")
+}
+
+func logFatalErr(logger *zerolog.Logger, err error) {
+	logger.Error().Err(err).Msg("fatal error received")
 }

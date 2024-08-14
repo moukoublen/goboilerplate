@@ -31,8 +31,6 @@ func defaultConfigs() map[string]any {
 }
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-
 	cnf, err := config.Load("APP_", defaultConfigs())
 	if err != nil {
 		log.Fatal().Err(err).Send()
@@ -41,9 +39,11 @@ func main() {
 	logx.SetupLog(logx.ParseConfig(cnf))
 	log.Info().Msgf("Starting up")
 
-	daemon := internal.NewDaemon(
+	daemon, ctx := internal.NewDaemon(
+		context.Background(),
 		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
 	)
+	_ = ctx
 
 	httpConf := httpx.ParseConfig(cnf)
 	router := httpx.NewDefaultRouter(httpConf)
@@ -60,11 +60,12 @@ func main() {
 	// set onShutdown for other components/services.
 	daemon.OnShutDown(
 		func(ctx context.Context) {
+			log.Info().Msg("shuting down http server")
 			if err := server.Shutdown(ctx); err != nil {
 				log.Warn().Err(err).Msg("error during http server shutdown")
 			}
 		},
 	)
 
-	daemon.Run(ctx, cancel)
+	daemon.Wait()
 }

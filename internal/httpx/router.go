@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -124,7 +125,9 @@ func StartListenAndServe(addr string, handler http.Handler, readHeaderTimeout ti
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			fatalErrCh <- err
+			if !errors.Is(err, http.ErrServerClosed) {
+				fatalErrCh <- err
+			}
 		}
 	}()
 
