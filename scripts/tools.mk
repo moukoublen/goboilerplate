@@ -45,7 +45,7 @@ vet:
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD:=honnef.co/go/tools/cmd/staticcheck
-STATICCHECK_VER:=2023.1.7
+STATICCHECK_VER:=2024.1
 $(TOOLS_BIN)/staticcheck: $(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver
 	$(call go_install,staticcheck,$(STATICCHECK_CMD),$(STATICCHECK_VER))
 
@@ -58,7 +58,7 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.59.1
+GOLANGCI-LINT_VER:=v1.60.1
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_BIN) $(GOLANGCI-LINT_VER)
 
