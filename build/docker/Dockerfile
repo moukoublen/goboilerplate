@@ -1,10 +1,10 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.9
 ### https://hub.docker.com/r/docker/dockerfile
 
 # https://docs.docker.com/build/guide/mounts/
 
 # https://hub.docker.com/_/golang
-FROM --platform=$BUILDPLATFORM golang:1.22.3-alpine3.19 as builder
+FROM --platform=$BUILDPLATFORM golang:1.23.0-alpine3.20 AS builder
 RUN apk update && apk add --no-cache make git bash ca-certificates
 WORKDIR /app
 ARG TARGETOS TARGETARCH
@@ -15,7 +15,7 @@ RUN --mount=type=bind,target=. \
 
 #FROM scratch
 #COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs
-FROM alpine:3.19
+FROM alpine:3.20
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=builder /tmp/out/* /app/

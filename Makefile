@@ -39,7 +39,7 @@ default: checks build
 
 .PHONY: mod
 mod:
-	$(GO_EXEC) mod tidy -go=1.22
+	$(GO_EXEC) mod tidy -go=1.23
 	$(GO_EXEC) mod verify
 
 .PHONY: vendor
@@ -53,7 +53,7 @@ vendor:
 .PHONY: go-deps-upgrade
 go-deps-upgrade:
 	$(GO_EXEC) get -u -t ./...
-	$(GO_EXEC) mod tidy -go=1.22
+	$(GO_EXEC) mod tidy -go=1.23
 	$(GO_EXEC) mod vendor
 
 # https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
@@ -93,6 +93,8 @@ git-reset:
 ## --platform=linux/arm64
 ## --platform=linux/amd64,linux/arm64,linux/arm/v7
 ## --platform=local
+## --progress='plain'
+## make DOCKER_BUILD_PLATFORM=linux/arm64 image
 DOCKER_BUILD_PLATFORM ?= local
 DOCKER_BUILD_OUTPUT ?= type=docker
 .PHONY: image
@@ -103,7 +105,6 @@ image:
 		--tag='$(IMAGE_NAME):$(IMAGE_TAG)' \
 		--platform='$(DOCKER_BUILD_PLATFORM)' \
 		--output='$(DOCKER_BUILD_OUTPUT)' \
-		--progress='plain' \
 		.
 
 DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml
