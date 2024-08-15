@@ -49,7 +49,6 @@ func (o *Daemon) shutDown(ctx context.Context) {
 	o.onShutDownMutex.Unlock()
 	dlCancel()
 
-	time.Sleep(10 * time.Second)
 	close(o.fatalErrorsCh)
 	signal.Stop(o.signalCh)
 	close(o.done)
