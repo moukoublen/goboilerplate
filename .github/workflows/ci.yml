@@ -1,4 +1,4 @@
-name: Go
+name: CI
 
 on:
   push:
@@ -40,21 +40,27 @@ jobs:
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}
 
-    - name: go mod verify
-      run: go mod verify
-
-    - name: version of make
-      run: make --version
-
-    - name: env
-      run: make env
-
     - name: Install Tools
       if: steps.cache-tools.outputs.cache-hit != 'true'
       run: make tools
 
-    - name: Checks
-      run: make checks
+    - name: env
+      run: |
+        make --version
+        echo ''
+        make env
+
+    - name: ci-gen-n-format
+      run: make ci-gen-n-format
+
+    - name: ci-mod
+      run: make ci-mod
+
+    - name: staticcheck
+      run: make staticcheck
+
+    - name: golangci-lint
+      run: make golangci-lint-github-actions
 
     - name: Build
       run: make build

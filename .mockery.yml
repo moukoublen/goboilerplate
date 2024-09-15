@@ -1,0 +1,14 @@
+# https://vektra.github.io/mockery/latest/configuration/
+
+packages:
+  github.com/moukoublen/goboilerplate:
+    config:
+      all: true
+      recursive: true
+      exclude: [vendor]
+      with-expecter: true
+      filename: mock_{{ .InterfaceName | snakecase }}_test.go
+      mockname: Mock{{ .InterfaceName | firstUpper }}
+      dir: "{{ .InterfaceDir }}"
+      #outpkg: "mocks"
+      inpackage: true

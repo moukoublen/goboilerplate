@@ -166,3 +166,11 @@ checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
 .PHONY: run
 run: $(TOOLS_BIN)/gojq
 	$(GO_EXEC) run -mod=vendor ./cmd/goboilerplate | $(TOOLS_BIN)/gojq
+
+.PHONY: ci-format
+ci-format: goimports gofumpt
+	./scripts/git-check-dirty
+
+.PHONY: ci-mod
+ci-mod: mod
+	./scripts/git-check-dirty
