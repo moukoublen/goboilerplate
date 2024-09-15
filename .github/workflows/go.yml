@@ -36,7 +36,7 @@ jobs:
           .tools/
           ~/.cache/go-build/
           ~/go/pkg/
-        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum', '**/Makefile', '.github/workflows/go.yml') }}
+        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum', '**/Makefile', 'scripts/tools.mk', '.github/workflows/go.yml') }}
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}
 
