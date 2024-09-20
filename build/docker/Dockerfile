@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.9
+# syntax=docker/dockerfile:1.10
 ### https://hub.docker.com/r/docker/dockerfile
 
 # https://docs.docker.com/build/guide/mounts/

@@ -1,4 +1,4 @@
-dlv \
+exec dlv \
   --listen='0.0.0.0:2345' \
   --backend="default" \
   --api-version=2 \
@@ -20,3 +20,6 @@ dlv \
 #   #--continue
 #   #--log \
 #   #--log-output='debugger,rpc,fncall'
+
+# BusyBox ps
+# ps -o pid,ppid,pgid,tty,comm,args

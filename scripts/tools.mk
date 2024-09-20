@@ -127,8 +127,8 @@ gojq: $(TOOLS_BIN)/gojq
 ## </gojq>
 
 ## <air>
-# https://github.com/cosmtrek/air/releases
-AIR_CMD:=github.com/cosmtrek/air
+# https://github.com/air-verse/air/releases
+AIR_CMD:=github.com/air-verse/air
 AIR_VER:=v1.52.3
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))

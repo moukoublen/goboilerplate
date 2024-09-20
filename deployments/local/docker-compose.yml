@@ -27,7 +27,7 @@ services:
       - APP_HTTP_OUTBOUND_TRAFFIC_LOG_LEVEL=2
       - APP_HTTP_READ_HEADER_TIMEOUT=3s
       - APP_SHUTDOWN_TIMEOUT=6s
-      - APP_LOG_LEVEL=0
+      - APP_LOG_LEVEL=DEBUG
 
 # volumes:
 #   gocache: {}

@@ -107,7 +107,7 @@ image:
 		--output='$(DOCKER_BUILD_OUTPUT)' \
 		.
 
-DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose/docker-compose.yml
+DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/local/docker-compose.yml
 
 .PHONY: compose-up
 compose-up:
@@ -164,8 +164,8 @@ test:
 checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
 
 .PHONY: run
-run: $(TOOLS_BIN)/gojq
-	$(GO_EXEC) run -mod=vendor ./cmd/goboilerplate | $(TOOLS_BIN)/gojq
+run:
+	$(GO_EXEC) run -mod=vendor ./cmd/goboilerplate
 
 .PHONY: ci-gen-n-format
 ci-gen-n-format: goimports gofumpt

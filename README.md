@@ -7,7 +7,7 @@ The boilerplate consists of:
 * [GitHub Actions](https://github.com/features/actions) for linter checks and tests on each pr.
 * [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates) setup for updating dependencies.
 * [Visual Studio Code](https://code.visualstudio.com/) settings, tasks and launch configuration for building, debugging and testing the code.
-* Docker compose and development Dockerfile with hot-rebuild (using [air](https://github.com/cosmtrek/air)) and dlv debug server.
+* Docker compose and development Dockerfile with hot-rebuild (using [air](https://github.com/air-verse/air)) and dlv debug server.
 * Production Dockerfile
 
 ## How to use
@@ -63,7 +63,7 @@ Stops (if started) the containers specified by the docker compose file `deployme
 ___
 
 #### `air`
-Installs (if needed) [air](https://github.com/cosmtrek/air) under `TOOLS_BIN` folder (default is `./.tools/bin`) and runs `air -c .air.toml`. <br>
+Installs (if needed) [air](https://github.com/air-verse/air) under `TOOLS_BIN` folder (default is `./.tools/bin`) and runs `air -c .air.toml`. <br>
 Air watches for code file changes and rebuilds the binary according to the configuration `.air.toml`. <br>
 Current air configuration executes `cmd.goboilerplate` target (on each file change) and then runs the `./build/dlv` that starts the debug server (`dlv exec`) with the produced binary.
 ___

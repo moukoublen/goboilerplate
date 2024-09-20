@@ -4,7 +4,6 @@
   // words - list of words to be always considered correct
   "words": [
     "CMDNAME",
-    "cosmtrek",
     "covermode",
     "coverprofile",
     "CURDIR",

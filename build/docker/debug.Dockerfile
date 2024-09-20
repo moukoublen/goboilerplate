@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.6
+# syntax=docker/dockerfile:1.10
 ### https://hub.docker.com/r/docker/dockerfile
 
 # https://hub.docker.com/_/golang
@@ -12,7 +12,7 @@ apk update
 apk add --no-cache make git bash ca-certificates
 
 go install github.com/go-delve/delve/cmd/dlv@latest
-go install github.com/cosmtrek/air@latest
+go install github.com/air-verse/air@latest
 
 git config --global --add safe.directory /wd
 
