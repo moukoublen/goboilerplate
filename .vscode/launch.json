@@ -22,12 +22,12 @@
       ],
     },
     {
-      "name": "Run Main",
+      "name": "Debug Main",
       "preLaunchTask": "build debug",
       "type": "go",
       "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/output/goboilerplate",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/goboilerplate",
       "debugAdapter": "dlv-dap",
       "buildFlags": "",
       "env": {
@@ -36,7 +36,7 @@
         "APP_HTTP_OUTBOUND_TRAFFIC_LOG_LEVEL": "2",
         "APP_HTTP_READ_HEADER_TIMEOUT": "3s",
         "APP_SHUTDOWN_TIMEOUT": "6s",
-        "APP_LOG_LEVEL": "-1"
+        "APP_LOG_LEVEL": "DEBUG"
       }
     }
   ]

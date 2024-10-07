@@ -2,14 +2,13 @@ package internal
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 // Daemon struct wraps tha basic functionality that is needed in order for an application to run daemon/service like and shutdown gracefully when stop conditions are met.
@@ -24,6 +23,7 @@ type Daemon struct {
 	signalCh        chan os.Signal
 	fatalErrorsCh   chan error
 	done            chan struct{}
+	logger          *slog.Logger
 	onShutDown      []func(context.Context)
 	config          daemonConfig
 	onShutDownMutex sync.Mutex
@@ -37,9 +37,7 @@ func (o *Daemon) OnShutDown(f ...func(context.Context)) {
 }
 
 func (o *Daemon) shutDown(ctx context.Context) {
-	logger := zerolog.Ctx(ctx)
-
-	logger.Info().Msg("starting graceful shutdown")
+	o.logger.Info("starting graceful shutdown")
 	deadline := time.Now().Add(o.config.shutdownTimeout)
 	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
 	o.onShutDownMutex.Lock()
@@ -63,13 +61,12 @@ func (o *Daemon) FatalErrorsChannel() chan<- error {
 // After a stop conditions is met the `Daemon` will attempt shutdown "gracefully" by running every function that is registered in `onShutDown` slice, sequentially.
 func (o *Daemon) start(rootCTX context.Context) context.Context {
 	ctx, cnl := context.WithCancel(rootCTX)
-	logger := zerolog.Ctx(ctx)
 
 	// consume fatal errors
 	go func() {
 		for err := range o.fatalErrorsCh {
 			// Stop condition (B) fatal error received.
-			logFatalErr(logger, err)
+			logFatalErr(o.logger, err)
 			cnl()
 		}
 	}()
@@ -80,10 +77,11 @@ func (o *Daemon) start(rootCTX context.Context) context.Context {
 		for sig := range o.signalCh {
 			// Stop condition (A) signal received.
 			sigReceived++
-			logSig(logger, sig)
+			logSig(o.logger, sig)
 			cnl()
 			if sigReceived == o.config.maxSignalCount {
-				logger.Fatal().Msg("max number of signal received. Terminating immediately")
+				o.logger.Error("max number of signal received. Terminating immediately")
+				os.Exit(1) //nolint:revive //its the emergency shut-down situation
 			}
 		}
 	}()
@@ -92,14 +90,19 @@ func (o *Daemon) start(rootCTX context.Context) context.Context {
 		select {
 		// Stop condition (C) root context is done.
 		case <-rootCTX.Done():
-			logger.Error().Err(rootCTX.Err()).Msg("root context got canceled")
+			o.logger.Error("root context got canceled", slog.String("error", rootCTX.Err().Error()))
 			cnl()
 			o.shutDown(context.Background()) //nolint:contextcheck
 
 			return
 
 		case <-ctx.Done():
-			logger.Error().Err(rootCTX.Err()).Msg("context got canceled")
+			if err := rootCTX.Err(); err != nil {
+				o.logger.Error("context got canceled", slog.String("error", rootCTX.Err().Error()))
+			} else {
+				o.logger.Error("context got canceled")
+			}
+
 			o.shutDown(rootCTX)
 		}
 	}()
@@ -109,7 +112,7 @@ func (o *Daemon) start(rootCTX context.Context) context.Context {
 
 func (o *Daemon) Wait() {
 	<-o.done
-	log.Info().Msg("shutdown completed")
+	o.logger.Info("shutdown completed")
 }
 
 type DaemonConfigOption func(*daemonConfig)
@@ -156,7 +159,7 @@ type daemonConfig struct {
 	shutdownTimeout              time.Duration
 }
 
-func NewDaemon(ctx context.Context, opts ...DaemonConfigOption) (*Daemon, context.Context) {
+func NewDaemon(ctx context.Context, logger *slog.Logger, opts ...DaemonConfigOption) (*Daemon, context.Context) {
 	cnf := daemonConfig{
 		signalsNotify:                []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM},
 		maxSignalCount:               defaultMaxSignalCount,
@@ -176,19 +179,23 @@ func NewDaemon(ctx context.Context, opts ...DaemonConfigOption) (*Daemon, contex
 		fatalErrorsCh: make(chan error, cnf.fatalErrorsChannelBufferSize),
 		done:          make(chan struct{}),
 		config:        cnf,
+		logger:        logger,
 	}
 
 	return o, o.start(ctx)
 }
 
-func logSig(logger *zerolog.Logger, sig os.Signal) {
-	event := logger.Warn().Str("signal", sig.String())
+func logSig(logger *slog.Logger, sig os.Signal) {
+	var signalStr string
 	if sigInt, ok := sig.(syscall.Signal); ok {
-		event.Int("signalNumber", int(sigInt))
+		signalStr = fmt.Sprintf("%s %d", sig.String(), int(sigInt))
+	} else {
+		signalStr = sig.String()
 	}
-	event.Msg("signal received")
+
+	logger.Warn("signal received", slog.String("signal", signalStr))
 }
 
-func logFatalErr(logger *zerolog.Logger, err error) {
-	logger.Error().Err(err).Msg("fatal error received")
+func logFatalErr(logger *slog.Logger, err error) {
+	logger.Error("fatal error received", slog.String("error", err.Error()))
 }

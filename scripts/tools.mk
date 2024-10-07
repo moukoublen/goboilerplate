@@ -45,7 +45,7 @@ vet:
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
 STATICCHECK_CMD:=honnef.co/go/tools/cmd/staticcheck
-STATICCHECK_VER:=2024.1
+STATICCHECK_VER:=2024.1.1
 $(TOOLS_BIN)/staticcheck: $(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver
 	$(call go_install,staticcheck,$(STATICCHECK_CMD),$(STATICCHECK_VER))
 
@@ -58,7 +58,7 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.60.1
+GOLANGCI-LINT_VER:=v1.61.0
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_BIN) $(GOLANGCI-LINT_VER)
 
@@ -69,14 +69,14 @@ golangci-lint: $(TOOLS_BIN)/golangci-lint
 
 .PHONY: golangci-lint-github-actions
 golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
-	golangci-lint run --out-format github-actions
+	golangci-lint run --out-format colored-line-number
 	@echo ''
 ## </golangci-lint>
 
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.24.0
+GOIMPORTS_VER := v0.26.0
 $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
 	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
 
@@ -92,7 +92,7 @@ goimports.display: $(TOOLS_BIN)/goimports
 ## <gofumpt>
 # https://github.com/mvdan/gofumpt/releases
 GOFUMPT_CMD:=mvdan.cc/gofumpt
-GOFUMPT_VER:=v0.6.0
+GOFUMPT_VER:=v0.7.0
 $(TOOLS_BIN)/gofumpt: $(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver
 	$(call go_install,gofumpt,$(GOFUMPT_CMD),$(GOFUMPT_VER))
 
@@ -129,7 +129,7 @@ gojq: $(TOOLS_BIN)/gojq
 ## <air>
 # https://github.com/air-verse/air/releases
 AIR_CMD:=github.com/air-verse/air
-AIR_VER:=v1.52.3
+AIR_VER:=v1.60.0
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
@@ -141,7 +141,7 @@ air: $(TOOLS_BIN)/air
 ## <mockery>
 # https://github.com/vektra/mockery/releases
 MOCKERY_CMD:=github.com/vektra/mockery/v2
-MOCKERY_VER:=v2.45.1
+MOCKERY_VER:=v2.46.2
 $(TOOLS_BIN)/mockery: $(TOOLS_DB)/mockery.$(MOCKERY_VER).$(GO_VER).ver
 	$(call go_install,air,$(MOCKERY_CMD),$(MOCKERY_VER))
 
@@ -153,13 +153,13 @@ mockery: $(TOOLS_BIN)/mockery
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v27.3
+PROTOC_VER:=v27.5
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER:=v1.34.2
+PROTOC-GEN-GO_VER:=v1.35.1
 $(TOOLS_BIN)/protoc-gen-go: $(TOOLS_DB)/protoc-gen-go.$(PROTOC-GEN-GO_VER).$(GO_VER).ver
 	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 

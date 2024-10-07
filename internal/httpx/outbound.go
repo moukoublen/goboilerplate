@@ -10,8 +10,6 @@ import (
 	"net"
 	"net/http"
 	"time"
-
-	"github.com/rs/zerolog"
 )
 
 // DrainAndCloseResponse can be used (most probably with defer) from the client side to ensure that the http response body is consumed til the end and closed.
@@ -34,22 +32,12 @@ type Client struct {
 }
 
 // DoAndDecode performs the request (req) and tries to json decodes the response to output, it handles gzip and flate compression and also logs in debug level the http transaction (request/response).
-func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any) error {
-	start := time.Now()
-
+func (c *Client) DoAndDecode(_ context.Context, req *http.Request, output any) error {
 	res, err := c.Do(req)
 	if err != nil {
 		return err
 	}
 	defer DrainAndCloseResponse(res)
-
-	defer func() {
-		zerolog.Ctx(ctx).Debug().
-			Dur("duration", time.Since(start)).
-			Object("request", &httpRequestMarshalZerologObject{Request: req}).
-			Object("response", &httpResponseMarshalZerologObject{Response: res}).
-			Msg("outbound traffic")
-	}()
 
 	if res.StatusCode >= http.StatusBadRequest {
 		return NewStatusCodeError(res.StatusCode)

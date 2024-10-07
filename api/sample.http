@@ -1,0 +1,10 @@
+GET http://localhost:8888/about
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+
+GET http://localhost:8888/echo
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+{
+    "test": "value"
+}
