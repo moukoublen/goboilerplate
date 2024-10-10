@@ -129,7 +129,7 @@ gojq: $(TOOLS_BIN)/gojq
 ## <air>
 # https://github.com/air-verse/air/releases
 AIR_CMD:=github.com/air-verse/air
-AIR_VER:=v1.60.0
+AIR_VER:=v1.61.0
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
@@ -153,7 +153,7 @@ mockery: $(TOOLS_BIN)/mockery
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v27.5
+PROTOC_VER:=v28.2
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
@@ -168,3 +168,14 @@ proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
 	$(TOOLS_BIN)/protoc --version
 	$(TOOLS_BIN)/protoc-gen-go --version
 ## </protobuf>
+
+## <shfmt>
+# https://github.com/mvdan/sh/releases
+SHFMT_CMD := mvdan.cc/sh/v3/cmd/shfmt
+SHFMT_VER := v3.9.0
+$(TOOLS_BIN)/shfmt: $(TOOLS_DB)/shfmt.$(SHFMT_VER).$(GO_VER).ver
+	$(call go_install,shfmt,$(SHFMT_CMD),$(SHFMT_VER))
+
+.PHONY: shfmt
+shfmt: $(TOOLS_BIN)/shfmt
+## <shfmt>

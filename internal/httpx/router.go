@@ -91,7 +91,6 @@ func NewDefaultRouter(ctx context.Context, c Config) *chi.Mux {
 
 	router.Get("/about", AboutHandler)
 	router.Get("/echo", EchoHandler)
-
 	// for test purposes
 	// router.Get("/panic", func(_ http.ResponseWriter, _ *http.Request) { panic("test panic") })
 

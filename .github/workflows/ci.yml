@@ -67,3 +67,6 @@ jobs:
 
     - name: Test
       run: make test
+
+    - name: Check shell files
+      run: make ci-sh
