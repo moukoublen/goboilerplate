@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 
@@ -10,20 +11,23 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
-	"github.com/rs/zerolog/log"
+	"github.com/moukoublen/goboilerplate/internal/logx"
 )
 
-func Load(envVarPrefix string, defaultConfigs map[string]any) (*koanf.Koanf, error) {
+func Load(ctx context.Context, envVarPrefix string, defaultConfigs map[string]any) (*koanf.Koanf, error) {
+	logger := logx.GetFromContext(ctx)
+
 	const delim = "."
 	k := koanf.New(delim)
 
+	// Load default values.
 	if err := k.Load(confmap.Provider(defaultConfigs, delim), nil); err != nil {
-		log.Warn().Err(err).Msg("error during config loading from defaults")
+		logger.Debug("error during config loading from defaults", logx.Error(err))
 	}
 
-	// Load JSON config.
+	// Load YAML config.
 	if err := k.Load(file.Provider("config.yaml"), yaml.Parser()); err != nil {
-		log.Warn().Err(err).Msg("error during config loading from yaml file")
+		logger.Debug("error during config loading from yaml file", logx.Error(err))
 		if !errors.Is(err, fs.ErrNotExist) {
 			return k, err
 		}
@@ -35,12 +39,12 @@ func Load(envVarPrefix string, defaultConfigs map[string]any) (*koanf.Koanf, err
 		"log":  map[string]any{},
 	}
 	if err := k.Load(env.Provider(envVarPrefix, delim, buildEnvVarsNamesMapper(envVarsLevels, envVarPrefix)), nil); err != nil {
-		log.Warn().Err(err).Msg("error during config loading from env vars")
+		logger.Warn("error during config loading from env vars", logx.Error(err))
 	}
 
-	// Dot env file
+	// Load .env file
 	if err := k.Load(file.Provider(".env"), dotenv.ParserEnv(envVarPrefix, delim, buildEnvVarsNamesMapper(envVarsLevels, envVarPrefix))); err != nil {
-		log.Warn().Err(err).Msg("error during config loading from dot env file")
+		logger.Warn("error during config loading from dot env file", logx.Error(err))
 		if !errors.Is(err, fs.ErrNotExist) {
 			return k, err
 		}
