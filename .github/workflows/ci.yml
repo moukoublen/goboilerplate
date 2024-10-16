@@ -51,6 +51,9 @@ jobs:
         echo ''
         make env
 
+    - name: Check shell files
+      run: make ci-sh
+
     - name: ci-gen-n-format
       run: make ci-gen-n-format
 
@@ -68,6 +71,3 @@ jobs:
 
     - name: Test
       run: make test
-
-    - name: Check shell files
-      run: make ci-sh
