@@ -17,6 +17,7 @@
     "goimports",
     "gojq",
     "golangci",
+    "gomod",
     "GOPATH",
     "GOVERSION",
     "honnef",
@@ -42,5 +43,5 @@
     "vendor",
     ".git",
     "/go.mod"
-  ]
+  ],
 }
