@@ -10,20 +10,26 @@ import (
 	"github.com/moukoublen/goboilerplate/internal/logx"
 )
 
+// DrainAndCloseRequest can be used (most probably with defer) from the server side to ensure that the http request body is fully consumed and closed.
+func DrainAndCloseRequest(r *http.Request, errOut *error) {
+	if r == nil || r.Body == nil || r.Body == http.NoBody {
+		return
+	}
+
+	_, discardErr := io.Copy(io.Discard, r.Body)
+	closeErr := r.Body.Close()
+
+	if discardErr != nil || closeErr != nil {
+		*errOut = errors.Join(*errOut, discardErr, closeErr)
+	}
+}
+
 func ReadJSONRequest(r *http.Request, decodeTo any) (e error) {
 	if r == nil || r.Body == nil || r.Body == http.NoBody {
 		return nil
 	}
 
-	defer func() {
-		_, discardErr := io.Copy(io.Discard, r.Body)
-		closeErr := r.Body.Close()
-		e = errors.Join(
-			e,
-			discardErr,
-			closeErr,
-		)
-	}()
+	defer DrainAndCloseRequest(r, &e)
 
 	if err := json.NewDecoder(r.Body).Decode(decodeTo); err != nil {
 		return err

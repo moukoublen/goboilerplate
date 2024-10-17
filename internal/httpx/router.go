@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/knadh/koanf/v2"
-	"github.com/moukoublen/goboilerplate/build"
 	"github.com/moukoublen/goboilerplate/internal/httpx/httplog"
 	"github.com/moukoublen/goboilerplate/internal/logx"
 )
@@ -119,21 +118,6 @@ func LogRoutes(ctx context.Context, r *chi.Mux) {
 	} else {
 		logger.Debug("http routes", slog.Any("routes", routes))
 	}
-}
-
-func AboutHandler(w http.ResponseWriter, r *http.Request) {
-	RespondJSON(r.Context(), w, http.StatusOK, build.GetInfo())
-}
-
-func EchoHandler(w http.ResponseWriter, r *http.Request) {
-	logger := logx.GetFromContext(r.Context())
-
-	req := map[string]any{}
-	if err := ReadJSONRequest(r, &req); err != nil {
-		logger.Error("error reading request", logx.Error(err))
-	}
-
-	RespondJSON(r.Context(), w, http.StatusOK, req)
 }
 
 // StartListenAndServe creates and runs server.ListenAndServe in a separate go routine.
