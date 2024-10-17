@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: CI
 
 on:
@@ -49,6 +50,9 @@ jobs:
         make --version
         echo ''
         make env
+
+    - name: Check shell files
+      run: make ci-sh
 
     - name: ci-gen-n-format
       run: make ci-gen-n-format

@@ -3,53 +3,40 @@ package httpx
 import (
 	"compress/flate"
 	"compress/gzip"
-	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"time"
-
-	"github.com/rs/zerolog"
 )
 
 // DrainAndCloseResponse can be used (most probably with defer) from the client side to ensure that the http response body is consumed til the end and closed.
-func DrainAndCloseResponse(res *http.Response) {
-	if res == nil || res.Body == nil {
+func DrainAndCloseResponse(res *http.Response, errOut *error) {
+	if res == nil || res.Body == nil || res.Body == http.NoBody {
 		return
 	}
 
-	_, _ = io.Copy(io.Discard, res.Body)
-	_ = res.Body.Close()
+	_, discardErr := io.Copy(io.Discard, res.Body)
+	closeErr := res.Body.Close()
+
+	if discardErr != nil || closeErr != nil {
+		*errOut = errors.Join(*errOut, discardErr, closeErr)
+	}
 }
 
-type InnerClient interface {
+type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// Client wraps an http.Client and offers `DoAndDecode` as an extra function.
-type Client struct {
-	InnerClient
-}
-
-// DoAndDecode performs the request (req) and tries to json decodes the response to output, it handles gzip and flate compression and also logs in debug level the http transaction (request/response).
-func (c *Client) DoAndDecode(ctx context.Context, req *http.Request, output any) error {
-	start := time.Now()
-
+// DoAndDecode performs the request (req) and tries to json decodes the response to output, it handles gzip and flate compression.
+func DoAndDecode(c HTTPClient, req *http.Request, output any) (er error) {
 	res, err := c.Do(req)
 	if err != nil {
 		return err
 	}
-	defer DrainAndCloseResponse(res)
-
-	defer func() {
-		zerolog.Ctx(ctx).Debug().
-			Dur("duration", time.Since(start)).
-			Object("request", &httpRequestMarshalZerologObject{Request: req}).
-			Object("response", &httpResponseMarshalZerologObject{Response: res}).
-			Msg("outbound traffic")
-	}()
+	defer DrainAndCloseResponse(res, &er)
 
 	if res.StatusCode >= http.StatusBadRequest {
 		return NewStatusCodeError(res.StatusCode)

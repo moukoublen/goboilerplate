@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/moukoublen/goboilerplate/internal"
 	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/moukoublen/goboilerplate/internal/httpx"
 	"github.com/moukoublen/goboilerplate/internal/logx"
-	"github.com/rs/zerolog/log"
 )
 
 func defaultConfigs() map[string]any {
@@ -31,22 +32,26 @@ func defaultConfigs() map[string]any {
 }
 
 func main() {
-	cnf, err := config.Load("APP_", defaultConfigs())
+	// pre-init slog with default config
+	logger := logx.InitSLog(logx.Config{LogType: logx.LogTypeText, Level: slog.LevelInfo})
+	logger.Info("starting up...")
+
+	cnf, err := config.Load(context.Background(), "APP_", defaultConfigs())
 	if err != nil {
-		log.Fatal().Err(err).Send()
+		logger.Error("error during config init", logx.Error(err))
+		os.Exit(1)
 	}
 
-	logx.SetupLog(logx.ParseConfig(cnf))
-	log.Info().Msgf("Starting up")
+	logger = logx.InitSLog(logx.ParseConfig(cnf))
 
 	daemon, ctx := internal.NewDaemon(
 		context.Background(),
+		logger,
 		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
 	)
-	_ = ctx
 
 	httpConf := httpx.ParseConfig(cnf)
-	router := httpx.NewDefaultRouter(httpConf)
+	router := httpx.NewDefaultRouter(ctx, httpConf)
 
 	// init services / application
 	server := httpx.StartListenAndServe(
@@ -55,14 +60,14 @@ func main() {
 		httpConf.ReadHeaderTimeout,
 		daemon.FatalErrorsChannel(),
 	)
-	log.Info().Msgf("service started at %s:%d", httpConf.IP, httpConf.Port)
+	logger.InfoContext(ctx, "service started", slog.String("bind", fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port)))
 
 	// set onShutdown for other components/services.
 	daemon.OnShutDown(
 		func(ctx context.Context) {
-			log.Info().Msg("shuting down http server")
+			logger.InfoContext(ctx, "shuting down  http server")
 			if err := server.Shutdown(ctx); err != nil {
-				log.Warn().Err(err).Msg("error during http server shutdown")
+				logger.Warn("error during http server shutdown", logx.Error(err))
 			}
 		},
 	)

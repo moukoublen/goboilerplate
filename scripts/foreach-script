@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+#set -u
+set -o pipefail
+
+find ./ \
+  -type f \
+  -not -path './.git/*' \
+  -not -path './vendor/*' \
+  \( -name '*.bash' -o -name '*.sh' -o -executable \) \
+  -print0 | while IFS= read -r -d '' file; do
+  if file "${file}" | grep -qE 'shell script|POSIX shell script|Bourne-Again shell script|bash script|a sh script'; then
+    echo "${*} ${file}"
+    "${@}" "${file}"
+  fi
+done
