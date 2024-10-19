@@ -17,6 +17,7 @@
     "goimports",
     "gojq",
     "golangci",
+    "gomod",
     "GOPATH",
     "GOVERSION",
     "honnef",
@@ -26,17 +27,21 @@
     "mvdan",
     "NOTINTERMEDIATE",
     "NOTPARALLEL",
+    "POSIX",
     "proto",
     "protobuf",
     "PROTOBUFGO",
     "PROTOC",
     "SECONDEXPANSION",
+    "shellcheck",
+    "shfmt",
     "staticcheck",
-    "trimpath"
+    "trimpath",
+    "vektra"
   ],
   "ignorePaths": [
     "vendor",
     ".git",
     "/go.mod"
-  ]
+  ],
 }

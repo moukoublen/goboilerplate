@@ -18,12 +18,12 @@ OLD_NAME='goboilerplate'
 NEW_PACKAGE="${1}"
 NEW_NAME="${2}"
 
-[[ -z ${NEW_PACKAGE} ]] || \
-[[ -z ${NEW_NAME} ]] || \
-[[ ! ${NEW_PACKAGE} =~ ^[0-9a-zA-Z\/\.]+$ ]] || \
-[[ ! ${NEW_NAME} =~ ^[0-9a-zA-Z\/\.]+$ ]] && \
-  echo -e "\e[0;31mWrong input\e[0m" && \
-  __help && \
+[[ -z ${NEW_PACKAGE} ]] ||
+  [[ -z ${NEW_NAME} ]] ||
+  [[ ! ${NEW_PACKAGE} =~ ^[0-9a-zA-Z\/\.]+$ ]] ||
+  [[ ! ${NEW_NAME} =~ ^[0-9a-zA-Z\/\.]+$ ]] &&
+  echo -e "\e[0;31mWrong input\e[0m" &&
+  __help &&
   exit 1
 
 find ./ \
@@ -40,4 +40,4 @@ find ./ \
   -not -path "./scripts/rename" \
   -exec sed -i "s|${OLD_NAME}|${NEW_NAME}|g" {} \;
 
-mv ./cmd/${OLD_NAME} ./cmd/${NEW_NAME}
+mv "./cmd/${OLD_NAME}" "./cmd/${NEW_NAME}"
