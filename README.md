@@ -32,7 +32,7 @@ The project structure attempts to be on a par with [golang-standards/project-lay
 | `cmd/*/main.go`    | main function that is intended to glue together the most core level components like: configuration, http server and router, logs initialization, db connections (if any), the `App` and finally the `Main` struct (`/internal/exec.go`) that handles the long running / signal handling / graceful shutdown of the service. |
 | `internal/exec.go` | the `Main` struct that wraps the long running / signal handling / graceful shutdown of the service |
 | `internal/config`  | this package contain the initialization of `koanf` config. |
-| `internal/httpx`   | this package contains: the setup of the `chi` router, some helpers functions for parsing/writing http request and http response and some middlewares like for logging each request/response. |
+| `internal/httpx`   | this package contains: the setup of the `chi` router, some helpers functions for parsing/writing http request and http response. |
 | `internal/logx`   | this package contains the setup/init function for `slog` logger. |
 
 | Folder/File        | Description    |

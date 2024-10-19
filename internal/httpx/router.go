@@ -11,38 +11,19 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/knadh/koanf/v2"
-	"github.com/moukoublen/goboilerplate/internal/httpx/httplog"
 	"github.com/moukoublen/goboilerplate/internal/logx"
-)
-
-type TrafficLogLevel int8
-
-const (
-	TrafficLogLevelNone    TrafficLogLevel = 0
-	TrafficLogLevelBasic   TrafficLogLevel = 1
-	TrafficLogLevelVerbose TrafficLogLevel = 2
-)
-
-// Default configuration values.
-const (
-	defaultInboundTrafficLogLevel  = 2
-	defaultOutboundTrafficLogLevel = 2
 )
 
 func DefaultConfigValues() map[string]any {
 	return map[string]any{
-		"http.ip":                         "0.0.0.0",
-		"http.port":                       "8888",
-		"http.inbound_traffic_log_level":  defaultInboundTrafficLogLevel,
-		"http.outbound_traffic_log_level": defaultOutboundTrafficLogLevel,
+		"http.ip":   "0.0.0.0",
+		"http.port": "8888",
 	}
 }
 
 type Config struct {
 	IP                   string
 	Port                 int64
-	InBoundHTTPLogLevel  TrafficLogLevel
-	OutBoundHTTPLogLevel TrafficLogLevel
 	GlobalInboundTimeout time.Duration
 	ReadHeaderTimeout    time.Duration
 }
@@ -51,8 +32,6 @@ func ParseConfig(cnf *koanf.Koanf) Config {
 	return Config{
 		IP:                   cnf.String("http.ip"),
 		Port:                 cnf.Int64("http.port"),
-		InBoundHTTPLogLevel:  TrafficLogLevel(cnf.Int64("http.inbound_traffic_log_level")),  //nolint:gosec
-		OutBoundHTTPLogLevel: TrafficLogLevel(cnf.Int64("http.outbound_traffic_log_level")), //nolint:gosec
 		GlobalInboundTimeout: cnf.Duration("http.global_inbound_timeout"),
 		ReadHeaderTimeout:    cnf.Duration("http.read_header_timeout"),
 	}
@@ -66,22 +45,6 @@ func NewDefaultRouter(ctx context.Context, c Config) *chi.Mux {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 
-	switch c.InBoundHTTPLogLevel { //nolint:exhaustive
-	case TrafficLogLevelBasic:
-		il := httplog.NewHTTPLogger(
-			httplog.WithLogInLevel(slog.LevelDebug),
-			httplog.WithLogger(logx.GetFromContext(ctx)),
-			httplog.OmitBodyFromLog(),
-		)
-		router.Use(il.Handler)
-	case TrafficLogLevelVerbose:
-		il := httplog.NewHTTPLogger(
-			httplog.WithLogInLevel(slog.LevelDebug),
-			httplog.WithLogger(logx.GetFromContext(ctx)),
-		)
-		router.Use(il.Handler)
-	}
-
 	router.Use(middleware.Recoverer)
 
 	if c.GlobalInboundTimeout > 0 {
@@ -90,6 +53,7 @@ func NewDefaultRouter(ctx context.Context, c Config) *chi.Mux {
 
 	router.Get("/about", AboutHandler)
 	router.Get("/echo", EchoHandler)
+
 	// for test purposes
 	// router.Get("/panic", func(_ http.ResponseWriter, _ *http.Request) { panic("test panic") })
 

@@ -17,6 +17,9 @@ package_os() {
     "Linux")
       echo "linux"
       ;;
+    *)
+      echo ""
+      ;;
   esac
 }
 
@@ -32,6 +35,9 @@ package_arch() {
       ;;
     "arm64")
       echo "aarch64"
+      ;;
+    *)
+      echo ""
       ;;
   esac
 }
