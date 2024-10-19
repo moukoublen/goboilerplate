@@ -1,4 +1,4 @@
-SHELL := /bin/bash
+SHELL := /usr/bin/env bash
 
 .NOTPARALLEL:
 .SECONDEXPANSION:
@@ -21,23 +21,40 @@ git-reset:
 
 .PHONY: env
 env:
-	@echo "Module: $(MODULE)"
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Module \e[0m \e[0;90m<<<\e[0m"
+	@echo "$(MODULE)"
+	@echo ""
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Go env \e[0m \e[0;90m<<<\e[0m"
 	$(GO_EXEC) env
 	@echo ""
-	@echo ">>> Packages:"
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Packages \e[0m \e[0;90m<<<\e[0m"
 	$(GO_PACKAGES)
 	@echo ""
-	@echo ">>> Folders:"
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Folders \e[0m \e[0;90m<<<\e[0m"
 	$(GO_FOLDERS)
 	@echo ""
-	@echo ">>> Files:"
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Files \e[0m \e[0;90m<<<\e[0m"
 	$(GO_FILES)
 	@echo ""
-	@echo ">>> Tools:"
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Tools \e[0m \e[0;90m<<<\e[0m"
 	@echo '$(TOOLS_BIN)'
 	@echo ""
-	@echo ">>> Path:"
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Path \e[0m \e[0;90m<<<\e[0m"
 	@echo "$${PATH}" | tr ':' '\n'
+	@echo ""
+
+	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Shell \e[0m \e[0;90m<<<\e[0m"
+	@echo "SHELL=$${SHELL}"
+	@echo "BASH=$${BASH}"
+	@echo "BASH_VERSION=$${BASH_VERSION}"
+	@echo "BASH_VERSINFO=$${BASH_VERSINFO}"
+	@echo ""
 
 .PHONY: checks
 checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
