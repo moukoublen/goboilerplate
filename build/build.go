@@ -4,7 +4,7 @@ package build
 //
 //nolint:gochecknoglobals
 var (
-	Version     = ""
+	Version     = "0.0.1"
 	Branch      = ""
 	Commit      = ""
 	CommitShort = ""

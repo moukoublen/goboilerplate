@@ -1,8 +1,8 @@
-# syntax=docker/dockerfile:1.10
+# syntax=docker/dockerfile:1.12
 ### https://hub.docker.com/r/docker/dockerfile
 
 # https://hub.docker.com/_/golang
-FROM golang:1.23.0-alpine3.20
+FROM golang:1.23.4-alpine3.21
 
 WORKDIR /wd
 

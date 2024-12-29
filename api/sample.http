@@ -1,0 +1,34 @@
+GET http://localhost:8888/about
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+
+GET http://localhost:8888/echo
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/json
+X-Auth-Key: _Named must your fear be before banish it you can_
+{
+  "glossary": {
+    "title": "example glossary",
+    "GlossDiv": {
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "GML",
+              "XML"
+            ]
+          },
+          "GlossSee": "markup"
+        }
+      }
+    }
+  }
+}

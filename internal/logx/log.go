@@ -1,61 +1,110 @@
 package logx
 
 import (
-	"io"
+	"context"
+	"log/slog"
 	"os"
-	"time"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
 )
 
-func DefaultConfigValues() map[string]any {
-	return map[string]any{
-		"log.console_writer": false,
-		"log.level":          0,
-	}
-}
+type LogType string
+
+const (
+	LogTypeJSON LogType = "json"
+	LogTypeText LogType = "text"
+)
 
 type Config struct {
-	ConsoleWriter bool
-	LogLevel      zerolog.Level
+	LogType LogType
+	Level   slog.Level
 }
 
 func ParseConfig(cnf *koanf.Koanf) Config {
+	level := slog.Level(0)
+	levelStr := cnf.Bytes("log.level")
+	err := level.UnmarshalText(levelStr)
+	_ = err
+
 	return Config{
-		ConsoleWriter: cnf.Bool("log.console_writer"),
-		LogLevel:      zerolog.Level(cnf.Int("log.level")),
+		Level:   level,
+		LogType: LogType(cnf.String("log.type")),
 	}
 }
 
-func newDefaultLogger(l zerolog.Level, w io.Writer) zerolog.Logger {
-	zerolog.SetGlobalLevel(l)
-	zerolog.TimeFieldFormat = time.RFC3339
+func DefaultConfigValues() map[string]any {
+	return map[string]any{
+		"log.type":  "text",
+		"log.level": "INFO",
+	}
+}
 
-	//nolint: reassign
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	// zerolog.ErrorMarshalFunc
+//nolint:gochecknoglobals
+var logLevel = &slog.LevelVar{}
 
-	logger := zerolog.New(w).With().
-		Stack().
-		Timestamp().
-		Caller().
-		Logger()
+func SetLogLevel(l slog.Level) {
+	slog.SetLogLoggerLevel(l)
+	logLevel.Set(l)
+}
+
+func InitSLog(c Config, attrs ...slog.Attr) *slog.Logger {
+	SetLogLevel(c.Level)
+
+	opts := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     logLevel,
+	}
+
+	var slogHandler slog.Handler
+	switch c.LogType { //nolint:exhaustive
+	case LogTypeJSON:
+		slogHandler = slog.NewJSONHandler(os.Stdout, opts)
+	default: // fallback to text
+		slogHandler = slog.NewTextHandler(os.Stdout, opts)
+	}
+
+	logger := slog.New(slogHandler.WithAttrs(attrs))
+
+	slog.SetDefault(logger)
+
+	logger.Debug("logger initialized", slog.String("level", c.Level.String()))
 
 	return logger
 }
 
-func SetupLog(c Config) {
-	var w io.Writer
-	if c.ConsoleWriter {
-		w = zerolog.ConsoleWriter{Out: os.Stdout}
-	} else {
-		w = os.Stdout
+type ctxSLogKey struct{}
+
+func GetFromContext(ctx context.Context) *slog.Logger {
+	if logger, ok := ctx.Value(ctxSLogKey{}).(*slog.Logger); ok {
+		return logger
 	}
 
-	zerolog.SetGlobalLevel(c.LogLevel)
-	log.Logger = newDefaultLogger(c.LogLevel, w)
-	zerolog.DefaultContextLogger = &log.Logger
+	return slog.Default()
+}
+
+func SetInContext(ctx context.Context, logger *slog.Logger) context.Context {
+	return context.WithValue(ctx, ctxSLogKey{}, logger)
+}
+
+type NOOPLogHandler struct{}
+
+func (NOOPLogHandler) Enabled(context.Context, slog.Level) bool  { return false }
+func (NOOPLogHandler) Handle(context.Context, slog.Record) error { return nil }
+func (l NOOPLogHandler) WithAttrs(_ []slog.Attr) slog.Handler    { return l }
+func (l NOOPLogHandler) WithGroup(_ string) slog.Handler         { return l }
+
+func Error(err error) slog.Attr {
+	if err == nil {
+		return slog.Attr{}
+	}
+
+	return slog.String("error", err.Error())
+}
+
+func AnError(key string, err error) slog.Attr {
+	if err == nil {
+		return slog.Attr{}
+	}
+
+	return slog.String(key, err.Error())
 }

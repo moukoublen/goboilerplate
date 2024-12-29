@@ -22,18 +22,17 @@ arch() {
   uname -m | tr '[:upper:]' '[:lower:]'
 }
 
-
 VERSION=""
 DESTINATION_DIR=""
 
 UNKNOWN_ARGS=()
 while (($#)); do
   case "${1}" in
-    -v|--version)
+    -v | --version)
       VERSION="${2}"
       shift 2
       ;;
-    -d|--destination)
+    -d | --destination)
       DESTINATION_DIR="${2}"
       shift 2
       ;;
@@ -44,13 +43,13 @@ while (($#)); do
   esac
 done
 
-if [[ "${VERSION}" == "" ]]; then
+if [[ ${VERSION} == "" ]]; then
   VERSION="$(get_protoc_latest_version)"
 fi
 
 VERSION="$(echo "${VERSION}" | sed 's/^v//g')"
 
-if [[ "${DESTINATION_DIR}" == "" ]]; then
+if [[ ${DESTINATION_DIR} == "" ]]; then
   echo "missing destination argument"
   exit 1
 fi
@@ -62,7 +61,7 @@ rm -rf "${DESTINATION_DIR}"/include/google/protobuf
 # https://github.com/protocolbuffers/protobuf/releases/download/v22.3/protoc-22.3-linux-x86_64.zip
 DL_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-$(os)-$(arch).zip"
 
-curl ${CURL_SHOW_ERROR} \
+curl "${CURL_SHOW_ERROR}" \
   --silent \
   --fail \
   --location \
