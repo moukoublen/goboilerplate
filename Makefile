@@ -1,9 +1,7 @@
 SHELL := /usr/bin/env bash
 
+## https://www.gnu.org/software/make/manual/html_node/Parallel-Disable.html
 .NOTPARALLEL:
-.SECONDEXPANSION:
-## NOTINTERMEDIATE requires make >=4.4
-.NOTINTERMEDIATE:
 
 include $(CURDIR)/scripts/go.mk
 include $(CURDIR)/scripts/docker.mk

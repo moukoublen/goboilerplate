@@ -24,7 +24,6 @@ linters:
   enable-all: true
   disable:
     - exportloopref # deprecated
-    - execinquery # deprecated
     - exhaustruct # TODO: reconsider
     - depguard # TODO: reconsider
     - funlen # TODO: reconsider
@@ -37,7 +36,6 @@ linters:
     - godox
     - godot
     - gochecknoglobals
-    - gomnd
     - mnd
 
 issues:

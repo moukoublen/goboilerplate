@@ -1,14 +1,17 @@
 GO_EXEC ?= go
 export GO_EXEC
 
+REPO_GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+REPO_GIT_COMMIT = $(shell git rev-parse HEAD 2>/dev/null || true)
+REPO_GIT_COMMIT_SHORT = $(shell git rev-parse --short HEAD 2>/dev/null || true)
+REPO_GIT_TAG = $(shell git describe --tags 2>/dev/null || true)
+
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
-VERSION ?= 0.0.0
 X_FLAGS = \
-		-X '$(MODULE)/build.Version=$(VERSION)' \
-		-X '$(MODULE)/build.Branch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || true)' \
-		-X '$(MODULE)/build.Commit=$(shell git rev-parse HEAD 2>/dev/null || true)' \
-		-X '$(MODULE)/build.CommitShort=$(shell git rev-parse --short HEAD 2>/dev/null || true)' \
-		-X '$(MODULE)/build.Tag=$(shell git describe --tags 2>/dev/null || true)'
+		-X '$(MODULE)/build.Branch=$(REPO_GIT_BRANCH)' \
+		-X '$(MODULE)/build.Commit=$(REPO_GIT_COMMIT)' \
+		-X '$(MODULE)/build.CommitShort=$(REPO_GIT_COMMIT_SHORT)' \
+		-X '$(MODULE)/build.Tag=$(REPO_GIT_TAG)'
 
 GO_PACKAGES = $(GO_EXEC) list -tags='$(TAGS)' -mod=vendor ./...
 GO_FOLDERS = $(GO_EXEC) list -tags='$(TAGS)' -mod=vendor -f '{{ .Dir }}' ./...

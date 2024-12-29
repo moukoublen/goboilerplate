@@ -24,7 +24,7 @@ build-image:
 		--output='$(DOCKER_BUILD_OUTPUT)' \
 		.
 
-DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/local/docker-compose.yml
+DOCKER_COMPOSE_EXEC ?= $(DOCKER_EXEC) compose -f $(CURDIR)/deployments/compose.local.yml
 
 .PHONY: compose-up
 compose-up:

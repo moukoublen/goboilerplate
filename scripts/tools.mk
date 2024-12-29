@@ -1,3 +1,11 @@
+## https://www.gnu.org/software/make/manual/html_node/Secondary-Expansion.html
+## in order for
+#.SECONDEXPANSION:
+
+## https://www.gnu.org/software/make/manual/html_node/Special-Targets.html#index-not-intermediate-targets_002c-explicit
+## NOTINTERMEDIATE requires make >=4.4
+.NOTINTERMEDIATE:
+
 # https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 # https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
 
@@ -58,7 +66,7 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
 GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.61.0
+GOLANGCI-LINT_VER:=v1.62.2
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_BIN) $(GOLANGCI-LINT_VER)
 
@@ -76,7 +84,7 @@ golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
 GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.26.0
+GOIMPORTS_VER := v0.28.0
 $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
 	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
 
@@ -118,7 +126,7 @@ gofmt.display:
 ## <gojq>
 # https://github.com/itchyny/gojq/releases
 GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
-GOJQ_VER := v0.12.16
+GOJQ_VER := v0.12.17
 $(TOOLS_BIN)/gojq: $(TOOLS_DB)/gojq.$(GOJQ_VER).$(GO_VER).ver
 	$(call go_install,gojq,$(GOJQ_CMD),$(GOJQ_VER))
 
@@ -129,7 +137,7 @@ gojq: $(TOOLS_BIN)/gojq
 ## <air>
 # https://github.com/air-verse/air/releases
 AIR_CMD:=github.com/air-verse/air
-AIR_VER:=v1.61.0
+AIR_VER:=v1.61.5
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
 	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
 
@@ -141,7 +149,7 @@ air: $(TOOLS_BIN)/air
 ## <mockery>
 # https://github.com/vektra/mockery/releases
 MOCKERY_CMD:=github.com/vektra/mockery/v2
-MOCKERY_VER:=v2.46.2
+MOCKERY_VER:=v2.50.1
 $(TOOLS_BIN)/mockery: $(TOOLS_DB)/mockery.$(MOCKERY_VER).$(GO_VER).ver
 	$(call go_install,air,$(MOCKERY_CMD),$(MOCKERY_VER))
 
@@ -153,13 +161,13 @@ mockery: $(TOOLS_BIN)/mockery
 
 ## <protobuf>
 # https://github.com/protocolbuffers/protobuf/releases
-PROTOC_VER:=v28.2
+PROTOC_VER:=v29.2
 $(TOOLS_BIN)/protoc: $(TOOLS_DB)/protoc.$(PROTOC_VER).ver
 	./scripts/install-protoc --version $(PROTOC_VER) --destination $(TOOLS_DIR)
 
 # https://github.com/protocolbuffers/protobuf-go/releases
 PROTOC-GEN-GO_CMD:=google.golang.org/protobuf/cmd/protoc-gen-go
-PROTOC-GEN-GO_VER:=v1.35.1
+PROTOC-GEN-GO_VER:=v1.36.1
 $(TOOLS_BIN)/protoc-gen-go: $(TOOLS_DB)/protoc-gen-go.$(PROTOC-GEN-GO_VER).$(GO_VER).ver
 	$(call go_install,protoc-gen-go,$(PROTOC-GEN-GO_CMD),$(PROTOC-GEN-GO_VER))
 
@@ -172,7 +180,7 @@ proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
 ## <shfmt>
 # https://github.com/mvdan/sh/releases
 SHFMT_CMD := mvdan.cc/sh/v3/cmd/shfmt
-SHFMT_VER := v3.9.0
+SHFMT_VER := v3.10.0
 $(TOOLS_BIN)/shfmt: $(TOOLS_DB)/shfmt.$(SHFMT_VER).$(GO_VER).ver
 	$(call go_install,shfmt,$(SHFMT_CMD),$(SHFMT_VER))
 
