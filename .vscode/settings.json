@@ -18,6 +18,7 @@
     "editor.insertSpaces": false,
     "editor.formatOnSave": true
   },
+
   "go.disableConcurrentTests": true,
   "go.formatTool": "default",
   "go.lintTool": "golangci-lint",
@@ -31,7 +32,7 @@
   "go.lintOnSave": "package",
   "go.testTags": "test-e2e",
   "go.testFlags": [
-    "-mod=vendor",
+    //"-mod=vendor",
     "-count=1",
     "-p=1",
     "-v",

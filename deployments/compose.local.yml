@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  goboilerplate:
+    build:
+      context: ../
+      dockerfile: ./build/docker/debug.Dockerfile
+    volumes:
+      - type: bind
+        source: ../
+        target: /wd
+      - type: volume
+        source: buildcache
+        target: /root/.cache/go-build
+        volume:
+          nocopy: true  # https://docs.docker.com/engine/storage/volumes/ data at the destination isn't copied into the volume if the volume is empty. By default, content at the target destination gets copied into a mounted volume if empty.
+      - type: volume
+        source: go-pkg
+        target: /go/pkg
+        volume:
+          nocopy: true
+    tmpfs:
+      - /run
+      - /tmp
+    ports:
+      - "8888:8888"
+      - "2345:2345"
+    restart: on-failure
+    # https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_debug.md
+    command: ["air", "-c", ".air.toml"]
+    environment:
+      - APP_HTTP_PORT=8888
+      - APP_HTTP_INBOUND_TRAFFIC_LOG_LEVEL=2
+      - APP_HTTP_OUTBOUND_TRAFFIC_LOG_LEVEL=2
+      - APP_HTTP_READ_HEADER_TIMEOUT=3s
+      - APP_SHUTDOWN_TIMEOUT=6s
+      - APP_LOG_LEVEL=DEBUG
+
+volumes:
+  buildcache: {}
+  go-pkg: {}

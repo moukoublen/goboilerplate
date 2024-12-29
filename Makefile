@@ -24,7 +24,7 @@ env:
 	@echo ""
 
 	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Go env \e[0m \e[0;90m<<<\e[0m"
-	$(GO_EXEC) env
+	go env
 	@echo ""
 
 	@echo -e "\e[0;90m>>>\e[0m \e[0;94m Packages \e[0m \e[0;90m<<<\e[0m"

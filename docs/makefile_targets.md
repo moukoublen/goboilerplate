@@ -3,7 +3,6 @@
 | Target               | Description |
 | -------------------- | ----------- |
 | `mod`                | Runs go mod [tidy](https://go.dev/ref/mod#go-mod-tidy) and [verify](https://go.dev/ref/mod#go-mod-verify). |
-| `vendor`             | Runs [go mod vendor](https://go.dev/ref/mod#go-mod-vendor) that downloads all dependencies into `./vendor` folder. |
 | `go-deps-upgrade`    | Runs updates all `go.mod` dependencies. |
 | `env`                | Prints information regarding the local environment. More specifically: go env, all go packages and folders, and the specified tools bin directory. |
 | `git-reset`          | Full hard reset to HEAD. Cleans up all untracked files and restore all staged and un-staged changes. |
