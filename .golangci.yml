@@ -10,7 +10,7 @@ run:
   tests: true
   build-tags:
     - integration
-  modules-download-mode: vendor
+  modules-download-mode: readonly
 
 output:
   formats:
