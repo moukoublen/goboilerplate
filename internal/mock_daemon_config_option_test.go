@@ -55,7 +55,8 @@ func (_c *MockDaemonConfigOption_Execute_Call) RunAndReturn(run func(*daemonConf
 func NewMockDaemonConfigOption(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockDaemonConfigOption {
+},
+) *MockDaemonConfigOption {
 	mock := &MockDaemonConfigOption{}
 	mock.Mock.Test(t)
 
