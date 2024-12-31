@@ -1,5 +1,7 @@
 # https://vektra.github.io/mockery/latest/configuration/
 
+issue-845-fix: true
+
 packages:
   github.com/moukoublen/goboilerplate:
     config:

@@ -149,7 +149,7 @@ air: $(TOOLS_BIN)/air
 ## <mockery>
 # https://github.com/vektra/mockery/releases
 MOCKERY_CMD:=github.com/vektra/mockery/v2
-MOCKERY_VER:=v2.50.1
+MOCKERY_VER:=v2.50.2
 $(TOOLS_BIN)/mockery: $(TOOLS_DB)/mockery.$(MOCKERY_VER).$(GO_VER).ver
 	$(call go_install,air,$(MOCKERY_CMD),$(MOCKERY_VER))
 
