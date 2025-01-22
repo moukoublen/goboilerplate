@@ -10,7 +10,7 @@ toolchain go1.23.4
 require (
 	github.com/air-verse/air v1.61.7
 	github.com/golangci/golangci-lint v1.63.4
-	github.com/itchyny/gojq v0.12.16
+	github.com/itchyny/gojq v0.12.17
 	github.com/vektra/mockery/v2 v2.51.1
 	golang.org/x/tools v0.29.0
 	honnef.co/go/tools v0.5.1
