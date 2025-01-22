@@ -147,7 +147,7 @@ air: $(TOOLS_BIN)/air
 MOCKERY_MOD:=github.com/vektra/mockery/v2
 MOCKERY_VER:=$(call go_mod_ver,$(MOCKERY_MOD))
 $(TOOLS_BIN)/mockery: $(TOOLS_DB)/mockery.$(MOCKERY_VER).$(GO_VER).ver
-	$(call go_install,air,$(MOCKERY_MOD),$(MOCKERY_VER))
+	$(call go_install,mockery,$(MOCKERY_MOD),$(MOCKERY_VER))
 
 .PHONY: mockery
 mockery: $(TOOLS_BIN)/mockery
