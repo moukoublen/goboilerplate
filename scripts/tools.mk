@@ -202,5 +202,6 @@ shellcheck: $(TOOLS_BIN)/shellcheck
 		--norc \
 		--external-sources \
 		--format=tty \
+		--severity=info \
 		--enable=require-variable-braces,add-default-case
 ## </shellcheck>

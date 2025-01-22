@@ -15,6 +15,9 @@ os() {
     "Linux")
       echo "linux"
       ;;
+    *)
+      echo "linux"
+      ;;
   esac
 }
 
@@ -47,7 +50,7 @@ if [[ ${VERSION} == "" ]]; then
   VERSION="$(get_protoc_latest_version)"
 fi
 
-VERSION="$(echo "${VERSION}" | sed 's/^v//g')"
+VERSION="${VERSION#v}" # remove v prefix if exists
 
 if [[ ${DESTINATION_DIR} == "" ]]; then
   echo "missing destination argument"
