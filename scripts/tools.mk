@@ -1,11 +1,3 @@
-## https://www.gnu.org/software/make/manual/html_node/Secondary-Expansion.html
-## in order for
-#.SECONDEXPANSION:
-
-## https://www.gnu.org/software/make/manual/html_node/Special-Targets.html#index-not-intermediate-targets_002c-explicit
-## NOTINTERMEDIATE requires make >=4.4
-.NOTINTERMEDIATE:
-
 # https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 # https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
 
@@ -21,7 +13,9 @@ tools: \
 	$(TOOLS_BIN)/staticcheck \
 	$(TOOLS_BIN)/golangci-lint \
 	$(TOOLS_BIN)/gofumpt \
-	$(TOOLS_BIN)/gojq
+	$(TOOLS_BIN)/gojq \
+	$(TOOLS_BIN)/shfmt \
+	$(TOOLS_BIN)/shellcheck
 
 .PHONY: clean-tools
 clean-tools:
@@ -45,6 +39,13 @@ define go_install
 	@echo ""
 endef
 
+# export GOMOD=$(shell pwd)/go_tools.mod
+# go get -modfile='go_tools.mod' -u ...
+define go_mod_ver
+$(shell go list -modfile='./tools/go.mod' -m $(1) | cut -d ' ' -f2)
+endef
+
+
 .PHONY: vet
 vet:
 	go vet `$(GO_PACKAGES)`
@@ -52,10 +53,10 @@ vet:
 
 ## <staticcheck>
 # https://github.com/dominikh/go-tools/releases    https://staticcheck.io/c
-STATICCHECK_CMD:=honnef.co/go/tools/cmd/staticcheck
-STATICCHECK_VER:=2024.1.1
+STATICCHECK_MOD:=honnef.co/go/tools
+STATICCHECK_VER:=$(call go_mod_ver,$(STATICCHECK_MOD))
 $(TOOLS_BIN)/staticcheck: $(TOOLS_DB)/staticcheck.$(STATICCHECK_VER).$(GO_VER).ver
-	$(call go_install,staticcheck,$(STATICCHECK_CMD),$(STATICCHECK_VER))
+	$(call go_install,staticcheck,$(STATICCHECK_MOD)/cmd/staticcheck,$(STATICCHECK_VER))
 
 .PHONY: staticcheck
 staticcheck: $(TOOLS_BIN)/staticcheck
@@ -65,52 +66,47 @@ staticcheck: $(TOOLS_BIN)/staticcheck
 
 ## <golangci-lint>
 # https://github.com/golangci/golangci-lint/releases
-GOLANGCI-LINT_CMD:=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI-LINT_VER:=v1.63.4
+GOLANGCI-LINT_MOD:=github.com/golangci/golangci-lint
+GOLANGCI-LINT_VER:=$(call go_mod_ver,$(GOLANGCI-LINT_MOD))
 $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_VER).ver
 	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_BIN) $(GOLANGCI-LINT_VER)
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLS_BIN)/golangci-lint
-	$(TOOLS_BIN)/golangci-lint run
-	@echo ''
-
-.PHONY: golangci-lint-github-actions
-golangci-lint-github-actions: $(TOOLS_BIN)/golangci-lint
 	golangci-lint run --out-format colored-line-number
 	@echo ''
 ## </golangci-lint>
 
 ## <goimports>
 # https://pkg.go.dev/golang.org/x/tools?tab=versions
-GOIMPORTS_CMD := golang.org/x/tools/cmd/goimports
-GOIMPORTS_VER := v0.28.0
+GOIMPORTS_MOD:=golang.org/x/tools
+GOIMPORTS_VER:=$(call go_mod_ver,$(GOIMPORTS_MOD))
 $(TOOLS_BIN)/goimports: $(TOOLS_DB)/goimports.$(GOIMPORTS_VER).$(GO_VER).ver
-	$(call go_install,goimports,$(GOIMPORTS_CMD),$(GOIMPORTS_VER))
+	$(call go_install,goimports,$(GOIMPORTS_MOD)/cmd/goimports,$(GOIMPORTS_VER))
 
 .PHONY: goimports
 goimports: $(TOOLS_BIN)/goimports
-	$(TOOLS_BIN)/goimports -w `$(GO_FILES)`
+	goimports -w `$(GO_FILES)`
 
 .PHONY: goimports.display
 goimports.display: $(TOOLS_BIN)/goimports
-	$(TOOLS_BIN)/goimports -d `$(GO_FILES)`
+	goimports -d `$(GO_FILES)`
 ## </goimports>
 
 ## <gofumpt>
 # https://github.com/mvdan/gofumpt/releases
-GOFUMPT_CMD:=mvdan.cc/gofumpt
-GOFUMPT_VER:=v0.7.0
+GOFUMPT_MOD:=mvdan.cc/gofumpt
+GOFUMPT_VER:=$(call go_mod_ver,$(GOFUMPT_MOD))
 $(TOOLS_BIN)/gofumpt: $(TOOLS_DB)/gofumpt.$(GOFUMPT_VER).$(GO_VER).ver
-	$(call go_install,gofumpt,$(GOFUMPT_CMD),$(GOFUMPT_VER))
+	$(call go_install,gofumpt,$(GOFUMPT_MOD),$(GOFUMPT_VER))
 
 .PHONY: gofumpt
 gofumpt: $(TOOLS_BIN)/gofumpt
-	$(TOOLS_BIN)/gofumpt -w `$(GO_FILES)`
+	gofumpt -w `$(GO_FILES)`
 
 .PHONY: gofumpt.display
 gofumpt.display:
-	$(TOOLS_BIN)/gofumpt -d `$(GO_FILES)`
+	gofumpt -d `$(GO_FILES)`
 ## </gofumpt>
 
 ## <gofmt>
@@ -125,10 +121,10 @@ gofmt.display:
 
 ## <gojq>
 # https://github.com/itchyny/gojq/releases
-GOJQ_CMD := github.com/itchyny/gojq/cmd/gojq
-GOJQ_VER := v0.12.17
+GOJQ_MOD:=github.com/itchyny/gojq
+GOJQ_VER:=$(call go_mod_ver,$(GOJQ_MOD))
 $(TOOLS_BIN)/gojq: $(TOOLS_DB)/gojq.$(GOJQ_VER).$(GO_VER).ver
-	$(call go_install,gojq,$(GOJQ_CMD),$(GOJQ_VER))
+	$(call go_install,gojq,$(GOJQ_MOD)/cmd/gojq,$(GOJQ_VER))
 
 .PHONY: gojq
 gojq: $(TOOLS_BIN)/gojq
@@ -136,10 +132,10 @@ gojq: $(TOOLS_BIN)/gojq
 
 ## <air>
 # https://github.com/air-verse/air/releases
-AIR_CMD:=github.com/air-verse/air
-AIR_VER:=v1.61.5
+AIR_MOD:=github.com/air-verse/air
+AIR_VER:=$(call go_mod_ver,$(AIR_MOD))
 $(TOOLS_BIN)/air: $(TOOLS_DB)/air.$(AIR_VER).$(GO_VER).ver
-	$(call go_install,air,$(AIR_CMD),$(AIR_VER))
+	$(call go_install,air,$(AIR_MOD),$(AIR_VER))
 
 .PHONY: air
 air: $(TOOLS_BIN)/air
@@ -148,10 +144,10 @@ air: $(TOOLS_BIN)/air
 
 ## <mockery>
 # https://github.com/vektra/mockery/releases
-MOCKERY_CMD:=github.com/vektra/mockery/v2
-MOCKERY_VER:=v2.50.2
+MOCKERY_MOD:=github.com/vektra/mockery/v2
+MOCKERY_VER:=$(call go_mod_ver,$(MOCKERY_MOD))
 $(TOOLS_BIN)/mockery: $(TOOLS_DB)/mockery.$(MOCKERY_VER).$(GO_VER).ver
-	$(call go_install,air,$(MOCKERY_CMD),$(MOCKERY_VER))
+	$(call go_install,air,$(MOCKERY_MOD),$(MOCKERY_VER))
 
 .PHONY: mockery
 mockery: $(TOOLS_BIN)/mockery
@@ -179,14 +175,19 @@ proto: $(TOOLS_BIN)/protoc $(TOOLS_BIN)/protoc-gen-go
 
 ## <shfmt>
 # https://github.com/mvdan/sh/releases
-SHFMT_CMD := mvdan.cc/sh/v3/cmd/shfmt
-SHFMT_VER := v3.10.0
+SHFMT_MOD:=mvdan.cc/sh/v3
+SHFMT_VER:=$(call go_mod_ver,$(SHFMT_MOD))
 $(TOOLS_BIN)/shfmt: $(TOOLS_DB)/shfmt.$(SHFMT_VER).$(GO_VER).ver
-	$(call go_install,shfmt,$(SHFMT_CMD),$(SHFMT_VER))
+	$(call go_install,shfmt,$(SHFMT_MOD)/cmd/shfmt,$(SHFMT_VER))
 
 .PHONY: shfmt
 shfmt: $(TOOLS_BIN)/shfmt
-	@./scripts/foreach-script $(TOOLS_BIN)/shfmt --simplify --language-dialect auto --case-indent --indent 2 --write
+	./scripts/foreach-script $(TOOLS_BIN)/shfmt \
+		--simplify \
+		--language-dialect auto \
+		--case-indent \
+		--indent 2 \
+		--write
 ## </shfmt>
 
 ## <shellcheck>
@@ -197,5 +198,9 @@ $(TOOLS_BIN)/shellcheck: $(TOOLS_DB)/shellcheck.$(SHELLCHECK_VER).ver | $(TOOLS_
 
 .PHONY: shellcheck
 shellcheck: $(TOOLS_BIN)/shellcheck
-	@./scripts/foreach-script $(TOOLS_BIN)/shellcheck --external-sources --format=tty --severity=info
+	./scripts/foreach-script $(TOOLS_BIN)/shellcheck \
+		--norc \
+		--external-sources \
+		--format=tty \
+		--enable=require-variable-braces,add-default-case
 ## </shellcheck>

@@ -10,25 +10,25 @@ on:
 jobs:
 
   ci:
+    name: Lints and Tests
     runs-on: ubuntu-latest
+    # strategy:
+    #   matrix:
+    #     go-version: [ '1.22', '1.23' ]
     steps:
+
+    # https://github.com/actions/checkout
     - uses: actions/checkout@v4
 
-    # - uses: streetsidesoftware/cspell-action@v6
-    #   with:
-    #     root: '.'
-    #     inline: warning
-    #     strict: true
-    #     incremental_files_only: false
-    #     config: '.vscode/cspell.json'
-    #     verbose: false
-
+    # https://github.com/actions/setup-go
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: "1.23.x"
+        check-latest: true
         cache: false
 
+    # https://github.com/actions/cache
     - name: Cache Tools
       id: cache-tools
       uses: actions/cache@v4
@@ -37,7 +37,7 @@ jobs:
           .tools/
           ~/.cache/go-build/
           ~/go/pkg/
-        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum', '**/Makefile', 'scripts/tools.mk', '.github/workflows/go.yml') }}
+        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.mod', '**/go.sum', '**/Makefile', 'scripts/tools.mk', '.github/workflows/ci.yml', 'tools/tools.go') }}
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}
 
@@ -45,29 +45,26 @@ jobs:
       if: steps.cache-tools.outputs.cache-hit != 'true'
       run: make tools
 
-    - name: env
+    - name: Env
       run: |
         make --version
-        echo ''
+        echo ""
         make env
 
-    - name: Check shell files
+    - name: Check Shell Files
       run: make ci-sh
 
-    - name: ci-gen-n-format
-      run: make ci-gen-n-format
-
-    - name: ci-mod
+    - name: Mod
       run: make ci-mod
+
+    - name: Generate Format and Check
+      run: make ci-gen-n-format
 
     - name: staticcheck
       run: make staticcheck
 
     - name: golangci-lint
-      run: make golangci-lint-github-actions
-
-    - name: Build
-      run: make build
+      run: make golangci-lint
 
     - name: Test
       run: make test

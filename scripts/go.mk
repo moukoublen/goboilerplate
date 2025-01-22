@@ -1,14 +1,4 @@
-REPO_GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-REPO_GIT_COMMIT = $(shell git rev-parse HEAD 2>/dev/null || true)
-REPO_GIT_COMMIT_SHORT = $(shell git rev-parse --short HEAD 2>/dev/null || true)
-REPO_GIT_TAG = $(shell git describe --tags 2>/dev/null || true)
-
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
-X_FLAGS = \
-		-X '$(MODULE)/build.Branch=$(REPO_GIT_BRANCH)' \
-		-X '$(MODULE)/build.Commit=$(REPO_GIT_COMMIT)' \
-		-X '$(MODULE)/build.CommitShort=$(REPO_GIT_COMMIT_SHORT)' \
-		-X '$(MODULE)/build.Tag=$(REPO_GIT_TAG)'
 
 GO_PACKAGES = go list -tags='$(TAGS)' ./...
 GO_FOLDERS = go list -tags='$(TAGS)' -f '{{ .Dir }}' ./...
@@ -58,11 +48,19 @@ build: $(shell ls -d cmd/* | sed -e 's/\//./')
 clean:
 	rm -rf $(BUILD_OUTPUT)
 
+# https://pkg.go.dev/cmd/go/internal/test
 .PHONY: test
 test:
-	CGO_ENABLED=1 go test -timeout 60s -race -tags="$(TAGS)" -coverprofile cover.out -covermode atomic ./...
-	@go tool cover -func cover.out
-	@rm cover.out
+	CGO_ENABLED=1 go test -timeout 30s -tags '$(TAGS)' -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+.PHONY: test-n-read
+test-n-read: test
+	@go tool cover -func coverage.txt
+
+.PHONY: bench
+bench: # runs all benchmarks
+	CGO_ENABLED=1 go test -benchmem -run=^Benchmark$$ -mod=readonly -count=1 -v -race -bench=. ./...
+
 
 .PHONY: run
 run:

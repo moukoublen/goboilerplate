@@ -55,10 +55,10 @@ env:
 	@echo ""
 
 .PHONY: checks
-checks: vet staticcheck gofumpt goimports golangci-lint-github-actions
+checks: vet staticcheck gofumpt goimports golangci-lint
 
 .PHONY: ci-gen-n-format
-ci-gen-n-format: goimports gofumpt
+ci-gen-n-format: mockery goimports gofumpt
 	./scripts/git-check-dirty
 
 .PHONY: ci-mod
