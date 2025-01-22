@@ -9,3 +9,15 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "gomod"
+    directory: "/tools/"
+    allow:
+      - dependency-type: direct
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[tools]"
+    groups:
+      all-tools:
+        patterns:
+          - "*"
