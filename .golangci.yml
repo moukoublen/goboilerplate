@@ -22,7 +22,7 @@ output:
 linters:
   enable-all: true
   disable:
-    - exportloopref # deprecated
+    - tenv # deprecated
     - exhaustruct # TODO: reconsider
     - depguard # TODO: reconsider
     - funlen # TODO: reconsider
