@@ -37,7 +37,7 @@ func (o *Daemon) OnShutDown(f ...func(context.Context)) {
 }
 
 func (o *Daemon) shutDown(ctx context.Context) {
-	o.logger.Info("starting graceful shutdown")
+	o.logger.InfoContext(ctx, "starting graceful shutdown")
 	deadline := time.Now().Add(o.config.shutdownTimeout)
 	dlCtx, dlCancel := context.WithDeadline(ctx, deadline)
 	o.onShutDownMutex.Lock()

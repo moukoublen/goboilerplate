@@ -48,7 +48,7 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, statusCode int, bod
 	if body != nil {
 		if err := json.NewEncoder(w).Encode(body); err != nil {
 			logger := logx.GetFromContext(ctx)
-			logger.Error("error during response encoding", logx.Error(err))
+			logger.ErrorContext(ctx, "error during response encoding", logx.Error(err))
 		}
 	}
 }

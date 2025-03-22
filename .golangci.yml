@@ -118,3 +118,12 @@ linters-settings:
     simple: true
     range-loops: true
     for-loops: true
+
+  sloglint:
+    attr-only: true
+    no-global: "all"
+    context: "scope" # report only if a context exists in the scope of the outermost function
+    static-msg: true
+    key-naming-case: snake #  Values: snake, kebab, camel, pascal
+    forbidden-keys:
+      - msg

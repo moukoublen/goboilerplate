@@ -78,9 +78,9 @@ func LogRoutes(ctx context.Context, r *chi.Mux) {
 	}
 
 	if err := chi.Walk(r, walkFunc); err != nil {
-		logger.Error("error during chi walk", logx.Error(err))
+		logger.ErrorContext(ctx, "error during chi walk", logx.Error(err))
 	} else {
-		logger.Debug("http routes", slog.Any("routes", routes))
+		logger.DebugContext(ctx, "http routes", slog.Any("routes", routes))
 	}
 }
 
