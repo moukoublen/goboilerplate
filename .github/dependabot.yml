@@ -4,11 +4,24 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "[deps]"
+    allow:
+      - dependency-type: all
+    groups:
+      golang_x:
+        patterns:
+          - "golang.org/x/*"
+      koanf:
+        patterns:
+          - "github.com/knadh/koanf/*"
+
   - package-ecosystem: "gomod"
     directory: "/tools/"
     allow:
