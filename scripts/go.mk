@@ -13,7 +13,7 @@ BUILD_OUTPUT ?= $(CURDIR)/output
 
 .PHONY: mod
 mod:
-	go mod tidy -go=1.23
+	go mod tidy -go=1.24.2
 	go mod verify
 
 # https://go.dev/ref/mod#go-get
@@ -23,7 +23,7 @@ mod:
 .PHONY: go-deps-upgrade
 go-deps-upgrade:
 	go get -u -t ./...
-	go mod tidy -go=1.23
+	go mod tidy -go=1.24.2
 
 # https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 # https://pkg.go.dev/cmd/compile

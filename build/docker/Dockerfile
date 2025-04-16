@@ -4,7 +4,7 @@
 # https://docs.docker.com/build/guide/mounts/
 
 # https://hub.docker.com/_/golang
-FROM --platform=$BUILDPLATFORM golang:1.23.4-alpine3.21 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24.2-alpine3.21 AS builder
 RUN apk update && apk add --no-cache make git bash ca-certificates
 WORKDIR /app
 ARG TARGETOS TARGETARCH
