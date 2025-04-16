@@ -1,7 +1,6 @@
 package httpx
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +12,7 @@ import (
 
 func TestAPI_AboutRouteHandler(t *testing.T) {
 	resp := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

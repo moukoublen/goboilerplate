@@ -58,7 +58,7 @@ env:
 checks: vet staticcheck gofumpt goimports golangci-lint
 
 .PHONY: ci-gen-n-format
-ci-gen-n-format: mockery goimports gofumpt
+ci-gen-n-format: mockery goimports gofumpt golangci-lint-fmt
 	./scripts/git-check-dirty
 
 .PHONY: ci-mod
