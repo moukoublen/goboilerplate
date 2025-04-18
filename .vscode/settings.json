@@ -44,6 +44,9 @@
   // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   "go.useLanguageServer": true,
   "gopls": {
+    "build.standaloneTags": [
+      "tools"
+    ],
     "build.buildFlags": [
       //"-mod=vendor",
       "-tags=test-e2e,other"
