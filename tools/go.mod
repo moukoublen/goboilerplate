@@ -9,7 +9,7 @@ require (
 	github.com/air-verse/air v1.61.7
 	github.com/golangci/golangci-lint/v2 v2.1.6
 	github.com/itchyny/gojq v0.12.17
-	github.com/vektra/mockery/v2 v2.53.3
+	github.com/vektra/mockery/v2 v2.53.4
 	golang.org/x/tools v0.33.0
 	honnef.co/go/tools v0.6.1
 	mvdan.cc/gofumpt v0.8.0
