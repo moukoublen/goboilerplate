@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/moukoublen/goboilerplate/internal"
+	"github.com/ifnotnil/daemon"
 	"github.com/moukoublen/goboilerplate/internal/config"
 	"github.com/moukoublen/goboilerplate/internal/httpx"
 	"github.com/moukoublen/goboilerplate/internal/logx"
@@ -44,33 +44,33 @@ func main() {
 
 	logger = logx.InitSLog(logx.ParseConfig(cnf))
 
-	daemon, ctx := internal.NewDaemon(
+	dmn := daemon.Start(
 		context.Background(),
-		logger,
-		internal.SetShutdownTimeout(cnf.Duration("shutdown_timeout")),
+		daemon.WithLogger(logger),
+		daemon.WithShutdownGraceDuration(cnf.Duration("shutdown_timeout")),
 	)
 
 	httpConf := httpx.ParseConfig(cnf)
-	router := httpx.NewDefaultRouter(ctx, httpConf, logger)
+	router := httpx.NewDefaultRouter(dmn.CTX(), httpConf, logger)
 
 	// init services / application
 	server := httpx.StartListenAndServe(
 		fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port),
 		router,
 		httpConf.ReadHeaderTimeout,
-		daemon.FatalErrorsChannel(),
+		dmn.FatalErrorsChannel(),
 	)
-	logger.InfoContext(ctx, "service started", slog.String("bind", fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port)))
+	logger.InfoContext(dmn.CTX(), "service started", slog.String("bind", fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port)))
 
 	// set onShutdown for other components/services.
-	daemon.OnShutDown(
+	dmn.OnShutDown(
 		func(ctx context.Context) {
-			logger.InfoContext(ctx, "shuting down  http server")
+			logger.InfoContext(ctx, "shuting down http server")
 			if err := server.Shutdown(ctx); err != nil {
 				logger.Warn("error during http server shutdown", logx.Error(err))
 			}
 		},
 	)
 
-	daemon.Wait()
+	dmn.Wait()
 }
