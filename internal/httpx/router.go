@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	xhttp "github.com/ifnotnil/x/http"
 	"github.com/knadh/koanf/v2"
 	"github.com/moukoublen/goboilerplate/internal/logx"
 )
@@ -38,7 +39,7 @@ func ParseConfig(cnf *koanf.Koanf) Config {
 }
 
 // NewDefaultRouter returns a *chi.Mux with a default set of middlewares and an "/about" route.
-func NewDefaultRouter(ctx context.Context, c Config) *chi.Mux {
+func NewDefaultRouter(ctx context.Context, c Config, logger *slog.Logger) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Heartbeat("/ping"))
@@ -51,8 +52,14 @@ func NewDefaultRouter(ctx context.Context, c Config) *chi.Mux {
 		router.Use(middleware.Timeout(c.GlobalInboundTimeout))
 	}
 
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("", map[string]string{
+			"Yoda": "_Named must your fear be before banish it you can_",
+		}))
+		r.Get("/echo", xhttp.EchoHandler(logger))
+	})
+
 	router.Get("/about", AboutHandler)
-	router.Get("/echo", EchoHandler)
 
 	// for test purposes
 	// router.Get("/panic", func(_ http.ResponseWriter, _ *http.Request) { panic("test panic") })

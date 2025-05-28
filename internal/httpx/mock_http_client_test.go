@@ -84,8 +84,7 @@ func (_c *MockHTTPClient_Do_Call) RunAndReturn(run func(*http.Request) (*http.Re
 func NewMockHTTPClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockHTTPClient {
+}) *MockHTTPClient {
 	mock := &MockHTTPClient{}
 	mock.Mock.Test(t)
 

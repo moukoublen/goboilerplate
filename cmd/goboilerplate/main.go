@@ -51,7 +51,7 @@ func main() {
 	)
 
 	httpConf := httpx.ParseConfig(cnf)
-	router := httpx.NewDefaultRouter(ctx, httpConf)
+	router := httpx.NewDefaultRouter(ctx, httpConf, logger)
 
 	// init services / application
 	server := httpx.StartListenAndServe(

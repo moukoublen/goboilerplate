@@ -2,11 +2,16 @@ GET http://localhost:8888/about
 Accept: application/json
 Accept-Encoding: gzip, deflate, br
 
+###
+
+@username = Yoda
+@password = _Named must your fear be before banish it you can_
+
 GET http://localhost:8888/echo
 Accept: application/json
 Accept-Encoding: gzip, deflate, br
 Content-Type: application/json
-X-Auth-Key: _Named must your fear be before banish it you can_
+Authorization: Basic {{username}}:{{password}}
 {
   "glossary": {
     "title": "example glossary",
