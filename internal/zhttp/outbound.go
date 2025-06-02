@@ -1,4 +1,4 @@
-package httpx
+package zhttp
 
 import (
 	"fmt"

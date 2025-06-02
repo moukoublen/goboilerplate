@@ -25,15 +25,14 @@ The boilerplate consists of:
 ## Go package and file structure
 The project structure attempts to be on a par with [golang-standards/project-layout](https://github.com/golang-standards/project-layout).
 
-> Every local package that collides with a golang std package is named with `x` postfix. For example `.../internal/httpx` or `.../internal/logx`. By doing this cheat you can avoid putting aliases when you need both of those and you can take advantage of package autocomplete/autoimport features more easily than having colliding names.
+> Every local package that collides with a golang std package is named with `l` postfix. For example `.../internal/zhttp` or `.../internal/zlog`. By doing this cheat you can avoid putting aliases when you need both of those and you can take advantage of package autocomplete/autoimport features more easily than having colliding names.
 
 | Package            | Description    |
 |--------------------|-----------------------------------------|
-| `cmd/*/main.go`    | main function that is intended to glue together the most core level components like: configuration, http server and router, logs initialization, db connections (if any), the `App` and finally the `Main` struct (`/internal/exec.go`) that handles the long running / signal handling / graceful shutdown of the service. |
-| `internal/exec.go` | the `Main` struct that wraps the long running / signal handling / graceful shutdown of the service |
+| `cmd/*/main.go`    | main function that is intended to glue together the most core level components like: configuration, http server and router, logs initialization, db connections (if any), the `App` and finally the `Daemon` struct (`/internal/exec.go`) that handles the long running / signal handling / graceful shutdown of the service. |
 | `internal/config`  | this package contain the initialization of `koanf` config. |
-| `internal/httpx`   | this package contains: the setup of the `chi` router, some helpers functions for parsing/writing http request and http response. |
-| `internal/logx`   | this package contains the setup/init function for `slog` logger. |
+| `internal/zhttp`   | this package contains: the setup of the `chi` router, some helpers functions for parsing/writing http request and http response. |
+| `internal/zlog`   | this package contains the setup/init function for `slog` logger. |
 
 | Folder/File        | Description    |
 |--------------------|-----------------------------------------|

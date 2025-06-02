@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 
 	"github.com/ifnotnil/daemon"
 	"github.com/moukoublen/goboilerplate/internal/config"
-	"github.com/moukoublen/goboilerplate/internal/httpx"
-	"github.com/moukoublen/goboilerplate/internal/logx"
+	"github.com/moukoublen/goboilerplate/internal/zhttp"
+	"github.com/moukoublen/goboilerplate/internal/zlog"
 )
 
 func defaultConfigs() map[string]any {
@@ -18,14 +19,12 @@ func defaultConfigs() map[string]any {
 	}
 
 	gather := []map[string]any{
-		httpx.DefaultConfigValues(),
-		logx.DefaultConfigValues(),
+		zhttp.DefaultConfigValues(),
+		zlog.DefaultConfigValues(),
 	}
 
 	for _, g := range gather {
-		for k, v := range g {
-			defaults[k] = v
-		}
+		maps.Copy(defaults, g)
 	}
 
 	return defaults
@@ -33,16 +32,16 @@ func defaultConfigs() map[string]any {
 
 func main() {
 	// pre-init slog with default config
-	logger := logx.InitSLog(logx.Config{LogType: logx.LogTypeText, Level: slog.LevelInfo})
+	logger := zlog.InitSLog(zlog.Config{LogType: zlog.LogTypeText, Level: slog.LevelInfo})
 	logger.Info("starting up...")
 
 	cnf, err := config.Load(context.Background(), "APP_", defaultConfigs())
 	if err != nil {
-		logger.Error("error during config init", logx.Error(err))
+		logger.Error("error during config init", zlog.Error(err))
 		os.Exit(1)
 	}
 
-	logger = logx.InitSLog(logx.ParseConfig(cnf))
+	logger = zlog.InitSLog(zlog.ParseConfig(cnf))
 
 	dmn := daemon.Start(
 		context.Background(),
@@ -50,11 +49,11 @@ func main() {
 		daemon.WithShutdownGraceDuration(cnf.Duration("shutdown_timeout")),
 	)
 
-	httpConf := httpx.ParseConfig(cnf)
-	router := httpx.NewDefaultRouter(dmn.CTX(), httpConf, logger)
+	httpConf := zhttp.ParseConfig(cnf)
+	router := zhttp.NewDefaultRouter(dmn.CTX(), httpConf, logger)
 
 	// init services / application
-	server := httpx.StartListenAndServe(
+	server := zhttp.StartListenAndServe(
 		fmt.Sprintf("%s:%d", httpConf.IP, httpConf.Port),
 		router,
 		httpConf.ReadHeaderTimeout,
@@ -67,7 +66,7 @@ func main() {
 		func(ctx context.Context) {
 			logger.InfoContext(ctx, "shuting down http server")
 			if err := server.Shutdown(ctx); err != nil {
-				logger.Warn("error during http server shutdown", logx.Error(err))
+				logger.Warn("error during http server shutdown", zlog.Error(err))
 			}
 		},
 	)

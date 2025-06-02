@@ -1,4 +1,4 @@
-package httpx
+package zhttp
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	xhttp "github.com/ifnotnil/x/http"
 	"github.com/knadh/koanf/v2"
-	"github.com/moukoublen/goboilerplate/internal/logx"
+	"github.com/moukoublen/goboilerplate/internal/zlog"
 )
 
 func DefaultConfigValues() map[string]any {
@@ -70,7 +70,7 @@ func NewDefaultRouter(ctx context.Context, c Config, logger *slog.Logger) *chi.M
 }
 
 func LogRoutes(ctx context.Context, r *chi.Mux) {
-	logger := logx.GetFromContext(ctx)
+	logger := zlog.GetFromContext(ctx)
 	if !logger.Enabled(ctx, slog.LevelDebug) {
 		return
 	}
@@ -85,7 +85,7 @@ func LogRoutes(ctx context.Context, r *chi.Mux) {
 	}
 
 	if err := chi.Walk(r, walkFunc); err != nil {
-		logger.ErrorContext(ctx, "error during chi walk", logx.Error(err))
+		logger.ErrorContext(ctx, "error during chi walk", zlog.Error(err))
 	} else {
 		logger.DebugContext(ctx, "http routes", slog.Any("routes", routes))
 	}

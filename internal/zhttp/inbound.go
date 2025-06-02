@@ -1,11 +1,11 @@
-package httpx
+package zhttp
 
 import (
 	"context"
 	"encoding/json"
 	"net/http"
 
-	"github.com/moukoublen/goboilerplate/internal/logx"
+	"github.com/moukoublen/goboilerplate/internal/zlog"
 )
 
 // RespondJSON renders a json response using a json encoder directly over the ResponseWriter.
@@ -17,8 +17,8 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, statusCode int, bod
 
 	if body != nil {
 		if err := json.NewEncoder(w).Encode(body); err != nil {
-			logger := logx.GetFromContext(ctx)
-			logger.ErrorContext(ctx, "error during response encoding", logx.Error(err))
+			logger := zlog.GetFromContext(ctx)
+			logger.ErrorContext(ctx, "error during response encoding", zlog.Error(err))
 		}
 	}
 }
