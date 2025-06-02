@@ -16,9 +16,6 @@ TOOLS_BIN ?= $(TOOLS_DIR)/bin
 export TOOLS_BIN
 export PATH := $(TOOLS_BIN):$(PATH)
 
-.PHONY: checks
-checks: vet gofumpt goimports golangci-lint
-
 .PHONY: tools
 tools: \
 	$(TOOLS_BIN)/goimports \

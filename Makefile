@@ -55,7 +55,7 @@ env:
 	@echo ""
 
 .PHONY: checks
-checks: vet staticcheck gofumpt goimports golangci-lint
+checks: vet staticcheck golangci-lint
 
 .PHONY: ci-gen-n-format
 ci-gen-n-format: mockery golangci-lint-fmt

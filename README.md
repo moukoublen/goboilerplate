@@ -25,7 +25,7 @@ The boilerplate consists of:
 ## Go package and file structure
 The project structure attempts to be on a par with [golang-standards/project-layout](https://github.com/golang-standards/project-layout).
 
-> Every local package that collides with a golang std package is named with `l` postfix. For example `.../internal/zhttp` or `.../internal/zlog`. By doing this cheat you can avoid putting aliases when you need both of those and you can take advantage of package autocomplete/autoimport features more easily than having colliding names.
+> Every local package that collides with a golang std package is named with `z` prefix. For example `.../internal/zhttp` or `.../internal/zlog`. By doing this cheat you can avoid putting aliases when you need both of those and you can take advantage of package autocomplete/autoimport features more easily than having colliding names.
 
 | Package            | Description    |
 |--------------------|-----------------------------------------|
