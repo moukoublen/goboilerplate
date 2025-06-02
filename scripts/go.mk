@@ -6,8 +6,6 @@ GO_FILES = find . -type f -name '*.go' -not -path './vendor/*'
 
 export GO111MODULE := on
 #export GOFLAGS := -mod=vendor
-GOPATH := $(shell go env GOPATH)
-GO_VER := $(shell go env GOVERSION)
 BUILD_OUTPUT ?= $(CURDIR)/output
 
 

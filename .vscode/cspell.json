@@ -18,7 +18,6 @@
     "gojq",
     "golangci",
     "gomod",
-    "GOPATH",
     "GOVERSION",
     "honnef",
     "httpcompress",
