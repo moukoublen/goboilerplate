@@ -8,8 +8,8 @@ github.com/go-viper/mapstructure/v2 v2.2.1 h1:ZAaOCxANMuZx5RCeg0mBdEZk7DZasvvZIx
 github.com/go-viper/mapstructure/v2 v2.2.1/go.mod h1:oJDH3BJKyqBA2TXFhDsKDGDTlndYOZ6rGS0BRZIxGhM=
 github.com/ifnotnil/daemon v0.0.1 h1:L3xmpvfhJbS/br1pYsSRnfqY/LkowETJKq1lrSpw0N0=
 github.com/ifnotnil/daemon v0.0.1/go.mod h1:1MdZgPWrq+D4jlxqENo54Q7AkwCEIF03mZEYu79dpyY=
-github.com/ifnotnil/x/http v0.0.2 h1:b4D76UAXWpWgB718Ai4NAkwvxuSnEW5hXRSp1APm1n8=
-github.com/ifnotnil/x/http v0.0.2/go.mod h1:ypXtxLtlMet+XudeN1YlIYWAT3vwfIuUfSALBnwvP8s=
+github.com/ifnotnil/x/http v0.0.3 h1:8NXebgSkbioyKIRHcn+lS7/hDi6azoEAS7usYvwOY3Q=
+github.com/ifnotnil/x/http v0.0.3/go.mod h1:ypXtxLtlMet+XudeN1YlIYWAT3vwfIuUfSALBnwvP8s=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/knadh/koanf/maps v0.1.2 h1:RBfmAW5CnZT+PJ1CVc1QSJKf4Xu9kxfQgYVQSu8hpbo=
