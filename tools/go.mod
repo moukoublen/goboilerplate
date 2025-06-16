@@ -9,7 +9,7 @@ require (
 	github.com/air-verse/air v1.62.0
 	github.com/golangci/golangci-lint/v2 v2.1.6
 	github.com/itchyny/gojq v0.12.17
-	github.com/vektra/mockery/v3 v3.3.4
+	github.com/vektra/mockery/v3 v3.4.0
 	golang.org/x/tools v0.34.0
 	honnef.co/go/tools v0.6.1
 	mvdan.cc/gofumpt v0.8.0
@@ -120,13 +120,13 @@ require (
 	github.com/karamaru-alpha/copyloopvar v1.2.1 // indirect
 	github.com/kisielk/errcheck v1.9.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.6 // indirect
-	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/parsers/yaml v0.1.0 // indirect
 	github.com/knadh/koanf/providers/env v1.0.0 // indirect
 	github.com/knadh/koanf/providers/file v1.1.2 // indirect
 	github.com/knadh/koanf/providers/posflag v0.1.0 // indirect
 	github.com/knadh/koanf/providers/structs v0.1.0 // indirect
-	github.com/knadh/koanf/v2 v2.1.2 // indirect
+	github.com/knadh/koanf/v2 v2.2.1 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.14 // indirect
 	github.com/lasiar/canonicalheader v1.1.2 // indirect
