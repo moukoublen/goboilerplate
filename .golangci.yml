@@ -45,6 +45,8 @@ linters:
     - wrapcheck
     - wsl
     - funcorder
+    - wsl_v5
+    - noinlineerr
 
   settings:
     staticcheck:
