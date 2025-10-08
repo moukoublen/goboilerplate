@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/go-chi/chi/v5 v5.2.3
-	github.com/ifnotnil/daemon v0.0.2
+	github.com/ifnotnil/daemon v0.0.3
 	github.com/ifnotnil/x/http v0.0.3
 	github.com/knadh/koanf/parsers/dotenv v1.1.0
 	github.com/knadh/koanf/parsers/yaml v1.1.0
